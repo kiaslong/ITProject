@@ -70,9 +70,10 @@ function HomeTabs() {
         headerShown: false, 
       })}
     >
+      <Tab.Screen name="Home" component={SupportScreen}/>
       <Tab.Screen name="Support" component={SupportScreen} />
       <Tab.Screen name="Login" component={AuthStack} />
-     
+      
     </Tab.Navigator>
   );
 }
