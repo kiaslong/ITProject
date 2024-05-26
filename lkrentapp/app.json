@@ -1,0 +1,27 @@
+{
+  "expo": {
+    "name": "lkrentapp",
+    "slug": "lkrentapp",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/lkrentlogo.png",
+    "userInterfaceStyle": "light",
+    "splash": {
+      "image": "./assets/SplashScreen.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#98ebff"
+    },
+    "ios": {
+      "supportsTablet": true
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#ffffff"
+      }
+    },
+    "web": {
+      "favicon": "./assets/favicon.png"
+    }
+  }
+}
