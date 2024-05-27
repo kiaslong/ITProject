@@ -1,15 +1,26 @@
 import React, { useState, useRef } from 'react'
-import { Alert, Button, Image, Pressable, SafeAreaView, StyleSheet, Switch, Text, TextInput, View , Dimensions, ScrollView } from 'react-native'
+import { Alert, Image, Pressable, ScrollView, StyleSheet, Text, TextInput, View, Dimensions } from 'react-native'
+import { MaterialCommunityIcons } from '@expo/vector-icons';
 
 export default function RegisterScreen() {
     const [phoneNumber, setPhoneNumber] = useState("");
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [retypePassword, setRetypePassword] = useState("");
+    const [passwordVisible, setPasswordVisible] = useState(false);
+    const [retypePasswordVisible, setRetypePasswordVisible] = useState(false);
 
     const emailRef = useRef(null);
     const passwordRef = useRef(null);
     const retypePasswordRef = useRef(null);
+
+    const togglePasswordVisibility = () => {
+        setPasswordVisible(!passwordVisible);
+    };
+
+    const toggleRetypePasswordVisibility = () => {
+        setRetypePasswordVisible(!retypePasswordVisible);
+    };
 
     return (
         <ScrollView automaticallyAdjustKeyboardInsets>
@@ -41,30 +52,48 @@ export default function RegisterScreen() {
                         onSubmitEditing={() => passwordRef.current.focus()}
                     />
                     <Text style={styles.label}> Mật khẩu </Text>
-                    <TextInput
-                        ref={passwordRef}
-                        style={styles.input}
-                        placeholder='mật khẩu'
-                        secureTextEntry
-                        value={password}
-                        onChangeText={setPassword}
-                        autoCorrect={false}
-                        autoCapitalize='none'
-                        returnKeyType="next"
-                        onSubmitEditing={() => retypePasswordRef.current.focus()}
-                    />
+                    <View style={styles.passwordContainer}>
+                        <TextInput
+                            ref={passwordRef}
+                            style={styles.passwordInput}
+                            placeholder='Mật khẩu'
+                            secureTextEntry={!passwordVisible}
+                            value={password}
+                            onChangeText={setPassword}
+                            autoCorrect={false}
+                            autoCapitalize='none'
+                            returnKeyType="next"
+                            onSubmitEditing={() => retypePasswordRef.current.focus()}
+                        />
+                        <Pressable onPress={togglePasswordVisibility} style={styles.eyeIcon}>
+                            <MaterialCommunityIcons
+                                name={passwordVisible ? "eye-off" : "eye"}
+                                size={24}
+                                color="gray"
+                            />
+                        </Pressable>
+                    </View>
                     <Text style={styles.label}> Xác nhận mật khẩu </Text>
-                    <TextInput
-                        ref={retypePasswordRef}
-                        style={styles.input}
-                        placeholder='nhập lại mật khẩu'
-                        secureTextEntry
-                        value={retypePassword}
-                        onChangeText={setRetypePassword}
-                        autoCorrect={false}
-                        autoCapitalize='none'
-                        returnKeyType="done"
-                    />
+                    <View style={styles.passwordContainer}>
+                        <TextInput
+                            ref={retypePasswordRef}
+                            style={styles.passwordInput}
+                            placeholder='Nhập lại mật khẩu'
+                            secureTextEntry={!retypePasswordVisible}
+                            value={retypePassword}
+                            onChangeText={setRetypePassword}
+                            autoCorrect={false}
+                            autoCapitalize='none'
+                            returnKeyType="done"
+                        />
+                        <Pressable onPress={toggleRetypePasswordVisibility} style={styles.eyeIcon}>
+                            <MaterialCommunityIcons
+                                name={retypePasswordVisible ? "eye-off" : "eye"}
+                                size={24}
+                                color="gray"
+                            />
+                        </Pressable>
+                    </View>
                 </View>
                 <View style={styles.buttonView}>
                     <Pressable style={styles.button} onPress={() => Alert.alert("Đăng ký thành công")}>
@@ -107,24 +136,6 @@ const styles = StyleSheet.create({
         fontSize: deviceHeight < 1000 ? 14 : 16,
         fontWeight: "400",
     },
-    forgetView: {
-        width: "100%",
-        paddingHorizontal: 45,
-        alignItems: "center",
-        flexDirection: "row",
-        marginTop: 16,
-        marginBottom: 16
-    },
-    switch: {
-        flexDirection: "row",
-        gap: 1,
-        justifyContent: "center",
-        alignItems: "center"
-    },
-    forgetText: {
-        fontSize: 13,
-        color: "#03a9f4"
-    },
     button: {
         backgroundColor: "#03a9f4",
         height: 45,
@@ -144,30 +155,19 @@ const styles = StyleSheet.create({
         paddingTop: deviceHeight < 1000 ? 20 : 30,
         paddingHorizontal: deviceHeight < 1000 ? 50 : 70,
     },
-    optionsText: {
-        textAlign: "center",
-        paddingVertical: 10,
-        color: "gray",
-        fontSize: 13,
-        marginBottom: 6
-    },
-    mediaIcons: {
+    passwordContainer: {
         flexDirection: "row",
-        gap: 15,
         alignItems: "center",
-        justifyContent: "center",
-        marginBottom: 23
+        borderColor: "#03a9f4",
+        borderWidth: 1,
+        borderRadius: 7,
     },
-    icons: {
-        width: 40,
-        height: 40,
+    passwordInput: {
+        flex: 1,
+        height: 50,
+        paddingHorizontal: 20,
     },
-    footerText: {
-        textAlign: "center",
-        color: "gray",
+    eyeIcon: {
+        paddingHorizontal: 10,
     },
-    signup: {
-        color: "#ffd31a",
-        fontSize: 13
-    },
-})
+});
