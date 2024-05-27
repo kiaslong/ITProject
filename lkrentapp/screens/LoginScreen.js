@@ -64,7 +64,10 @@ export default function LoginScreen() {
               ref={passwordInputRef}
               autoCapitalize="none"
             />
-            <Pressable onPress={togglePasswordVisibility} style={styles.eyeIcon}>
+            <Pressable
+              onPress={togglePasswordVisibility}
+              style={styles.eyeIcon}
+            >
               <MaterialCommunityIcons
                 name={passwordVisible ? "eye-off" : "eye"}
                 size={24}
