@@ -26,7 +26,7 @@ import {
       {
         id: "LK2",
         image: "",
-        carName: "Lambor",
+        carName: "Lamborghini",
         timeEnd: "1/1/2024",
         timeStart: "2/1/2024",
         status: "Thành công",
