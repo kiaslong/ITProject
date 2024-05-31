@@ -34,6 +34,10 @@ export default function LoginScreen() {
     setPasswordVisible(!passwordVisible);
   };
 
+  const handleLoginPress = () => {
+    navigation.navigate("SettingScreen", { showBackButton: false });
+  };
+  
   return (
     <ScrollView automaticallyAdjustKeyboardInsets>
       <View style={styles.container}>
@@ -84,7 +88,7 @@ export default function LoginScreen() {
         <View style={styles.buttonView}>
           <Pressable
             style={styles.button}
-            onPress={() => Alert.alert(username)}
+            onPress= {handleLoginPress}
           >
             <Text style={styles.buttonText}>Đăng nhập</Text>
           </Pressable>

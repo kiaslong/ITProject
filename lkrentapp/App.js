@@ -9,6 +9,9 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import SupportScreen from './screens/SupportScreen';
 import LoginScreen from './screens/LoginScreen';
 import RegisterScreen from './screens/RegisterScreen';
+import SettingScreen from './screens/SettingScreen';
+import HistoryScreen from './screens/HistoryScreen';
+
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -45,6 +48,14 @@ function AuthStack() {
       component={RegisterScreen}
       
     />
+    <Stack.Screen
+      name="SettingScreen"
+      component={SettingScreen}
+      options={{
+        headerLeft: () => <></>
+      }}
+      
+    />
   </Stack.Navigator>
   );
 }
@@ -61,6 +72,8 @@ function HomeTabs() {
             iconName = focused ? 'person-circle-sharp' : 'person-circle-sharp';
           } else if (route.name === 'Support') {
             iconName = focused ? 'chatbubble-ellipses-outline' : 'chatbubble-ellipses-outline';
+          } else if (route.name === 'History'){
+            iconName = focused ? 'car-sport-outline' : 'car-sport-outline';
           }
 
           return <Ionicons name={iconName} size={size} color={color} />;
@@ -71,6 +84,7 @@ function HomeTabs() {
       })}
     >
       <Tab.Screen name="Home" component={SupportScreen} />
+      <Tab.Screen name="History" component={HistoryScreen} />
       <Tab.Screen name="Support" component={SupportScreen} />
       <Tab.Screen name="Login" component={AuthStack} />
       
