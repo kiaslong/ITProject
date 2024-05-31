@@ -5,6 +5,8 @@ import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import SupportScreen from "./screens/SupportScreen";
 import LoginScreen from "./screens/LoginScreen";
 import RegisterScreen from "./screens/RegisterScreen";
+import HistoryScreen from "./screens/HistoryScreen"
+import SettingScreen from "./screens/SettingScreen"
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
