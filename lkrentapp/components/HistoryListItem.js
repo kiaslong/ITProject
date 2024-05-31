@@ -14,7 +14,7 @@ export default function HistoryListItem({ history }) {
         <View style={styles.subContainer}>
           <Text style={styles.carName}>{history.carName}</Text>
           <Text style={styles.timeText}>
-            <Ionicons name="calendar" size={20} color="black" /> {history.timeStart} - {history.timeEnd}
+            <Ionicons name="calendar" size={20}  color="black" /> {history.timeStart} - {history.timeEnd}
           </Text>
           <Text style={styles.remainingTime}>
             Thanh toán: <Text style={styles.status} >{history.status}</Text>
@@ -34,14 +34,16 @@ export default function HistoryListItem({ history }) {
 const styles = StyleSheet.create({
   outerContainer: {
     marginBottom: 15,
+    paddingHorizontal: 6
   },
   maThue: {
     fontSize: 16,
     fontWeight: 'bold',
     marginBottom: 5,
+    marginLeft:10
   },
   container: {
-    padding: 10,
+    padding: 8,
     backgroundColor: '#F6F6F6',
     borderRadius: 15,
     flexDirection: 'row',
@@ -49,12 +51,13 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.3,
     shadowRadius: 5,
-    elevation: 5,
+    elevation: 3,
   },
   image: {
-    width: 150,
-    height: 150,
+    width: 130,
+    height: 130,
     marginRight: 10,
+    borderRadius:10,
   },
   subContainer: {
     flex: 1,
@@ -81,7 +84,7 @@ const styles = StyleSheet.create({
   remainingTime: {
     fontSize: 14,
     color: '#666',
-    marginBottom: 10,
+    marginBottom: 5,
     flexDirection: 'row',
     alignItems: 'center',
     textAlign: 'left',
@@ -96,6 +99,5 @@ const styles = StyleSheet.create({
   details: {
     fontSize: 14,
     color: '#03a9f4',
-    marginTop: 5,
   },
 });

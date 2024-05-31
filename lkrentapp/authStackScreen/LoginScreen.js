@@ -30,7 +30,7 @@ export default function LoginScreen() {
   
 
   const handleRegisterPress = () => {
-    navigation.navigate("RegisterForm", { showBackButton: true });
+    navigation.navigate("RegisterScreen", { showBackButton: true });
   };
 
   const handleEmailChange = () => {
@@ -44,6 +44,7 @@ export default function LoginScreen() {
   const handleLoginPress = async () => {
     await dispatch(loginSuccess()); 
     navigation.navigate("Cá nhân");
+    
   };
   
   return (
