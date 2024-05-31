@@ -1,17 +1,10 @@
-import { Pressable, Text, StyleSheet } from 'react-native';
-import { NavigationContainer } from '@react-navigation/native';
-import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import LoginForm from './screens/LoginScreen'; // Assuming LoginForm is in screens/LoginScreen.js
-import RegisterForm from './screens/RegisterScreen'; // Assuming RegisterForm is in screens/RegisterScreen.js
-import { useNavigation } from '@react-navigation/native';
-import { Ionicons } from '@expo/vector-icons';
-import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import SupportScreen from './screens/SupportScreen';
-import LoginScreen from './screens/LoginScreen';
-import RegisterScreen from './screens/RegisterScreen';
-import SettingScreen from './screens/SettingScreen';
-import HistoryScreen from './screens/HistoryScreen';
-
+import { NavigationContainer } from "@react-navigation/native";
+import { createNativeStackNavigator } from "@react-navigation/native-stack";
+import { Ionicons } from "@expo/vector-icons";
+import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
+import SupportScreen from "./screens/SupportScreen";
+import LoginScreen from "./screens/LoginScreen";
+import RegisterScreen from "./screens/RegisterScreen";
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
