@@ -12,6 +12,8 @@ import {
 } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
+import { useDispatch } from 'react-redux';
+import { loginRequest, loginSuccess, loginFailure } from '../store/loginSlice';
 
 const googleLogo = require("../assets/gglogo.png");
 
@@ -21,6 +23,11 @@ export default function LoginScreen() {
   const [passwordVisible, setPasswordVisible] = useState(false);
   const navigation = useNavigation();
   const passwordInputRef = useRef(null);
+
+  
+  //initialize dispatch
+  const dispatch = useDispatch();
+  
 
   const handleRegisterPress = () => {
     navigation.navigate("RegisterForm", { showBackButton: true });
@@ -34,8 +41,9 @@ export default function LoginScreen() {
     setPasswordVisible(!passwordVisible);
   };
 
-  const handleLoginPress = () => {
-    navigation.navigate("SettingScreen", { showBackButton: false });
+  const handleLoginPress = async () => {
+    await dispatch(loginSuccess()); 
+    navigation.navigate("Cá nhân");
   };
   
   return (

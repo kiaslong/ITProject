@@ -9,8 +9,13 @@ import {
 } from "react-native";
 import React from "react";
 import { useNavigation, CommonActions } from "@react-navigation/native";
+import { useDispatch } from 'react-redux';
+import { logout } from '../store/loginSlice';
+
 
 export default function SettingScreen() {
+  const dispatch = useDispatch();
+
   const profileMenu = [
     {
       id: 1,
@@ -62,13 +67,9 @@ export default function SettingScreen() {
   const navigation = useNavigation();
 
   
-  const handleLogoutPress = () => {
-    navigation.dispatch(
-      CommonActions.reset({
-        index: 0,
-        routes: [{ name: "LoginForm" }],
-      })
-    );
+  const handleLogoutPress = async () => {
+    await dispatch(logout())
+    navigation.navigate("Khám phá")
   };
 
   return (
