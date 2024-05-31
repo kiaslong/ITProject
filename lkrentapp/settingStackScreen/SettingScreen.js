@@ -6,6 +6,7 @@ import {
   StyleSheet,
   TouchableOpacity,
   Pressable,
+  Image
 } from "react-native";
 import React from "react";
 import { useNavigation, CommonActions } from "@react-navigation/native";
@@ -76,7 +77,10 @@ export default function SettingScreen() {
     <View style={styles.container}>
       <View style={styles.header}>
         <View style={styles.headerContent}>
-          <Ionicons name="person-circle-outline" size={100} color="black" />
+        <Image 
+          source={require('../assets/lkrentlogo.png')}
+          style={styles.image}
+        />
           <Text style={styles.headerText}>LKRENTAL</Text>
         </View>
       </View>
@@ -86,7 +90,7 @@ export default function SettingScreen() {
           data={profileMenu}
           renderItem={({ item }) => (
             <TouchableOpacity style={styles.menuItem}>
-              <Ionicons name={item.icon} size={35} padding={5} />
+              <Ionicons name={item.icon} size={23} padding={5} />
               <Text style={styles.menuText}>{item.name}</Text>
               <View style={styles.flexSpacer} />
               <Ionicons name="arrow-forward-outline" size={20} color="black" />
@@ -94,9 +98,8 @@ export default function SettingScreen() {
           )}
           keyExtractor={(item) => item.id.toString()}
         />
-      </View>
-      <View style={styles.buttonView}>
-        <Pressable style={styles.button} onPress={handleLogoutPress}>
+         <Pressable style={styles.button} onPress={handleLogoutPress}>
+         <Ionicons name="exit-outline" size={24} color="white" style={styles.icon} />
           <Text style={styles.buttonText}>Thoát</Text>
         </Pressable>
       </View>
@@ -109,25 +112,31 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   header: {
-    padding: 20,
     paddingTop: 50,
+    flexDirection: "column",
     backgroundColor: "#03a9f4",
+    borderBottomWidth:1,
+    
   },
   headerContent: {
     display: "flex",
     justifyContent: "center",
     alignItems: "center",
-    padding: 20,
+    padding: 10,
   },
   headerText: {
-    fontSize: 26,
-    marginTop: 8,
-    fontFamily: "outfit-medium",
+    fontSize: 25,
+    marginTop: 4,
     color: "#000000",
+  },
+  image: {
+    width: 150,
+    height: 150,
+    borderRadius:150,
   },
   menu: {
     flex: 1,
-    padding: 20,
+    padding: 10,
   },
   menuItem: {
     display: "flex",
@@ -139,27 +148,30 @@ const styles = StyleSheet.create({
     borderRadius: 10,
   },
   menuText: {
-    fontFamily: "outfit",
-    fontSize: 20,
+    fontSize: 16,
   },
   flexSpacer: {
     flex: 1,
   },
-  buttonView: {
-    padding: 10,
-  },
   button: {
+    
+    flexDirection:"row",
+    alignSelf:"center",
+    width:200,
     backgroundColor: "#DA2020",
-    height: 45,
+    height: 40,
     borderColor: "gray",
     borderWidth: 1,
     borderRadius: 10,
     alignItems: "center",
     justifyContent: "center",
   },
+  icon :{
+    paddingRight:16,
+  },
   buttonText: {
     color: "white",
-    fontSize: 18,
+    fontSize: 16,
     fontWeight: "bold",
   },
 });

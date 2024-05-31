@@ -41,6 +41,24 @@ import {
         status: "Thành công",
         timeRemain: "1 ngày",
       },
+      {
+        id: "LK4",
+        image: "",
+        carName: "Honda",
+        timeEnd: "1/1/2024",
+        timeStart: "2/1/2024",
+        status: "Thành công",
+        timeRemain: "1 ngày",
+      },
+      {
+        id: "LK5",
+        image: "",
+        carName: "Honda",
+        timeEnd: "1/1/2024",
+        timeStart: "2/1/2024",
+        status: "Thành công",
+        timeRemain: "1 ngày",
+      },
     ];
   
     return (
@@ -50,6 +68,7 @@ import {
           <Ionicons name="calendar-outline" size={40} color="black" style={styles.icon} />
         </View>
         <FlatList
+          initialNumToRender={3}
           data={history}
           style={styles.list}
           renderItem={({ item }) => <HistoryListItem history={item} />}
@@ -66,13 +85,13 @@ import {
       flex: 1,
       alignItems: "center",
       paddingTop: deviceHeight < 1000 ? 80 : 100,
-      paddingHorizontal: 20,
+      paddingHorizontal : 10,
     },
     titleContainer: {
       width: "100%",
       position: "relative",
       alignItems: "center",
-      paddingVertical: 40,
+      paddingVertical: deviceHeight < 1000 ? 10 : 20 ,
     },
     title: {
       fontSize: 25,
@@ -85,6 +104,7 @@ import {
       right: 0,
     },
     list: {
+      
       width: "100%",
     },
   });
