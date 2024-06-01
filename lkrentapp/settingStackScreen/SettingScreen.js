@@ -6,13 +6,12 @@ import {
   StyleSheet,
   TouchableOpacity,
   Pressable,
-  Image
+  Image,
 } from "react-native";
 import React from "react";
 import { useNavigation, CommonActions } from "@react-navigation/native";
-import { useDispatch } from 'react-redux';
-import { logout } from '../store/loginSlice';
-
+import { useDispatch } from "react-redux";
+import { logout } from "../store/loginSlice";
 
 export default function SettingScreen() {
   const dispatch = useDispatch();
@@ -67,20 +66,19 @@ export default function SettingScreen() {
 
   const navigation = useNavigation();
 
-  
   const handleLogoutPress = async () => {
-    await dispatch(logout())
-    navigation.navigate("Khám phá")
+    await dispatch(logout());
+    navigation.navigate("Khám phá");
   };
 
   return (
     <View style={styles.container}>
       <View style={styles.header}>
         <View style={styles.headerContent}>
-        <Image 
-          source={require('../assets/lkrentlogo.png')}
-          style={styles.image}
-        />
+          <Image
+            source={require("../assets/lkrentlogo.png")}
+            style={styles.image}
+          />
           <Text style={styles.headerText}>LKRENTAL</Text>
         </View>
       </View>
@@ -98,8 +96,13 @@ export default function SettingScreen() {
           )}
           keyExtractor={(item) => item.id.toString()}
         />
-         <Pressable style={styles.button} onPress={handleLogoutPress}>
-         <Ionicons name="exit-outline" size={24} color="white" style={styles.icon} />
+        <Pressable style={styles.button} onPress={handleLogoutPress}>
+          <Ionicons
+            name="exit-outline"
+            size={24}
+            color="white"
+            style={styles.icon}
+          />
           <Text style={styles.buttonText}>Thoát</Text>
         </Pressable>
       </View>
@@ -115,8 +118,7 @@ const styles = StyleSheet.create({
     paddingTop: 50,
     flexDirection: "column",
     backgroundColor: "#03a9f4",
-    borderBottomWidth:1,
-    
+    borderBottomWidth: 1,
   },
   headerContent: {
     display: "flex",
@@ -132,7 +134,7 @@ const styles = StyleSheet.create({
   image: {
     width: 150,
     height: 150,
-    borderRadius:150,
+    borderRadius: 150,
   },
   menu: {
     flex: 1,
@@ -154,10 +156,9 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   button: {
-    
-    flexDirection:"row",
-    alignSelf:"center",
-    width:200,
+    flexDirection: "row",
+    alignSelf: "center",
+    width: 200,
     backgroundColor: "#DA2020",
     height: 40,
     borderColor: "gray",
@@ -166,8 +167,8 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
   },
-  icon :{
-    paddingRight:16,
+  icon: {
+    paddingRight: 16,
   },
   buttonText: {
     color: "white",
