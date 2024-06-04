@@ -9,6 +9,9 @@ import RegisterScreen from "./authStackScreen/RegisterScreen";
 import HistoryScreen from "./historyStackScreen/HistoryScreen";
 import SettingScreen from "./settingStackScreen/SettingScreen";
 import HomeScreen from "./homeStackScreen/HomeScreen";
+import NotiScreen from "./notiStackScreen/NotificationScreen";
+
+
 import { useSelector } from "react-redux";
 import store from "./store/store";
 
@@ -24,60 +27,7 @@ export default function App() {
     </Provider>
   );
 }
-function AuthStack() {
-  return (
-    <Stack.Navigator
-      initialRouteName="LoginScreen"
-      screenOptions={({ route }) => ({
-        headerStyle: { backgroundColor: "#fff" },
-        headerShown: route.params?.showBackButton ? true : false,
-        headerShadowVisible: false,
-        title: null,
-        contentStyle: { flex: 1, backgroundColor: "#fff" },
-        transitionSpec: { open: { animation: "none" } },
-      })}
-    >
-      <Stack.Screen name="LoginScreen" component={LoginScreen} />
-      <Stack.Screen name="RegisterScreen" component={RegisterScreen} />
-    </Stack.Navigator>
-  );
-}
 
-function SettingStack() {
-  return (
-    <Stack.Navigator
-      initialRouteName="SettingHome"
-      screenOptions={({ route }) => ({
-        headerStyle: { backgroundColor: "#fff" },
-        headerShown: route.params?.showBackButton ? true : false,
-        headerShadowVisible: false,
-        title: null,
-        contentStyle: { flex: 1, backgroundColor: "#fff" },
-        transitionSpec: { open: { animation: "none" } },
-      })}
-    >
-      <Stack.Screen name="SettingHome" component={SettingScreen} />
-    </Stack.Navigator>
-  );
-}
-
-function HistoryStack() {
-  return (
-    <Stack.Navigator
-      initialRouteName="HistoryHome"
-      screenOptions={({ route }) => ({
-        headerStyle: { backgroundColor: "#fff" },
-        headerShown: route.params?.showBackButton ? true : false,
-        headerShadowVisible: false,
-        title: null,
-        contentStyle: { flex: 1, backgroundColor: "#fff" },
-        transitionSpec: { open: { animation: "none" } },
-      })}
-    >
-      <Stack.Screen name="HistoryHome" component={HistoryScreen} />
-    </Stack.Navigator>
-  );
-}
 
 function HomeStack() {
   return (
@@ -97,6 +47,106 @@ function HomeStack() {
   );
 }
 
+function NotiStack() {
+  return (
+    <Stack.Navigator
+      initialRouteName="NotiHome"
+      screenOptions={({ route }) => ({
+        headerStyle: { backgroundColor: "#fff" },
+        headerShown: route.params?.showBackButton ? true : false,
+        headerShadowVisible: false,
+        title: null,
+        contentStyle: { flex: 1, backgroundColor: "#fff" },
+        transitionSpec: { open: { animation: "none" } },
+      })}
+    >
+      <Stack.Screen name="NotiHome" component={NotiScreen} />
+    </Stack.Navigator>
+  );
+}
+
+
+
+function HistoryStack() {
+  return (
+    <Stack.Navigator
+      initialRouteName="HistoryHome"
+      screenOptions={({ route }) => ({
+        headerStyle: { backgroundColor: "#fff" },
+        headerShown: route.params?.showBackButton ? true : false,
+        headerShadowVisible: false,
+        title: null,
+        contentStyle: { flex: 1, backgroundColor: "#fff" },
+        transitionSpec: { open: { animation: "none" } },
+      })}
+    >
+      <Stack.Screen name="HistoryHome" component={HistoryScreen} />
+    </Stack.Navigator>
+  );
+}
+
+
+function SupportStack() {
+  return (
+    <Stack.Navigator
+      initialRouteName="SupportHome"
+      screenOptions={({ route }) => ({
+        headerStyle: { backgroundColor: "#fff" },
+        headerShown: route.params?.showBackButton ? true : false,
+        headerShadowVisible: false,
+        title: null,
+        contentStyle: { flex: 1, backgroundColor: "#fff" },
+        transitionSpec: { open: { animation: "none" } },
+      })}
+    >
+      <Stack.Screen name="SupportHome" component={SupportScreen} />
+    </Stack.Navigator>
+  );
+}
+
+
+
+function SettingStack() {
+  return (
+    <Stack.Navigator
+      initialRouteName="SettingHome"
+      screenOptions={({ route }) => ({
+        headerStyle: { backgroundColor: "#fff" },
+        headerShown: route.params?.showBackButton ? true : false,
+        headerShadowVisible: false,
+        title: null,
+        contentStyle: { flex: 1, backgroundColor: "#fff" },
+        transitionSpec: { open: { animation: "none" } },
+      })}
+    >
+      <Stack.Screen name="SettingHome" component={SettingScreen} />
+    </Stack.Navigator>
+  );
+}
+
+
+
+function AuthStack() {
+  return (
+    <Stack.Navigator
+      initialRouteName="LoginScreen"
+      screenOptions={({ route }) => ({
+        headerStyle: { backgroundColor: "#fff" },
+        headerShown: route.params?.showBackButton ? true : false,
+        headerShadowVisible: false,
+        title: null,
+        contentStyle: { flex: 1, backgroundColor: "#fff" },
+        transitionSpec: { open: { animation: "none" } },
+      })}
+    >
+      <Stack.Screen name="LoginScreen" component={LoginScreen} />
+      <Stack.Screen name="RegisterScreen" component={RegisterScreen} />
+    </Stack.Navigator>
+  );
+}
+
+
+
 function HomeTabs() {
   const isLoggedIn = useSelector((state) => state.loggedIn.isLoggedIn);
   return (
@@ -115,6 +165,10 @@ function HomeTabs() {
               : "chatbubble-ellipses-outline";
           } else if (route.name === "Chuyến") {
             iconName = focused ? "car-sport-outline" : "car-sport-outline";
+          } else if (route.name === "Khám phá"){
+            iconName = focused ? "home-outline" : "home-outline"
+          } else if (route.name === "Thông báo"){
+            iconName = focused ? "notifications-outline" : "notifications-outline"
           }
 
           return <Ionicons name={iconName} size={size} color={color} />;
@@ -125,8 +179,9 @@ function HomeTabs() {
       })}
     >
       <Tab.Screen name="Khám phá" component={HomeStack} />
+      <Tab.Screen name="Thông báo" component={NotiStack} />
       <Tab.Screen name="Chuyến" component={HistoryStack} />
-      <Tab.Screen name="Hỗ trợ" component={SupportScreen} />
+      <Tab.Screen name="Hỗ trợ" component={SupportStack} />
       <Tab.Screen
         name={isLoggedIn ? "Cá nhân" : "Đăng nhập"}
         component={isLoggedIn ? SettingStack : AuthStack}

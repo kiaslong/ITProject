@@ -1,19 +1,19 @@
 import React , {useState} from "react";
 import { ScrollView, View, Image, StyleSheet, Text, Pressable, Alert } from "react-native";
 import { Ionicons } from '@expo/vector-icons';
-
+import SearchBar from "../components/SearchBar"
 
 function HeartIcon() {
-  const [isHeartPressed, setIsHeartPressed] = useState(false);
+ 
 
   return (
     <Pressable
-      onPress={() => setIsHeartPressed(!isHeartPressed)}
+    onPress={() => Alert.alert('Heart icon pressed')}
     >
       <Ionicons
-        name={isHeartPressed ? "heart" : "heart-outline"}
+        name= {"heart-outline"}
         size={24}
-        color={isHeartPressed ? "red" : "black"}
+        color={"black"}
         style={styles.icon}
       />
     </Pressable>
@@ -42,6 +42,7 @@ export default function HomeScreen() {
           </Pressable>
         </View>
       </View>
+      <SearchBar />
     </ScrollView>
   );
 }
@@ -55,7 +56,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   headerHome: {
-    paddingTop: 50,
+    paddingTop: 80,
     paddingLeft: 20,
     paddingRight: 20,
     flexDirection: "row",
