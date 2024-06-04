@@ -29,7 +29,6 @@ const supportMenu = [
 ];
 
 export default function SupportScreen() {
-  const deviceHeight = Dimensions.get("window").height;
   return (
     <View style={styles.container}>
       <View style={styles.titleContainer}>
@@ -46,15 +45,15 @@ export default function SupportScreen() {
             icon={{
               name: "phone",
               type: "font-awesome",
-              size: 15,
+              size: 24,
               color: "white",
             }}
             iconContainerStyle={{ marginRight: 10 }}
             titleStyle={{ fontWeight: "700" }}
             buttonStyle={styles.buttonStyle}
             containerStyle={{
-              width: 150,
-              marginHorizontal: 20,
+              width: 120,
+              marginHorizontal: 10,
               marginVertical: 8,
             }}
           />
@@ -63,7 +62,7 @@ export default function SupportScreen() {
             icon={{
               name: "comment",
               type: "font-awesome",
-              size: 15,
+              size: 24,
               color: "white",
             }}
             iconContainerStyle={{ marginRight: 10 }}
@@ -71,7 +70,7 @@ export default function SupportScreen() {
             buttonStyle={styles.buttonStyle}
             containerStyle={{
               width: 150,
-              marginHorizontal: 20,
+              marginHorizontal: 15,
               marginVertical: 8,
             }}
           />
@@ -119,8 +118,8 @@ const styles = StyleSheet.create({
     color: "#03a9f4",
   },
   supportCard: {
-    width: "100%",
-    height: 100,
+    width: "92%",
+    height: 115,
     flexShrink: 0,
     borderRadius: 10,
     backgroundColor: "#F6F6F6",
@@ -132,7 +131,7 @@ const styles = StyleSheet.create({
     marginVertical: 20,
   },
   supportText: {
-    flexShrink: 0,
+    flexShrink: 1,
     color: "rgba(0, 0, 0, 1)",
     fontSize: 16,
     fontWeight: "400",
