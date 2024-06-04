@@ -1,3 +1,4 @@
 {
+    "editor.formatOnType": false,
     "editor.formatOnSave": true
 }
