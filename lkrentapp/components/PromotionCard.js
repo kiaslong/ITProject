@@ -8,7 +8,7 @@ const PromotionCard = ({ imageUrl, promotionText, discountText }) => {
         <Image
           source={{ uri: imageUrl }}
           style={styles.image}
-          resizeMode="cover"
+          resizeMode="auto"
         />
       </View>
       <View style={styles.textContainer}>

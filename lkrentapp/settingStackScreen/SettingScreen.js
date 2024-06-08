@@ -8,12 +8,12 @@ import {
   Pressable,
   Image,
 } from "react-native";
-import React from "react";
+import React, { useCallback } from "react";
 import { useNavigation, CommonActions } from "@react-navigation/native";
 import { useDispatch } from "react-redux";
 import { logout } from "../store/loginSlice";
 
-export default function SettingScreen() {
+const SettingScreen = () => {
   const dispatch = useDispatch();
 
   const profileMenu = [
@@ -68,16 +68,31 @@ export default function SettingScreen() {
 
   const handleLogoutPress = async () => {
     await dispatch(logout());
-    navigation.navigate("Khám phá");
+    navigation.dispatch(
+      CommonActions.reset({
+        index: 0,
+        routes: [{ name: 'Khám phá' }],
+      })
+    );
   };
+
+  const renderItem = useCallback(({ item }) => (
+    <TouchableOpacity style={styles.menuItem}>
+      <Ionicons name={item.icon} size={23} padding={5} />
+      <Text style={styles.menuText}>{item.name}</Text>
+      <View style={styles.flexSpacer} />
+      <Ionicons name="arrow-forward-outline" size={20} color="black" />
+    </TouchableOpacity>
+  ), []);
 
   return (
     <View style={styles.container}>
       <View style={styles.header}>
         <View style={styles.headerContent}>
           <Image
-            source={require("../assets/lkrentlogo.png")}
+            source={{uri:"https://cdn.idntimes.com/content-images/community/2022/03/1714382190-93512ef73cc9128141b72669a922c6ee-f48b234e3eecffd2d897cd799c3043de.jpg"}}
             style={styles.image}
+            resizeMode="auto"
           />
           <Text style={styles.headerText}>LKRENTAL</Text>
         </View>
@@ -86,15 +101,11 @@ export default function SettingScreen() {
         <FlatList
           showsVerticalScrollIndicator={false}
           data={profileMenu}
-          renderItem={({ item }) => (
-            <TouchableOpacity style={styles.menuItem}>
-              <Ionicons name={item.icon} size={23} padding={5} />
-              <Text style={styles.menuText}>{item.name}</Text>
-              <View style={styles.flexSpacer} />
-              <Ionicons name="arrow-forward-outline" size={20} color="black" />
-            </TouchableOpacity>
-          )}
+          renderItem={renderItem}
           keyExtractor={(item) => item.id.toString()}
+          initialNumToRender={6}
+          maxToRenderPerBatch={10}
+          updateCellsBatchingPeriod={50}
         />
         <Pressable style={styles.button} onPress={handleLogoutPress}>
           <Ionicons
@@ -108,7 +119,9 @@ export default function SettingScreen() {
       </View>
     </View>
   );
-}
+};
+
+export default SettingScreen;
 
 const styles = StyleSheet.create({
   container: {
