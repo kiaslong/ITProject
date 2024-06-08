@@ -24,7 +24,7 @@ export default function LocationPicker({ navigation }) {
     <View style={styles.container}>
       <Text style={styles.title}>Chọn địa điểm</Text>
       <View style={styles.currentLocationContainer}>
-        <Ionicons name="location-sharp" size={24} color="#555" />
+        <Ionicons name="location-sharp" size={24} color="#03a9f4" />
         <View style={styles.currentLocationTextContainer}>
           <Text style={styles.currentLocationLabel}>Địa điểm hiện tại:</Text>
           <Text style={styles.currentLocation}>{currentLocation}</Text>
@@ -50,7 +50,7 @@ export default function LocationPicker({ navigation }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f8f8f8',
+    backgroundColor: '#fff',
     padding: 20,
   },
   title: {
@@ -58,19 +58,25 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     marginBottom: 20,
     textAlign: 'center',
+    backgroundColor: '#e6f7ff',
+    padding: 10,
+    borderRadius: 10,
+    color: '#03a9f4',
   },
   currentLocationContainer: {
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: '#fff',
-    padding: 15,
-    borderRadius: 10,
+    padding: 20,
+    borderRadius: 15,
     marginBottom: 20,
     elevation: 3,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.2,
     shadowRadius: 2,
+    borderColor: '#03a9f4',
+    borderWidth: 1,
   },
   currentLocationTextContainer: {
     marginLeft: 10,
@@ -78,15 +84,24 @@ const styles = StyleSheet.create({
   currentLocationLabel: {
     fontSize: 16,
     fontWeight: 'bold',
+    color: '#03a9f4',
   },
   currentLocation: {
     fontSize: 16,
     color: '#555',
   },
   item: {
-    padding: 15,
-    borderBottomColor: '#ccc',
-    borderBottomWidth: 1,
+    backgroundColor: '#fff',
+    padding: 20,
+    borderRadius: 10,
+    elevation: 2,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1,
+    shadowRadius: 1,
+    borderColor: '#ccc',
+    borderWidth: 1,
+    marginBottom: 10,
   },
   itemContent: {
     flexDirection: 'row',
@@ -101,3 +116,4 @@ const styles = StyleSheet.create({
     height: 10,
   },
 });
+

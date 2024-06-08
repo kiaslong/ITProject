@@ -1,23 +1,24 @@
-import { View, Text, Image, StyleSheet } from 'react-native';
 import React from 'react';
+import { View, Text, Image, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 
-export default function HistoryListItem({ history }) {
+const HistoryListItem = ({ history }) => {
   return (
     <View style={styles.outerContainer}>
       <Text style={styles.maThue}>Mã thuê: {history.id}</Text>
       <View style={styles.container}>
         <Image 
-          source={require('../assets/lkrentlogo.png')}
+          source={{ uri: history.image }}
           style={styles.image}
+          resizeMode="auto"
         />
         <View style={styles.subContainer}>
           <Text style={styles.carName}>{history.carName}</Text>
           <Text style={styles.timeText}>
-            <Ionicons name="calendar" size={20}  color="black" /> {history.timeStart} - {history.timeEnd}
+            <Ionicons name="calendar" size={20} color="black" /> {history.timeStart} - {history.timeEnd}
           </Text>
           <Text style={styles.remainingTime}>
-            Thanh toán: <Text style={styles.status} >{history.status}</Text>
+            Thanh toán: <Text style={styles.status}>{history.status}</Text>
           </Text>
           <Text style={styles.remainingTime}>
             Thời gian còn lại <Text style={styles.remainingTimeText}>{history.timeRemain}</Text>
@@ -29,18 +30,20 @@ export default function HistoryListItem({ history }) {
       </View>
     </View>
   );
-}
+};
+
+export default React.memo(HistoryListItem);
 
 const styles = StyleSheet.create({
   outerContainer: {
     marginBottom: 15,
-    paddingHorizontal: 6
+    paddingHorizontal: 6,
   },
   maThue: {
     fontSize: 16,
     fontWeight: 'bold',
     marginBottom: 5,
-    marginLeft:10
+    marginLeft: 10,
   },
   container: {
     padding: 8,
@@ -57,7 +60,7 @@ const styles = StyleSheet.create({
     width: 130,
     height: 130,
     marginRight: 10,
-    borderRadius:10,
+    borderRadius: 10,
   },
   subContainer: {
     flex: 1,
@@ -78,7 +81,6 @@ const styles = StyleSheet.create({
   status: {
     fontSize: 14,
     color: 'green',
-    marginBottom: 10,
     textAlign: 'left',
   },
   remainingTime: {
@@ -90,11 +92,11 @@ const styles = StyleSheet.create({
     textAlign: 'left',
   },
   remainingTimeText: {
-    color: 'black', // Set the color to black
+    color: 'black',
   },
   detailsContainer: {
     flexDirection: 'row',
-    justifyContent: 'flex-end', // Align to the end
+    justifyContent: 'flex-end',
   },
   details: {
     fontSize: 14,
