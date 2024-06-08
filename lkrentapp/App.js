@@ -10,7 +10,8 @@ import HistoryScreen from "./historyStackScreen/HistoryScreen";
 import SettingScreen from "./settingStackScreen/SettingScreen";
 import HomeScreen from "./homeStackScreen/HomeScreen";
 import NotiScreen from "./notiStackScreen/NotificationScreen";
-
+import LocationPickerScreen from "./homeStackScreen/LocationPickerScreen";
+import TimePickerScreen from "./homeStackScreen/TimePickerScreen";
 
 import { useSelector } from "react-redux";
 import store from "./store/store";
@@ -43,6 +44,8 @@ function HomeStack() {
       })}
     >
       <Stack.Screen name="Home" component={HomeScreen} />
+      <Stack.Screen name="LocationPicker" component={LocationPickerScreen} />
+      <Stack.Screen name="TimePicker" component={TimePickerScreen} />
     </Stack.Navigator>
   );
 }

@@ -27,6 +27,8 @@ function HeartIcon() {
   );
 }
 
+
+
 function FlatListForPromotion({ setCurrentIndex }) {
   const onScroll = useRef((event) => {
     const index = Math.round(
@@ -116,7 +118,7 @@ const { width } = Dimensions.get("window");
 const cardWidth = width * 1.1;
 const cardSpacing = 8;
 
-export default function HomeScreen() {
+export default function HomeScreen({navigation}) {
   const [currentIndex, setCurrentIndex] = useState(0);
 
   return (
@@ -139,7 +141,7 @@ export default function HomeScreen() {
           </Pressable>
         </View>
       </View>
-      <SearchBar />
+      <SearchBar navigation={navigation}/>
       <Text style={styles.promotionText}>Chương trình khuyến mãi</Text>
       <FlatListForPromotion setCurrentIndex={setCurrentIndex} />
       <DotIndex currentIndex={currentIndex} />
@@ -156,6 +158,7 @@ const styles = StyleSheet.create({
     paddingTop: 80,
     paddingLeft: 20,
     paddingRight: 20,
+    paddingBottom:10,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
@@ -179,7 +182,8 @@ const styles = StyleSheet.create({
   },
   promotionText: {
     marginLeft: 25,
-    fontSize: 20,
+    textAlign:"start",
+    fontSize:18,
     fontWeight: "bold",
     padding: 2,
   },
