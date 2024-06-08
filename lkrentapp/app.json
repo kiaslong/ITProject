@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "lkrentapp",
-    "slug": "lkrentapp",
+    "name": "lkrental",
+    "slug": "lkrental",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/lkrentlogo.png",

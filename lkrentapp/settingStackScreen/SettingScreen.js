@@ -71,30 +71,38 @@ const SettingScreen = () => {
     navigation.dispatch(
       CommonActions.reset({
         index: 0,
-        routes: [{ name: 'Khám phá' }],
+        routes: [{ name: "Khám phá" }],
       })
     );
   };
 
-  const renderItem = useCallback(({ item }) => (
-    <TouchableOpacity style={styles.menuItem}>
-      <Ionicons name={item.icon} size={23} padding={5} />
-      <Text style={styles.menuText}>{item.name}</Text>
-      <View style={styles.flexSpacer} />
-      <Ionicons name="arrow-forward-outline" size={20} color="black" />
-    </TouchableOpacity>
-  ), []);
+  const renderItem = useCallback(
+    ({ item }) => (
+      <TouchableOpacity style={styles.menuItem}>
+        <Ionicons name={item.icon} size={23} padding={5} />
+        <Text style={styles.menuText}>{item.name}</Text>
+        <View style={styles.flexSpacer} />
+        <Ionicons name="arrow-forward-outline" size={20} color="black" />
+      </TouchableOpacity>
+    ),
+    []
+  );
 
   return (
     <View style={styles.container}>
       <View style={styles.header}>
         <View style={styles.headerContent}>
           <Image
-            source={{uri:"https://cdn.idntimes.com/content-images/community/2022/03/1714382190-93512ef73cc9128141b72669a922c6ee-f48b234e3eecffd2d897cd799c3043de.jpg"}}
+            source={{
+              uri: "https://cdn.idntimes.com/content-images/community/2022/03/1714382190-93512ef73cc9128141b72669a922c6ee-f48b234e3eecffd2d897cd799c3043de.jpg",
+            }}
             style={styles.image}
-            resizeMode="auto"
+            resizeMode="cover"
           />
-          <Text style={styles.headerText}>LKRENTAL</Text>
+          <View style={styles.textContainer}>
+            <Text style={styles.headerText}>PHAN PHI LONG</Text>
+            <Text style={styles.headerSubText}>Welcome back!</Text>
+          </View>
         </View>
       </View>
       <View style={styles.menu}>
@@ -129,32 +137,55 @@ const styles = StyleSheet.create({
   },
   header: {
     paddingTop: 50,
-    flexDirection: "column",
+    paddingBottom: 20,
     backgroundColor: "#03a9f4",
     borderBottomWidth: 1,
+    borderBottomColor: "#dcdcdc",
   },
   headerContent: {
-    display: "flex",
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    padding: 20,
+    backgroundColor: "#ffffff",
+    marginHorizontal: 20,
+    borderRadius: 15,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 5,
+    elevation: 5,
+  },
+  textContainer: {
+    flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    padding: 10,
   },
   headerText: {
-    fontSize: 25,
-    marginTop: 4,
-    color: "#000000",
+    fontSize: 22,
+    color: "#01579b",
+    fontWeight: "bold",
+    textAlign: "center",
+    marginBottom: 5,
+  },
+  headerSubText: {
+    fontSize: 16,
+    color: "#757575",
+    textAlign: "center",
   },
   image: {
-    width: 150,
-    height: 150,
-    borderRadius: 150,
+    width: 110,
+    height: 110,
+    borderRadius: 55,
+    borderWidth: 2,
+    borderColor: "#01579b",
+    marginRight: 15,
   },
   menu: {
     flex: 1,
     padding: 10,
   },
   menuItem: {
-    display: "flex",
     flexDirection: "row",
     alignItems: "center",
     marginBottom: 20,
