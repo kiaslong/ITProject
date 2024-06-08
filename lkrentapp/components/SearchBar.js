@@ -1,61 +1,140 @@
-import React from 'react';
-import { View, TextInput, StyleSheet } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
+import React, { useState, useRef, useEffect } from 'react';
+import { View, Text, StyleSheet, TextInput, TouchableOpacity, Platform } from 'react-native';
+import { LinearGradient } from 'expo-linear-gradient';
+import { useSelector, useDispatch } from 'react-redux';
+import { useIsFocused } from '@react-navigation/native';
+import { setLocation } from '../store/locationSlice';
+import { setTime } from '../store/timeSlice';
 
-export default function SearchBar() {
+export default function SearchBar({ navigation }) {
+  const location = useSelector((state) => state.location.location);
+  const time = useSelector((state) => state.time.time);
+  const dispatch = useDispatch();
+  const locationInputRef = useRef(null);
+  const timeInputRef = useRef(null);
+  const isFocused = useIsFocused();
+
+  const handleLocationFocus = () => {
+    locationInputRef.current.blur();
+    navigation.navigate('LocationPicker', { showBackButton: true });
+  };
+
+  const handleTimeFocus = () => {
+    timeInputRef.current.blur();
+    navigation.navigate('TimePicker', { showBackButton: true });
+  };
+
+  useEffect(() => {
+    if (!isFocused) {
+      if (locationInputRef.current) {
+        locationInputRef.current.blur();
+      }
+      if (timeInputRef.current) {
+        timeInputRef.current.blur();
+      }
+    }
+  }, [isFocused]);
+
   return (
-    <View style={styles.outerContainer}>
-      <View style={styles.container}>
-        <View style={styles.searchBarContainer}>
-          <Ionicons name="search" size={20} color="gray" style={styles.searchIcon} />
+    <View style={styles.container}>
+      <Text style={styles.containerLabel}>Tìm kiếm xe theo nhu cầu của bạn</Text>
+      <LinearGradient colors={['#ffffff', '#ffffff']} style={styles.card}>
+        <View style={styles.inputContainer}>
+          <Text style={styles.label}>Địa điểm</Text>
           <TextInput
-            style={styles.searchInput}
-            placeholder="Tìm kiếm xe"
-            placeholderTextColor="gray"
+            ref={locationInputRef}
+            style={styles.input}
+            onChangeText={(text) => dispatch(setLocation(text))}
+            value={location}
+            onFocus={handleLocationFocus}
           />
         </View>
-      </View>
-      <Ionicons name="options-outline" size={24} color="black" style={styles.filterIcon} />
+        <View style={styles.inputContainer}>
+          <Text style={styles.label}>Thời gian thuê</Text>
+          <TextInput
+            ref={timeInputRef}
+            style={styles.input}
+            onChangeText={(text) => dispatch(setTime(text))}
+            value={time}
+            onFocus={handleTimeFocus}
+          />
+        </View>
+        <View style={styles.buttonContainer}>
+          <TouchableOpacity style={styles.button} onPress={() => {}}>
+            <Text style={styles.buttonText}>Tìm xe</Text>
+          </TouchableOpacity>
+        </View>
+      </LinearGradient>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  outerContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
   container: {
     flex: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
     backgroundColor: '#fff',
-    borderRadius: 25,
-    paddingHorizontal:10,
-    margin:20,
-    height: 45,
+    padding: 20,
+    justifyContent: 'center',
+  },
+  containerLabel: {
+    fontSize: 18,
+    marginBottom: 10,
+    fontWeight: 'bold',
+    textAlign: 'start',
+    color: '#333',
+  },
+  card: {
+    borderRadius: 10,
+    padding: 15,
+    borderColor: '#ccc',
+    borderWidth: 1,
+    elevation: 5,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.2,
-    shadowRadius: 1.41,
-    elevation: 2,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.8,
+    shadowRadius: 2,
+    ...Platform.select({
+      ios: {
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.8,
+        shadowRadius: 2,
+      },
+      android: {
+        elevation: 5,
+      },
+    }),
   },
-  searchBarContainer: {
-    flexDirection: 'row',
+  inputContainer: {
+    marginBottom: 12,
+  },
+  label: {
+    fontSize: 15,
+    color: '#555',
+    marginBottom: 4,
+    fontWeight: '600',
+  },
+  input: {
+    fontSize: 15,
+    color: '#000',
+    backgroundColor: '#d0eaff',
+    padding: 9,
+    borderRadius: 10,
+  },
+  buttonContainer: {
     alignItems: 'center',
-    flex: 1,
-    backgroundColor: '#fff',
-    borderRadius: 25,
-    paddingLeft: 10,
   },
-  searchIcon: {
-    marginRight: 10,
+  button: {
+    width: "60%",
+    backgroundColor: '#03a9f4',
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderRadius: 20,
+    alignItems: 'center',
   },
-  searchInput: {
-    flex: 1,
+  buttonText: {
     fontSize: 16,
-  },
-  filterIcon: {
-    marginRight:20,
+    color: '#fff',
+    fontWeight: 'bold',
   },
 });
