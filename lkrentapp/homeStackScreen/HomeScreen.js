@@ -27,8 +27,6 @@ function HeartIcon() {
   );
 }
 
-
-
 function FlatListForPromotion({ setCurrentIndex }) {
   const onScroll = useRef((event) => {
     const index = Math.round(
@@ -74,19 +72,19 @@ function FlatListForPromotion({ setCurrentIndex }) {
   );
 }
 
-function DotIndex ({currentIndex}) {
+function DotIndex({ currentIndex }) {
   return (
     <View style={styles.dotsContainer}>
-    {promotions.map((_, index) => (
-      <View
-        key={index}
-        style={[
-          styles.dot,
-          { backgroundColor: index === currentIndex ? 'black' : 'grey' },
-        ]}
-      />
-    ))}
-  </View>
+      {promotions.map((_, index) => (
+        <View
+          key={index}
+          style={[
+            styles.dot,
+            { backgroundColor: index === currentIndex ? "black" : "grey" },
+          ]}
+        />
+      ))}
+    </View>
   );
 }
 
@@ -118,15 +116,18 @@ const { width } = Dimensions.get("window");
 const cardWidth = width * 1.1;
 const cardSpacing = 8;
 
-export default function HomeScreen({navigation}) {
+export default function HomeScreen({ navigation }) {
   const [currentIndex, setCurrentIndex] = useState(0);
 
   return (
     <ScrollView style={styles.container}>
       <View style={styles.headerHome}>
         <Image
-          source={require("../assets/lkrentlogo.png")}
+          source={{
+            uri: "https://cdn.idntimes.com/content-images/community/2022/03/1714382190-93512ef73cc9128141b72669a922c6ee-f48b234e3eecffd2d897cd799c3043de.jpg",
+          }}
           style={styles.headerImage}
+          resizeMode="auto"
         />
         <Text style={styles.headerText}>Welcome,{"\n"}Phan Phi Long</Text>
         <View style={styles.iconContainer}>
@@ -141,7 +142,7 @@ export default function HomeScreen({navigation}) {
           </Pressable>
         </View>
       </View>
-      <SearchBar navigation={navigation}/>
+      <SearchBar navigation={navigation} />
       <Text style={styles.promotionText}>Chương trình khuyến mãi</Text>
       <FlatListForPromotion setCurrentIndex={setCurrentIndex} />
       <DotIndex currentIndex={currentIndex} />
@@ -158,7 +159,7 @@ const styles = StyleSheet.create({
     paddingTop: 55,
     paddingLeft: 20,
     paddingRight: 20,
-    paddingBottom:10,
+    paddingBottom: 10,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
@@ -182,13 +183,13 @@ const styles = StyleSheet.create({
   },
   promotionText: {
     marginLeft: 25,
-    textAlign:"start",
-    fontSize:18,
+    textAlign: "start",
+    fontSize: 18,
     fontWeight: "bold",
     padding: 2,
   },
   flatListContainer: {
-    height: 185, 
+    height: 185,
   },
   promotionList: {
     paddingHorizontal: cardSpacing,
@@ -196,12 +197,12 @@ const styles = StyleSheet.create({
   promotionCardWrapper: {
     borderRadius: 10,
     overflow: "hidden",
-    height: 205, 
+    height: 205,
   },
   dotsContainer: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    alignItems: 'center',
+    flexDirection: "row",
+    justifyContent: "center",
+    alignItems: "center",
   },
   dot: {
     width: 8,
