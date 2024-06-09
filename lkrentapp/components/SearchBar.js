@@ -78,10 +78,10 @@ const styles = StyleSheet.create({
   },
   containerLabel: {
     fontSize: 18,
+    paddingLeft:5,
     marginBottom: 10,
     fontWeight: 'bold',
     textAlign: 'start',
-    color: '#333',
   },
   card: {
     borderRadius: 10,

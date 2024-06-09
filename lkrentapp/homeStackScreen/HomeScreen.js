@@ -12,6 +12,7 @@ import {
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import SearchBar from "../components/SearchBar";
+import CarCard from "../components/CarCard";
 import PromotionCard from "../components/PromotionCard";
 
 function HeartIcon() {
@@ -21,6 +22,18 @@ function HeartIcon() {
         name={"heart-outline"}
         size={24}
         color={"black"}
+        style={styles.icon}
+      />
+    </Pressable>
+  );
+}
+function GiftIcon() {
+  return (
+    <Pressable onPress={() => Alert.alert("Gift icon pressed")}>
+      <Ionicons
+        name="gift-outline"
+        size={24}
+        color="black"
         style={styles.icon}
       />
     </Pressable>
@@ -88,6 +101,37 @@ function DotIndex({ currentIndex }) {
   );
 }
 
+function CarCardList({ carList }) {
+  const itemWidth = width * 0.9; 
+  const gap = 16; 
+
+  return (
+    <View style={styles.carCardContainer}>
+      <FlatList
+        data={carList}
+        horizontal
+        renderItem={({ item, index }) => (
+          <View
+            style={{
+              paddingLeft: index === 0 ? 16 : gap / 2, 
+              paddingTop: 10,
+              paddingRight: index === carList.length - 1 ? 16 : gap / 2, 
+              width: itemWidth,
+            }}
+          >
+            <CarCard carsInfo={item} />
+          </View>
+        )}
+        showsHorizontalScrollIndicator={false}
+        snapToInterval={itemWidth + gap} 
+        snapToAlignment="center"
+        decelerationRate="fast"
+        keyExtractor={(item) => item.id}
+      />
+    </View>
+  );
+}
+
 const promotions = [
   {
     id: "1",
@@ -112,6 +156,54 @@ const promotions = [
   },
 ];
 
+const carForYou = [
+  {
+    id: "1",
+    image:
+      "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ7Ow-jdSFfiCijZRPsQz6GQcoF61ahECtZMA&s",
+    transmission: "Số tự động",
+    delivery: "Giao xe tận nơi",
+    title: "KIA MORNING 2020",
+    location: "Quận Hai Bà Trưng, Hà Nội",
+    rating: "5.0",
+    trips: "97",
+    oldPrice: "574K",
+    newPrice: "474K",
+    discount: "30%",
+  },
+  {
+    id: "2",
+    image:
+      "https://cdni.autocarindia.com/utils/imageresizer.ashx?n=https://cms.haymarketindia.net/model/uploads/modelimages/BMW-2-Series-Gran-Coupe-271220221147.jpg&w=872&h=578&q=75&c=1",
+    transmission: "Số sàn",
+    delivery: "Giao xe tận nơi",
+    title: "HYUNDAI I10 2019",
+    location: "Quận Đống Đa, Hà Nội",
+    rating: "4.8",
+    trips: "120",
+    oldPrice: "600K",
+    newPrice: "500K",
+    discount: "20%",
+  },
+];
+
+const carHistory = [
+  {
+    id: "1",
+    image:
+      "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ7Ow-jdSFfiCijZRPsQz6GQcoF61ahECtZMA&s",
+    transmission: "Số tự động",
+    delivery: "Giao xe tận nơi",
+    title: "KIA MORNING 2020",
+    location: "Quận Hai Bà Trưng, Hà Nội",
+    rating: "5.0",
+    trips: "97",
+    oldPrice: "574K",
+    newPrice: "474K",
+    discount: "30%",
+  },
+];
+
 const { width } = Dimensions.get("window");
 const cardWidth = width * 1.1;
 const cardSpacing = 8;
@@ -132,20 +224,18 @@ export default function HomeScreen({ navigation }) {
         <Text style={styles.headerText}>Welcome,{"\n"}Phan Phi Long</Text>
         <View style={styles.iconContainer}>
           <HeartIcon />
-          <Pressable onPress={() => Alert.alert("Gift icon pressed")}>
-            <Ionicons
-              name="gift-outline"
-              size={24}
-              color="black"
-              style={styles.icon}
-            />
-          </Pressable>
+          <View style={styles.verticalSeparator} />
+          <GiftIcon />
         </View>
       </View>
       <SearchBar navigation={navigation} />
       <Text style={styles.promotionText}>Chương trình khuyến mãi</Text>
       <FlatListForPromotion setCurrentIndex={setCurrentIndex} />
       <DotIndex currentIndex={currentIndex} />
+      <Text style={styles.carCardListText}>Xe dành cho bạn</Text>
+      <CarCardList carList={carForYou} />
+      <Text style={styles.carCardListText}>Xe đã xem</Text>
+      <CarCardList carList={carHistory} />
     </ScrollView>
   );
 }
@@ -176,10 +266,15 @@ const styles = StyleSheet.create({
     borderRadius: 30,
   },
   iconContainer: {
-    flexDirection: "row",
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 10
   },
-  icon: {
-    marginLeft: 18,
+  verticalSeparator: {
+    width: 1,
+    height: 18, 
+    backgroundColor: 'black',
+    marginHorizontal:10,
   },
   promotionText: {
     marginLeft: 25,
@@ -209,5 +304,16 @@ const styles = StyleSheet.create({
     height: 8,
     borderRadius: 4,
     marginHorizontal: 4,
+  },
+  carCardContainer: {
+    flex: 1,
+    backgroundColor: "#fff",
+  },
+  carCardListText: {
+    marginLeft: 25,
+    textAlign: "start",
+    fontSize: 18,
+    fontWeight: "bold",
+    paddingTop: 10,
   },
 });
