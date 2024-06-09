@@ -13,7 +13,7 @@ const PromotionCard = ({ imageUrl, promotionText, discountText }) => {
       </View>
       <View style={styles.textContainer}>
         <Text style={styles.promotionText}>{promotionText}</Text>
-        <TouchableOpacity style={styles.button}>
+        <TouchableOpacity disabled={true} style={styles.button}>
           <Text style={styles.buttonText}>{discountText}</Text>
         </TouchableOpacity>
       </View>
@@ -25,10 +25,10 @@ const styles = StyleSheet.create({
   card: {
     flexDirection: 'row',
     width: '82%',
-    height: 156,
+    height: 165,
     margin: 10,
     borderRadius: 20,
-    backgroundColor: '#F6F6F6',
+    backgroundColor: '#fff',
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.5,
@@ -53,7 +53,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
     borderTopRightRadius: 20,
     borderBottomRightRadius: 20,
-    backgroundColor:"#F6F6F6"
+    backgroundColor:"#fff"
   },
   promotionText: {
     fontSize: 14,
