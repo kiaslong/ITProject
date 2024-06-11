@@ -9,11 +9,18 @@ import {
   Alert,
   FlatList,
   Dimensions,
+  Platform
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import SearchBar from "../components/SearchBar";
 import CarCard from "../components/CarCard";
 import PromotionCard from "../components/PromotionCard";
+import ImageCard from "../components/ImageCard";
+import BenefitsCard from "../components/BenefitsCard";
+
+
+
+const CarLocation = require ('../assets/carlocation.jpg')
 
 function HeartIcon() {
   return (
@@ -40,17 +47,36 @@ function GiftIcon() {
   );
 }
 
+const { width } = Dimensions.get("window");
+const cardWidth =   width * 1.1;
+const cardSpacing = 8;
+const cardFullWidth = cardWidth + cardSpacing; 
+
 function FlatListForPromotion({ setCurrentIndex }) {
+
+  const flatListRef = useRef(null);
+
   const onScroll = useRef((event) => {
     const index = Math.round(
-      event.nativeEvent.contentOffset.x / (cardWidth + cardSpacing)
+      event.nativeEvent.contentOffset.x / cardFullWidth
     );
     setCurrentIndex(index);
   }).current;
 
+  const onMomentumScrollEnd = useRef((event) => {
+    const index = Math.round(
+      event.nativeEvent.contentOffset.x / cardFullWidth
+    );
+    if (index >= promotions.length - 1) {
+      flatListRef.current.scrollToIndex({ index: promotions.length - 1, animated: false });
+    }
+  }).current;
+  
+
   return (
-    <View style={styles.flatListContainer}>
+    <View style={styles.promotionListContainer}>
       <FlatList
+        ref={flatListRef}
         data={promotions}
         renderItem={({ item }) => (
           <View style={[styles.promotionCardWrapper, { width: cardWidth }]}>
@@ -61,25 +87,28 @@ function FlatListForPromotion({ setCurrentIndex }) {
             />
           </View>
         )}
+        
         keyExtractor={(item) => item.id}
-        horizontal={true}
+        horizontal
+         contentContainerStyle={[
+          styles.promotionList,
+          Platform.OS === 'android' && { marginLeft: 16 },
+        ]}
         showsHorizontalScrollIndicator={false}
-        snapToInterval={cardWidth + cardSpacing}
+        snapToInterval={ cardFullWidth }
         decelerationRate="fast"
-        contentContainerStyle={styles.promotionList}
         snapToAlignment="start"
-        overScrollMode="never"
-        scrollToOverflowEnabled={false}
         onScroll={onScroll}
         scrollEventThrottle={16}
-        contentOffset={{ x: -cardSpacing, y: 0 }}
+        onMomentumScrollEnd={Platform.OS==="android" ? onMomentumScrollEnd : null }
+        overScrollMode="never"
         contentInset={{
           up: 0,
           down: 0,
           left: 0,
           right: width - cardWidth - cardSpacing * 2,
         }}
-        ItemSeparatorComponent={() => <View style={{ width: cardSpacing }} />}
+        contentInsetAdjustmentBehavior="automatic"
       />
     </View>
   );
@@ -102,8 +131,11 @@ function DotIndex({ currentIndex }) {
 }
 
 function CarCardList({ carList }) {
-  const itemWidth = width * 0.9; 
-  const gap = 16; 
+  const normalWidth = width * 0.9;
+  const oneItemWidth = width * 0.92;
+  const gap = 16;
+
+  const adjustedWidth = carList.length !== 1 ? normalWidth : oneItemWidth;
 
   return (
     <View style={styles.carCardContainer}>
@@ -113,17 +145,18 @@ function CarCardList({ carList }) {
         renderItem={({ item, index }) => (
           <View
             style={{
-              paddingLeft: index === 0 ? 16 : gap / 2, 
-              paddingTop: 10,
-              paddingRight: index === carList.length - 1 ? 16 : gap / 2, 
-              width: itemWidth,
+              paddingLeft: index === 0 ? 16 : gap / 2,
+              marginTop: 10,
+              marginBottom: 5,
+              paddingRight: index === carList.length - 1 ? 16 : gap / 2,
+              width: adjustedWidth,
             }}
           >
             <CarCard carsInfo={item} />
           </View>
         )}
         showsHorizontalScrollIndicator={false}
-        snapToInterval={itemWidth + gap} 
+        snapToInterval={adjustedWidth + gap}
         snapToAlignment="center"
         decelerationRate="fast"
         keyExtractor={(item) => item.id}
@@ -131,6 +164,36 @@ function CarCardList({ carList }) {
     </View>
   );
 }
+
+const BenefitsList = () => {
+
+  const normalWidth = 350;
+  const gap = 9;
+
+  const renderItem = ({ item }) => (
+    <BenefitsCard 
+      image={item.image}
+      title={item.title}
+      description={item.description}
+    />
+  );
+
+  return (
+    <View style={styles.benefitContainer}>
+      <FlatList
+        data={benefitsData}
+        horizontal
+        renderItem={renderItem}
+        keyExtractor={(item) => item.id}
+        showsHorizontalScrollIndicator={false}
+        snapToInterval={normalWidth + gap}
+        snapToAlignment="start"
+        decelerationRate="fast"
+        ListFooterComponent={<View style={{ width: 18 }} />}
+      />
+    </View>
+  );
+};
 
 const promotions = [
   {
@@ -204,15 +267,37 @@ const carHistory = [
   },
 ];
 
-const { width } = Dimensions.get("window");
-const cardWidth = width * 1.1;
-const cardSpacing = 8;
+
+const benefitsData = [
+  {
+    id: '1',
+    image: CarLocation,
+    title: 'An tâm đặt xe',
+    description: 'Không tính phí hủy chuyến trong vòng 1h sau đặt cọc. Hoàn cọc và bồi thường 100% nếu chủ xe hủy chuyến trong vòng 7 ngày trước chuyến đi.',
+  },
+  
+  {
+    id: '2',
+    image: CarLocation,
+    title: 'Bảo hiểm toàn diện',
+    description: 'Bảo hiểm toàn diện cho xe của bạn trong suốt quá trình thuê.',
+  },
+  {
+    id: '3',
+    image: CarLocation,
+    title: 'Hỗ trợ 24/7',
+    description: 'Hỗ trợ khách hàng 24/7 trong mọi tình huống.',
+  },
+
+];
+
+
 
 export default function HomeScreen({ navigation }) {
   const [currentIndex, setCurrentIndex] = useState(0);
 
   return (
-    <ScrollView style={styles.container}>
+    <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
       <View style={styles.headerHome}>
         <Image
           source={{
@@ -236,6 +321,19 @@ export default function HomeScreen({ navigation }) {
       <CarCardList carList={carForYou} />
       <Text style={styles.carCardListText}>Xe đã xem</Text>
       <CarCardList carList={carHistory} />
+      <Text style={styles.carCardListText}>Ưu điểm của LKRental</Text>
+      <BenefitsList />
+      <Text style={styles.carCardListText}>Đăng ký cho thuê xe</Text>
+      <ImageCard
+        imageUri="https://img.freepik.com/free-photo/sports-car-driving-asphalt-road-night-generative-ai_188544-8052.jpg"
+        title="Bạn muốn cho thuê xe"
+        description="Hơn 3,000 chủ xe đang cho thuê hiệu quả trên LKRental. Đăng ký trở thành đối tác của chúng tôi ngay hôm nay để tăng gia tăng thu nhập hàng tháng."
+        buttonText="Đăng ký ngay"
+        showTitle={true}
+        showDescription={true}
+        showButton={true}
+      />
+      
     </ScrollView>
   );
 }
@@ -266,15 +364,15 @@ const styles = StyleSheet.create({
     borderRadius: 30,
   },
   iconContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingVertical: 10
+    flexDirection: "row",
+    alignItems: "center",
+    paddingVertical: 10,
   },
   verticalSeparator: {
     width: 1,
-    height: 18, 
-    backgroundColor: 'black',
-    marginHorizontal:10,
+    height: 18,
+    backgroundColor: "black",
+    marginHorizontal: 10,
   },
   promotionText: {
     marginLeft: 25,
@@ -283,8 +381,10 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     padding: 2,
   },
-  flatListContainer: {
+  promotionListContainer: {
     height: 185,
+    flex:1,
+    backgroundColor: "#fff",
   },
   promotionList: {
     paddingHorizontal: cardSpacing,
@@ -315,5 +415,10 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: "bold",
     paddingTop: 10,
+  },
+  benefitContainer: {
+    flex: 1,
+    backgroundColor: "#fff",
+    
   },
 });

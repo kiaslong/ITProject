@@ -40,7 +40,7 @@ export default function SearchBar({ navigation }) {
       <Text style={styles.containerLabel}>Tìm kiếm xe theo nhu cầu của bạn</Text>
       <LinearGradient colors={['#ffffff', '#ffffff']} style={styles.card}>
         <View style={styles.inputContainer}>
-          <Text style={styles.label}>Địa điểm</Text>
+          <Text style={styles.label}>Địa điểm:</Text>
           <TextInput
             ref={locationInputRef}
             style={styles.input}
@@ -50,7 +50,7 @@ export default function SearchBar({ navigation }) {
           />
         </View>
         <View style={styles.inputContainer}>
-          <Text style={styles.label}>Thời gian thuê</Text>
+          <Text style={styles.label}>Thời gian thuê:</Text>
           <TextInput
             ref={timeInputRef}
             style={styles.input}
@@ -109,10 +109,10 @@ const styles = StyleSheet.create({
     marginBottom: 12,
   },
   label: {
-    fontSize: 15,
+    fontSize: 16,
     color: '#555',
-    marginBottom: 4,
-    fontWeight: '600',
+    marginBottom: 8,
+    fontWeight: 'bold',
   },
   input: {
     fontSize: 15,
