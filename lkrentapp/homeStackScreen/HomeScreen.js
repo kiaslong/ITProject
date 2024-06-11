@@ -419,6 +419,6 @@ const styles = StyleSheet.create({
   benefitContainer: {
     flex: 1,
     backgroundColor: "#fff",
-    
+    paddingTop:10,
   },
 });
