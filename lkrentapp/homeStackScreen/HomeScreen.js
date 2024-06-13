@@ -21,6 +21,10 @@ import BenefitsCard from "../components/BenefitsCard";
 
 
 const CarLocation = require ('../assets/carlocation.jpg')
+const PaperWork = require ('../assets/paperwork.png')
+const Delivery = require ('../assets/delivery.png')
+const EasyPay = require('../assets/easypay.png')
+const MultiCar = require ('../assets/multicar.png')
 
 function HeartIcon() {
   return (
@@ -278,17 +282,28 @@ const benefitsData = [
   
   {
     id: '2',
-    image: CarLocation,
-    title: 'Bảo hiểm toàn diện',
-    description: 'Bảo hiểm toàn diện cho xe của bạn trong suốt quá trình thuê.',
+    image: PaperWork,
+    title: 'Thủ tục đơn giản',
+    description: 'Chỉ cân có CCCD gắn chip (hoặc Passport) & Giấy phép lái xe bạn đã đủ điều kiện thuê xe trên Mioto',
   },
   {
     id: '3',
-    image: CarLocation,
-    title: 'Hỗ trợ 24/7',
-    description: 'Hỗ trợ khách hàng 24/7 trong mọi tình huống.',
+    image: Delivery,
+    title: 'Giao xe tận nơi',
+    description: 'Bạn có thể lựa chọn giao xe đến nơi bạn muốn....phí tiết kiệm chỉ từ 15k/km',
   },
-
+  {
+    id:'4',
+    image: EasyPay,
+    title:'Thanh toán dễ dàng',
+    description:'Thanh toán dễ dàng bằng cách quét QR'
+  },
+  {
+    id:'5',
+    image: MultiCar,
+    title:'Đa dạng dòng xe ',
+    description:'Hơn 100 dòng xe cho bạn tùy ý lựa chọn: Mini, Sedan, CUV, SUV , MPV , Bán tải.'
+  },
 ];
 
 

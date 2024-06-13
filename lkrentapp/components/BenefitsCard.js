@@ -31,7 +31,8 @@ const styles = StyleSheet.create({
   icon: {
     width: 65,
     height: 65,
-    marginRight: 18,
+    marginLeft:16,
+    marginRight: 16,
     borderRadius: 20,
     transform: [{ rotate: '-9deg' }], 
   },
