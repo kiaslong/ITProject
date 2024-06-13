@@ -15,19 +15,20 @@ import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useDispatch } from 'react-redux';
 import { loginRequest, loginSuccess, loginFailure } from '../store/loginSlice';
 
+import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
+
 const googleLogo = require("../assets/gglogo.png");
 
 export default function LoginScreen() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [passwordVisible, setPasswordVisible] = useState(false);
+  const [usernameError, setUsernameError] = useState("");
+  const [passwordError, setPasswordError] = useState("");
   const navigation = useNavigation();
   const passwordInputRef = useRef(null);
 
-  
-  //initialize dispatch
   const dispatch = useDispatch();
-  
 
   const handleRegisterPress = () => {
     navigation.navigate("RegisterScreen", { showBackButton: true });
@@ -41,21 +42,39 @@ export default function LoginScreen() {
     setPasswordVisible(!passwordVisible);
   };
 
-  const handleLoginPress = async () => {
-    await dispatch(loginSuccess()); 
-    navigation.navigate("Cá nhân");
-    
+  const validateInputs = () => {
+    let valid = true;
+    if (username.trim() === "") {
+      setUsernameError("Email or phone number is required.");
+      valid = false;
+    } else {
+      setUsernameError("");
+    }
+    if (password.trim() === "") {
+      setPasswordError("Password is required.");
+      valid = false;
+    } else {
+      setPasswordError("");
+    }
+    return valid;
   };
-  
+
+  const handleLoginPress = async () => {
+    if (validateInputs()) {
+      await dispatch(loginSuccess());
+      navigation.navigate("Cá nhân");
+    }
+  };
+
   return (
-    <ScrollView automaticallyAdjustKeyboardInsets>
+    <KeyboardAwareScrollView >
       <View style={styles.container}>
         <Text style={styles.title}>Đăng nhập</Text>
 
         <View style={styles.inputView}>
-          <Text style={styles.label}> Email/Số điện thoại </Text>
+          <Text style={styles.label}>Email/Số điện thoại</Text>
           <TextInput
-            style={styles.input}
+            style={[styles.input, usernameError ? styles.inputError : null]}
             placeholder="Email hoặc số điện thoại"
             value={username}
             onChangeText={setUsername}
@@ -65,8 +84,14 @@ export default function LoginScreen() {
             autoFocus={true}
             autoCapitalize="none"
           />
-          <Text style={styles.label}> Mật khẩu </Text>
-          <View style={styles.passwordContainer}>
+          {usernameError ? (
+            <View style={styles.errorContainer}>
+              <MaterialCommunityIcons name="alert-circle" size={16} color="red" />
+              <Text style={styles.errorText}>{usernameError}</Text>
+            </View>
+          ) : null}
+          <Text style={styles.label}>Mật khẩu</Text>
+          <View style={[styles.passwordContainer, passwordError ? styles.inputError : null]}>
             <TextInput
               style={styles.passwordInput}
               placeholder="Mật khẩu"
@@ -88,6 +113,12 @@ export default function LoginScreen() {
               />
             </Pressable>
           </View>
+          {passwordError ? (
+            <View style={styles.errorContainer}>
+              <MaterialCommunityIcons name="alert-circle" size={16} color="red" />
+              <Text style={styles.errorText}>{passwordError}</Text>
+            </View>
+          ) : null}
         </View>
         <View style={styles.forgetView}>
           <View>
@@ -100,7 +131,7 @@ export default function LoginScreen() {
         <View style={styles.buttonView}>
           <Pressable
             style={styles.button}
-            onPress= {handleLoginPress}
+            onPress={handleLoginPress}
           >
             <Text style={styles.buttonText}>Đăng nhập</Text>
           </Pressable>
@@ -118,7 +149,7 @@ export default function LoginScreen() {
           </Pressable>
         </Text>
       </View>
-    </ScrollView>
+    </KeyboardAwareScrollView >
   );
 }
 
@@ -150,9 +181,21 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderRadius: 7,
   },
+  inputError: {
+    borderColor: "red",
+  },
   label: {
     fontSize: deviceHeight < 1000 ? 14 : 16,
     fontWeight: "400",
+  },
+  errorContainer: {
+    flexDirection: "row",
+    alignItems: "center",  
+  },
+  errorText: {
+    color: "red",
+    fontSize: 12,
+    marginLeft: 5,
   },
   forgetView: {
     width: "100%",

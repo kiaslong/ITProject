@@ -11,6 +11,7 @@ import {
   Dimensions,
 } from "react-native";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
+import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 
 export default function RegisterScreen() {
   const [phoneNumber, setPhoneNumber] = useState("");
@@ -33,7 +34,7 @@ export default function RegisterScreen() {
   };
 
   return (
-    <ScrollView automaticallyAdjustKeyboardInsets>
+    <KeyboardAwareScrollView >
       <View style={styles.container}>
         <Text style={styles.title}>Đăng ký</Text>
         <View style={styles.inputView}>
@@ -120,7 +121,7 @@ export default function RegisterScreen() {
           </Pressable>
         </View>
       </View>
-    </ScrollView>
+    </KeyboardAwareScrollView>
   );
 }
 
