@@ -15,56 +15,68 @@ import { logout } from "../store/loginSlice";
 
 const SettingScreen = () => {
   const dispatch = useDispatch();
+  const navigation = useNavigation();
 
   const profileMenu = [
     {
       id: 1,
       name: "Tài khoản của tôi",
       icon: "person-circle-outline",
+      screen: "UserInfoScreen",
     },
     {
       id: 2,
       name: "Đăng ký cho thuê xe",
       icon: "car-sport-outline",
+      screen: "RegisterCarScreen",
     },
     {
       id: 3,
       name: "Xe yêu thích",
       icon: "heart-outline",
+      screen: "FavoriteCarsScreen",
     },
     {
       id: 4,
       name: "Địa chỉ của tôi",
       icon: "document-text-outline",
+      screen: "MyAddressesScreen",
     },
     {
       id: 5,
       name: "Giấy phép lái xe",
       icon: "newspaper-outline",
+      screen: "DrivingLicenseScreen",
     },
     {
       id: 6,
       name: "Quà tặng",
       icon: "gift-outline",
+      screen: "GiftsScreen",
     },
     {
       id: 7,
       name: "Giới thiệu bạn mới",
       icon: "people-outline",
+      screen: "ReferFriendScreen",
     },
     {
       id: 8,
       name: "Đổi mật khẩu",
       icon: "lock-closed-outline",
+      screen: "ChangePasswordScreen",
     },
     {
       id: 9,
       name: "Xoá tài khoản",
       icon: "trash-outline",
+      screen: "DeleteAccountScreen",
     },
   ];
 
-  const navigation = useNavigation();
+  const handleMenuPress = (screen) => {
+    navigation.navigate(screen, { showBackButton: true });
+  };
 
   const handleLogoutPress = async () => {
     await dispatch(logout());
@@ -78,7 +90,10 @@ const SettingScreen = () => {
 
   const renderItem = useCallback(
     ({ item }) => (
-      <TouchableOpacity style={styles.menuItem}>
+      <TouchableOpacity
+        style={styles.menuItem}
+        onPress={() => handleMenuPress(item.screen)}
+      >
         <Ionicons name={item.icon} size={23} padding={5} />
         <Text style={styles.menuText}>{item.name}</Text>
         <View style={styles.flexSpacer} />
@@ -111,9 +126,6 @@ const SettingScreen = () => {
           data={profileMenu}
           renderItem={renderItem}
           keyExtractor={(item) => item.id.toString()}
-          initialNumToRender={6}
-          maxToRenderPerBatch={10}
-          updateCellsBatchingPeriod={50}
         />
         <Pressable style={styles.button} onPress={handleLogoutPress}>
           <Ionicons
