@@ -1,9 +1,8 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useCallback } from "react";
 import {
   Alert,
   Image,
   Pressable,
-  ScrollView,
   StyleSheet,
   Text,
   TextInput,
@@ -14,118 +13,177 @@ import { useNavigation } from "@react-navigation/native";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useDispatch } from 'react-redux';
 import { loginRequest, loginSuccess, loginFailure } from '../store/loginSlice';
-
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
+import api from '../api';
 
 const googleLogo = require("../assets/gglogo.png");
 
+const deviceHeight = Dimensions.get("window").height;
+
+const TextInputField = React.memo(({ label, valueRef, error, placeholder, onChange, secureTextEntry, refInput, onSubmitEditing, toggleVisibility }) => (
+  <View>
+    <Text style={styles.label}>{label}</Text>
+    <View style={[styles.inputContainer, error ? styles.inputError : null]}>
+      <TextInput
+        style={styles.input}
+        placeholder={placeholder}
+        defaultValue={valueRef.current}
+        onChange={onChange}
+        autoCorrect={false}
+        autoCapitalize="none"
+        secureTextEntry={secureTextEntry}
+        returnKeyType="next"
+        ref={refInput}
+        onSubmitEditing={onSubmitEditing}
+      />
+      {toggleVisibility && (
+        <Pressable onPress={toggleVisibility} style={styles.eyeIcon}>
+          <MaterialCommunityIcons
+            name={secureTextEntry ? "eye-off" : "eye"}
+            size={24}
+            color="gray"
+          />
+        </Pressable>
+      )}
+    </View>
+    {error ? (
+      <View style={styles.errorContainer}>
+        <MaterialCommunityIcons name="alert-circle" size={16} color="red" />
+        <Text style={styles.errorText}>{error}</Text>
+      </View>
+    ) : null}
+  </View>
+));
+
 export default function LoginScreen() {
-  const [username, setUsername] = useState("");
-  const [password, setPassword] = useState("");
+  const usernameRef = useRef("");
+  const passwordRef = useRef("");
+
   const [passwordVisible, setPasswordVisible] = useState(false);
-  const [usernameError, setUsernameError] = useState("");
-  const [passwordError, setPasswordError] = useState("");
+  const [errors, setErrors] = useState({
+    usernameError: "",
+    passwordError: "",
+  });
+
   const navigation = useNavigation();
   const passwordInputRef = useRef(null);
 
   const dispatch = useDispatch();
 
-  const handleRegisterPress = () => {
-    navigation.navigate("RegisterScreen", { showBackButton: true });
-  };
-
-  const handleEmailChange = () => {
-    passwordInputRef.current.focus();
-  };
+  const handleInputChange = useCallback((name, text) => {
+    if (name === "username") {
+      usernameRef.current = text;
+    } else if (name === "password") {
+      passwordRef.current = text;
+    }
+  }, []);
 
   const togglePasswordVisibility = () => {
     setPasswordVisible(!passwordVisible);
   };
 
-  const validateInputs = () => {
-    let valid = true;
-    if (username.trim() === "") {
-      setUsernameError("Email or phone number is required.");
-      valid = false;
-    } else {
-      setUsernameError("");
-    }
-    if (password.trim() === "") {
-      setPasswordError("Password is required.");
-      valid = false;
-    } else {
-      setPasswordError("");
-    }
-    return valid;
-  };
+  const clearErrorMessages = useCallback(() => {
+    setErrors({
+      usernameError: "",
+      passwordError: "",
+    });
+  }, []);
 
-  const handleLoginPress = async () => {
-    if (validateInputs()) {
-      await dispatch(loginSuccess());
-      navigation.navigate("Cá nhân");
+  const validateInputs = useCallback(() => {
+    let valid = true;
+    const username = usernameRef.current.trim();
+    const password = passwordRef.current.trim();
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    const phoneRegex = /^\d{10,15}$/;
+
+    const newErrors = {
+      usernameError: "",
+      passwordError: "",
+    };
+
+    if (username === "") {
+      newErrors.usernameError = "Email or phone number is required.";
+      valid = false;
+    } else if (!emailRegex.test(username) && !phoneRegex.test(username)) {
+      newErrors.usernameError = "Username must be a valid email or phone number.";
+      valid = false;
     }
-  };
+
+    if (password === "") {
+      newErrors.passwordError = "Password is required.";
+      valid = false;
+    } else if (password.length < 6) {
+      newErrors.passwordError = "Password must contain at least 6 characters.";
+      valid = false;
+    }
+
+    setErrors(newErrors);
+
+    if (!valid) {
+      setTimeout(clearErrorMessages, 3000);
+    }
+
+    return valid;
+  }, [clearErrorMessages]);
+
+  const handleLoginPress = useCallback(async () => {
+    if (validateInputs()) {
+      dispatch(loginRequest());
+
+      try {
+        const response = await api.post('/auth/login', {
+          email: usernameRef.current.trim(),
+          password: passwordRef.current.trim(),
+        });
+
+        const { access_token } = response.data;
+
+        dispatch(loginSuccess({ token: access_token }));
+        navigation.navigate("Cá nhân");
+      } catch (error) {
+        dispatch(loginFailure());
+        Alert.alert('Login Failed', error.response?.data?.message || 'Something went wrong');
+      }
+    }
+  }, [validateInputs, dispatch, navigation]);
+
+  const handleRegisterPress = useCallback(() => {
+    navigation.navigate("RegisterScreen", { showBackButton: true });
+  }, [navigation]);
 
   return (
-    <KeyboardAwareScrollView >
+    <KeyboardAwareScrollView>
       <View style={styles.container}>
         <Text style={styles.title}>Đăng nhập</Text>
 
         <View style={styles.inputView}>
-          <Text style={styles.label}>Email/Số điện thoại</Text>
-          <TextInput
-            style={[styles.input, usernameError ? styles.inputError : null]}
+          <TextInputField
+            label="Email/Số điện thoại"
+            valueRef={usernameRef}
+            error={errors.usernameError}
             placeholder="Email hoặc số điện thoại"
-            value={username}
-            onChangeText={setUsername}
-            onSubmitEditing={handleEmailChange}
-            returnKeyType="next"
-            autoCorrect={false}
-            autoFocus={true}
-            autoCapitalize="none"
+            onChange={(e) => handleInputChange("username", e.nativeEvent.text)}
+            refInput={null}
+            onSubmitEditing={() => passwordInputRef.current.focus()}
           />
-          {usernameError ? (
-            <View style={styles.errorContainer}>
-              <MaterialCommunityIcons name="alert-circle" size={16} color="red" />
-              <Text style={styles.errorText}>{usernameError}</Text>
-            </View>
-          ) : null}
-          <Text style={styles.label}>Mật khẩu</Text>
-          <View style={[styles.passwordContainer, passwordError ? styles.inputError : null]}>
-            <TextInput
-              style={styles.passwordInput}
-              placeholder="Mật khẩu"
-              secureTextEntry={!passwordVisible}
-              value={password}
-              onChangeText={setPassword}
-              autoCorrect={false}
-              ref={passwordInputRef}
-              autoCapitalize="none"
-            />
-            <Pressable
-              onPress={togglePasswordVisibility}
-              style={styles.eyeIcon}
-            >
-              <MaterialCommunityIcons
-                name={passwordVisible ? "eye-off" : "eye"}
-                size={24}
-                color="gray"
-              />
-            </Pressable>
-          </View>
-          {passwordError ? (
-            <View style={styles.errorContainer}>
-              <MaterialCommunityIcons name="alert-circle" size={16} color="red" />
-              <Text style={styles.errorText}>{passwordError}</Text>
-            </View>
-          ) : null}
+          <TextInputField
+            label="Mật khẩu"
+            valueRef={passwordRef}
+            error={errors.passwordError}
+            placeholder="Mật khẩu"
+            onChange={(e) => handleInputChange("password", e.nativeEvent.text)}
+            secureTextEntry={!passwordVisible}
+            refInput={passwordInputRef}
+            onSubmitEditing={handleLoginPress}
+            toggleVisibility={togglePasswordVisibility}
+          />
         </View>
+
         <View style={styles.forgetView}>
-          <View>
-            <Pressable onPress={() => Alert.alert("Quên mật khẩu !")}>
-              <Text style={styles.forgetText}>Quên mật khẩu ?</Text>
-            </Pressable>
-          </View>
+          <Pressable onPress={() => Alert.alert("Quên mật khẩu !")}>
+            <Text style={styles.forgetText}>Quên mật khẩu ?</Text>
+          </Pressable>
         </View>
 
         <View style={styles.buttonView}>
@@ -149,11 +207,9 @@ export default function LoginScreen() {
           </Pressable>
         </Text>
       </View>
-    </KeyboardAwareScrollView >
+    </KeyboardAwareScrollView>
   );
 }
-
-const deviceHeight = Dimensions.get("window").height;
 
 const styles = StyleSheet.create({
   container: {
@@ -174,12 +230,17 @@ const styles = StyleSheet.create({
     paddingHorizontal: 25,
     marginBottom: 5,
   },
-  input: {
-    height: 50,
-    paddingHorizontal: 20,
+  inputContainer: {
+    flexDirection: "row",
+    alignItems: "center",
     borderColor: "#03a9f4",
     borderWidth: 1,
     borderRadius: 7,
+  },
+  input: {
+    flex: 1,
+    height: 50,
+    paddingHorizontal: 20,
   },
   inputError: {
     borderColor: "red",
@@ -190,7 +251,7 @@ const styles = StyleSheet.create({
   },
   errorContainer: {
     flexDirection: "row",
-    alignItems: "center",  
+    alignItems: "center",
   },
   errorText: {
     color: "red",
@@ -204,12 +265,6 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     marginTop: 16,
     marginBottom: 16,
-  },
-  switch: {
-    flexDirection: "row",
-    gap: 1,
-    justifyContent: "center",
-    alignItems: "center",
   },
   forgetText: {
     fontSize: 13,
@@ -259,18 +314,6 @@ const styles = StyleSheet.create({
     color: "#ffd31a",
     paddingTop: 1,
     fontSize: 13,
-  },
-  passwordContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-    borderColor: "#03a9f4",
-    borderWidth: 1,
-    borderRadius: 7,
-  },
-  passwordInput: {
-    flex: 1,
-    height: 50,
-    paddingHorizontal: 20,
   },
   eyeIcon: {
     paddingHorizontal: 10,
