@@ -10,11 +10,14 @@ import SupportScreen from "./supportStackScreen/SupportScreen";
 import LoginScreen from "./authStackScreen/LoginScreen";
 import RegisterScreen from "./authStackScreen/RegisterScreen";
 import HistoryScreen from "./historyStackScreen/HistoryScreen";
-import SettingScreen from "./settingStackScreen/SettingScreen";
+
 import HomeScreen from "./homeStackScreen/HomeScreen";
 import NotiScreen from "./notiStackScreen/NotificationScreen";
 import LocationPickerScreen from "./homeStackScreen/LocationPickerScreen";
 import TimePickerScreen from "./homeStackScreen/TimePickerScreen";
+
+import SettingScreen from "./settingStackScreen/SettingScreen";
+import UserInfoScreen from "./settingStackScreen/UserInfoScreen";
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -83,6 +86,7 @@ const SettingStack = () => (
     screenOptions={commonScreenOptions}
   >
     <Stack.Screen name="SettingHome" component={SettingScreen} />
+    <Stack.Screen name="UserInfoScreen" component={UserInfoScreen} />
   </Stack.Navigator>
 );
 
