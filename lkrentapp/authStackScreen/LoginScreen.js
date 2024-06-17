@@ -149,7 +149,7 @@ export default function LoginScreen() {
   }, [validateInputs, dispatch, navigation]);
 
   const handleRegisterPress = useCallback(() => {
-    navigation.navigate("RegisterScreen", { showBackButton: true });
+    navigation.navigate("RegisterScreen", { showBackButton: true , showCloseButton:true, animationType:"slide_from_bottom"});
   }, [navigation]);
 
   return (

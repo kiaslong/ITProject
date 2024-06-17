@@ -18,6 +18,10 @@ import TimePickerScreen from "./homeStackScreen/TimePickerScreen";
 
 import SettingScreen from "./settingStackScreen/SettingScreen";
 import UserInfoScreen from "./settingStackScreen/UserInfoScreen";
+import CustomHeader from "./components/SearchBarWrapper";
+import SearchScreen from "./homeStackScreen/SearchingScreen";
+import Header from "./components/Header";
+import ChangeLocationTimeScreen from "./homeStackScreen/ChangeLocationTimeScreen";
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -33,23 +37,32 @@ export default function App() {
 }
 
 const commonScreenOptions = ({ route }) => ({
+  header: () => (
+    <Header
+      showSearchBar={route.params?.showSearchBar}
+      showCloseButton={route.params?.showCloseButton}
+    />
+  ),
   headerStyle: { backgroundColor: "#fff" },
   headerShown: route.params?.showBackButton ? true : false,
-  headerShadowVisible: false,
-  headerBackTitle: "Back",
-  title: null,
   contentStyle: { flex: 1, backgroundColor: "#fff" },
+  animation: route.params?.animationType,
   transitionSpec: {
-    open: { animation: "timing", config: { duration: 300 } },
-    close: { animation: "timing", config: { duration: 300 } },
+    open: { animation: "timing", config: { duration: 100 } },
+    close: { animation: "timing", config: { duration: 100 } },
   },
 });
 
 const HomeStack = () => (
   <Stack.Navigator initialRouteName="Home" screenOptions={commonScreenOptions}>
     <Stack.Screen name="Home" component={HomeScreen} />
+    <Stack.Screen name="Searching" component={SearchScreen} />
     <Stack.Screen name="LocationPicker" component={LocationPickerScreen} />
     <Stack.Screen name="TimePicker" component={TimePickerScreen} />
+    <Stack.Screen
+      name="ChangeTimeLocation"
+      component={ChangeLocationTimeScreen}
+    />
   </Stack.Navigator>
 );
 

@@ -15,6 +15,11 @@ const initialState = {
   time: `${roundToNext30Minutes(moment()).format('HH:mm, DD/MM')} - ${roundToNext30Minutes(moment().add(1, 'day')).format('HH:mm, DD/MM')}`,
 };
 
+const extractDates = (timeString) => {
+  const [start, end] = timeString.split(' - ').map((time) => moment(time, 'HH:mm, DD/MM'));
+  return { startDate: start, endDate: end };
+};
+
 const timeSlice = createSlice({
   name: 'time',
   initialState,
@@ -25,6 +30,10 @@ const timeSlice = createSlice({
   },
 });
 
+
+
 export const { setTime } = timeSlice.actions;
+export const getStartDate = (state) => extractDates(state.time).startDate;
+export const getEndDate = (state) => extractDates(state.time).endDate;
 
 export default timeSlice.reducer;
