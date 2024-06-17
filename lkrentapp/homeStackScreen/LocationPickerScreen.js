@@ -109,11 +109,11 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#fff',
     paddingHorizontal: 16,
-    paddingTop:6
   },
   containerTitle:{
+    marginTop:10,
     alignSelf:'center',
-    fontSize:20,
+    fontSize:24,
     fontWeight:'bold',
     marginBottom:14,
     color:'#03a9f4'

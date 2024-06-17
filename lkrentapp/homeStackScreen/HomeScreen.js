@@ -17,6 +17,7 @@ import CarCard from "../components/CarCard";
 import PromotionCard from "../components/PromotionCard";
 import ImageCard from "../components/ImageCard";
 import BenefitsCard from "../components/BenefitsCard";
+import SearchBox from "../components/SearchBox";
 
 
 
@@ -328,7 +329,7 @@ export default function HomeScreen({ navigation }) {
           <GiftIcon />
         </View>
       </View>
-      <SearchBar navigation={navigation} />
+      <SearchBox navigation={navigation} />
       <Text style={styles.promotionText}>Chương trình khuyến mãi</Text>
       <FlatListForPromotion setCurrentIndex={setCurrentIndex} />
       <DotIndex currentIndex={currentIndex} />
