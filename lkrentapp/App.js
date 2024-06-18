@@ -1,5 +1,4 @@
 import React from "react";
-import { Image, Platform } from "react-native";
 import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { Ionicons } from "@expo/vector-icons";
@@ -10,7 +9,7 @@ import SupportScreen from "./supportStackScreen/SupportScreen";
 import LoginScreen from "./authStackScreen/LoginScreen";
 import RegisterScreen from "./authStackScreen/RegisterScreen";
 import HistoryScreen from "./historyStackScreen/HistoryScreen";
-
+import { enableScreens } from 'react-native-screens';
 import HomeScreen from "./homeStackScreen/HomeScreen";
 import NotiScreen from "./notiStackScreen/NotificationScreen";
 import LocationPickerScreen from "./homeStackScreen/LocationPickerScreen";
@@ -18,13 +17,14 @@ import TimePickerScreen from "./homeStackScreen/TimePickerScreen";
 
 import SettingScreen from "./settingStackScreen/SettingScreen";
 import UserInfoScreen from "./settingStackScreen/UserInfoScreen";
-import CustomHeader from "./components/SearchBarWrapper";
 import SearchScreen from "./homeStackScreen/SearchingScreen";
 import Header from "./components/Header";
 import ChangeLocationTimeScreen from "./homeStackScreen/ChangeLocationTimeScreen";
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
+
+enableScreens();
 
 export default function App() {
   return (
