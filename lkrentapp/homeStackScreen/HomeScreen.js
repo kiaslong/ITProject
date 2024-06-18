@@ -12,7 +12,6 @@ import {
   Platform
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
-import SearchBar from "../components/SearchBar";
 import CarCard from "../components/CarCard";
 import PromotionCard from "../components/PromotionCard";
 import ImageCard from "../components/ImageCard";

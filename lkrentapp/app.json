@@ -4,6 +4,7 @@
     "slug": "lkrental",
     "version": "1.0.0",
     "orientation": "portrait",
+    "jsEngine": "hermes",
     "icon": "./assets/lkrentlogo.png",
     "userInterfaceStyle": "light",
     "splash": {
@@ -12,13 +13,15 @@
       "backgroundColor": "#98ebff"
     },
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": false
     },
     "android": {
-     
+      "package": "com.kiaslong.lkrental"
     },
-    "web": {
-      "favicon": "./assets/favicon.png"
+    "extra": {
+      "eas": {
+        "projectId": "5d06b491-426d-4f62-9ff6-ad9da43a4018"
+      }
     }
   }
 }
