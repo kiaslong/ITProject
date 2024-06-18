@@ -1,10 +1,10 @@
 import React from 'react';
-import { View, Text, Image, StyleSheet, Dimensions } from 'react-native';
+import { View, Text, Image, StyleSheet, Dimensions, ScrollView } from 'react-native';
 import { FontAwesome5 } from '@expo/vector-icons';
 
 export default function UserInfoScreen({ navigation }) {
   return (
-    <View style={styles.container}>
+    <ScrollView contentContainerStyle={styles.container}>
       <View style={styles.titleContainer}>
         <Text style={styles.title}>Tài khoản của tôi</Text>
         <FontAwesome5 name="pencil-alt" size={20} color="#666" style={styles.pencilIcon} />
@@ -102,7 +102,7 @@ export default function UserInfoScreen({ navigation }) {
         <FontAwesome5 name="angle-right" color="black" style={styles.angleIcon} />
       </View>
 
-    </View>
+    </ScrollView>
   );
 }
 
@@ -110,24 +110,30 @@ const deviceHeight = Dimensions.get('window').height;
 
 const styles = StyleSheet.create({
   container: {
-    justifyContent: 'center',
+    flexGrow: 1,
     alignItems: 'center',
-    paddingEnd:20,
-    paddingStart:20,
+    paddingEnd: 20,
+    paddingStart: 20,
+    paddingTop: 80, // Add some padding to push the title more towards the top
   },
   titleContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 20,
+    justifyContent: 'center',
+    position: 'absolute', // Absolute positioning
+    top: 20, // Position near the top
+    width: '100%',
   },
   title: {
     fontSize: 24,
     fontWeight: 'bold',
     textTransform: 'uppercase',
     color: '#03a9f4',
-    marginRight: 10,
+    textAlign: 'center',
   },
   pencilIcon: {
+    position: 'absolute',
+    right: 20, // Position the icon to the right
     fontSize: 20,
     color: '#666',
   },
