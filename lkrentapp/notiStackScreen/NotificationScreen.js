@@ -39,11 +39,6 @@ export default function NotiScreen() {
       data={sampleData}
       renderItem={renderItem}
       keyExtractor={item => item.id}
-      ListHeaderComponent={() => (
-        <View style={styles.titleContainer}>
-          <Text style={styles.title}>Thông báo</Text>
-        </View>
-      )}
       contentContainerStyle={styles.container}
     />
   );
@@ -53,21 +48,10 @@ const deviceHeight = Dimensions.get("window").height;
 
 const styles = StyleSheet.create({
   container: {
-    paddingTop: deviceHeight < 1000 ? 80 : 100,
+    paddingTop: deviceHeight < 1000 ? 10 : 20,
     backgroundColor: "#fff",
     flexGrow: 1, 
     marginHorizontal:10,
-  },
-  titleContainer: {
-    width: "100%",
-    alignItems: "center",
-    paddingVertical: deviceHeight < 1000 ? 10 : 20,
-  },
-  title: {
-    fontSize: 25,
-    fontWeight: "bold",
-    textTransform: "uppercase",
-    color: "#03a9f4",
   },
   notiContainer: {
     flex: 1,

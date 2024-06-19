@@ -1,46 +1,95 @@
 import React from "react";
-import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
+import {
+  View,
+  TouchableOpacity,
+  StyleSheet,
+  Dimensions,
+  Text,
+} from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { Ionicons } from "@expo/vector-icons";
 import SearchBarWrapper from "./SearchBarWrapper";
 
-const Header = ({ showSearchBar, showCloseButton }) => {
+const Header = ({
+  showBackButton,
+  showTitle,
+  showSearchBar,
+  showCloseButton,
+  screenTitle,
+}) => {
   const navigation = useNavigation();
-  
 
   return (
     <View style={styles.headerContainer}>
-      <TouchableOpacity
-        onPress={() => navigation.goBack()}
-        style={styles.backButton}
-      >
+      {showBackButton && (
+        <TouchableOpacity
+          onPress={() => navigation.goBack()}
+          style={styles.backButton}
+        >
           <Ionicons
             ios="arrow-back"
-            name={showCloseButton ? "close-circle-outline" : "chevron-back-circle-outline"}
+            name={
+              showCloseButton
+                ? "close-circle-outline"
+                : "chevron-back-circle-outline"
+            }
             size={40}
             color="#03a9f4"
           />
-      </TouchableOpacity>
-      {showSearchBar ? (
-        <SearchBarWrapper />
-      ) : null}
+        </TouchableOpacity>
+      )}
+      {showTitle && (
+        <View style={[styles.titleContainer, showBackButton && styles.withBackButton]}>
+          <Text style={styles.title}>{screenTitle}</Text>
+        </View>
+      )}
+      {showSearchBar && (
+        <View style={styles.searchBarContainer}>
+          <SearchBarWrapper />
+        </View>
+      )}
     </View>
   );
 };
 
+const deviceHeight = Dimensions.get("window").height;
+const deviceWidth = Dimensions.get("window").width;
+
 const styles = StyleSheet.create({
   headerContainer: {
-    height:  110,
+    height: deviceHeight * 0.13,
     flexDirection: "row",
     alignItems: "center",
+    justifyContent: "space-between",
     backgroundColor: "#fff",
+    paddingHorizontal: deviceWidth * 0.035,
   },
   backButton: {
-    marginTop: 50,
-    marginLeft: 15,
-    marginRight:2,
+    marginTop: deviceHeight * 0.075,
+    justifyContent: "center",
+    alignItems: "center",
   },
- 
+  titleContainer: {
+    flex: 1,
+    marginTop: deviceHeight * 0.075,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  withBackButton: {
+    marginRight:deviceWidth * 0.1
+  },
+  title: {
+    fontSize: 25,
+    fontWeight: "bold",
+    color: "#03a9f4",
+    textAlign: "center",
+    textTransform: "uppercase",
+  },
+  searchBarContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+  },
 });
 
 export default Header;

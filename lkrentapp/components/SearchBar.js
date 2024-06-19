@@ -16,6 +16,7 @@ const SearchBar = () => {
       <TouchableOpacity
         style={styles.touchable}
         onPress={() => navigation.navigate('ChangeTimeLocation', {
+          showHeader:true,
           showBackButton: true,
           showCloseButton: true,
           animationType: "slide_from_bottom",

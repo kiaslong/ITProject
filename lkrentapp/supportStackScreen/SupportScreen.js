@@ -31,10 +31,7 @@ const supportMenu = [
 export default function SupportScreen() {
   return (
     <View style={styles.container}>
-      <View style={styles.titleContainer}>
-        <Text style={styles.title}>Trung tâm hỗ trợ</Text>
         <FontAwesome6 name="headset" size={50} paddingTop={10} color="black" />
-      </View>
       <View style={styles.supportCard}>
         <Text style={styles.supportText}>
           {`Cần hỗ trợ nhanh vui lòng gọi 0123456789 (7:00-17:00) hoặc gửi tin nhắn vào LKFanpage`}
@@ -102,7 +99,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     alignItems: "center",
-    paddingTop: deviceHeight < 1000 ? 80 : 100,
+    paddingTop: deviceHeight < 1000 ? 10 : 20,
     backgroundColor: "#fff",
   },
   titleContainer: {

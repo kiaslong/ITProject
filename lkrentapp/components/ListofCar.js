@@ -136,7 +136,7 @@ const styles = StyleSheet.create({
     zIndex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    paddingTop: 8,
+    paddingTop: 15,
   },
   iconContainer: {
     flexDirection: 'row',
