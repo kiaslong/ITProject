@@ -12,15 +12,15 @@ export default function SearchBox({ navigation }) {
   const isFocused = useIsFocused();
 
   const handleLocationPress = () => {
-    navigation.navigate('LocationPicker', { showBackButton: true });
+    navigation.navigate('LocationPicker', { showHeader:true,showBackButton: true });
   };
 
   const handleTimePress = () => {
-    navigation.navigate('TimePicker', { showBackButton: true });
+    navigation.navigate('TimePicker', { showHeader:true,showBackButton: true });
   };
 
   const handleSearchPress = () => {
-    navigation.navigate('Searching', { location, time, showSearchBar: true, showBackButton: true });
+    navigation.navigate('Searching', { showBackButton:true , showHeader:true, location, time, showSearchBar: true, showTitle: false});
   };
 
   useEffect(() => {

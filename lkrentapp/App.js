@@ -14,7 +14,6 @@ import HomeScreen from "./homeStackScreen/HomeScreen";
 import NotiScreen from "./notiStackScreen/NotificationScreen";
 import LocationPickerScreen from "./homeStackScreen/LocationPickerScreen";
 import TimePickerScreen from "./homeStackScreen/TimePickerScreen";
-
 import SettingScreen from "./settingStackScreen/SettingScreen";
 import UserInfoScreen from "./settingStackScreen/UserInfoScreen";
 import SearchScreen from "./homeStackScreen/SearchingScreen";
@@ -30,7 +29,7 @@ export default function App() {
   return (
     <Provider store={store}>
       <NavigationContainer>
-        <HomeTabs />
+        <RootStack />
       </NavigationContainer>
     </Provider>
   );
@@ -39,12 +38,15 @@ export default function App() {
 const commonScreenOptions = ({ route }) => ({
   header: () => (
     <Header
+      showTitle={route.params?.showTitle}
+      showBackButton={route.params?.showBackButton}
       showSearchBar={route.params?.showSearchBar}
       showCloseButton={route.params?.showCloseButton}
+      screenTitle={route.params?.screenTitle}
     />
   ),
   headerStyle: { backgroundColor: "#fff" },
-  headerShown: route.params?.showBackButton ? true : false,
+  headerShown: route.params?.showHeader ? true : false,
   contentStyle: { flex: 1, backgroundColor: "#fff" },
   animation: route.params?.animationType,
   transitionSpec: {
@@ -56,60 +58,41 @@ const commonScreenOptions = ({ route }) => ({
 const HomeStack = () => (
   <Stack.Navigator initialRouteName="Home" screenOptions={commonScreenOptions}>
     <Stack.Screen name="Home" component={HomeScreen} />
-    <Stack.Screen name="Searching" component={SearchScreen} />
     <Stack.Screen name="LocationPicker" component={LocationPickerScreen} />
     <Stack.Screen name="TimePicker" component={TimePickerScreen} />
-    <Stack.Screen
-      name="ChangeTimeLocation"
-      component={ChangeLocationTimeScreen}
-    />
+   
   </Stack.Navigator>
 );
 
 const NotiStack = () => (
-  <Stack.Navigator
-    initialRouteName="NotiHome"
-    screenOptions={commonScreenOptions}
-  >
-    <Stack.Screen name="NotiHome" component={NotiScreen} />
+  <Stack.Navigator initialRouteName="NotiHome" screenOptions={commonScreenOptions}>
+    <Stack.Screen name="NotiHome" component={NotiScreen} initialParams={{ showHeader: true, showBackButton: false, showTitle: true, showSearchBar: false, screenTitle: "Thông báo" }} />
   </Stack.Navigator>
 );
 
 const HistoryStack = () => (
-  <Stack.Navigator
-    initialRouteName="HistoryHome"
-    screenOptions={commonScreenOptions}
-  >
-    <Stack.Screen name="HistoryHome" component={HistoryScreen} />
+  <Stack.Navigator initialRouteName="HistoryHome" screenOptions={commonScreenOptions}>
+    <Stack.Screen name="HistoryHome" component={HistoryScreen} initialParams={{ showHeader: true, showBackButton: false, showTitle: true, showSearchBar: false, screenTitle: "Chuyến của tôi" }} />
   </Stack.Navigator>
 );
 
 const SupportStack = () => (
-  <Stack.Navigator
-    initialRouteName="SupportHome"
-    screenOptions={commonScreenOptions}
-  >
-    <Stack.Screen name="SupportHome" component={SupportScreen} />
+  <Stack.Navigator initialRouteName="SupportHome" screenOptions={commonScreenOptions}>
+    <Stack.Screen name="SupportHome" component={SupportScreen} initialParams={{ showHeader: true, showBackButton: false, showTitle: true, showSearchBar: false, screenTitle: "Trung tâm hỗ trợ" }} />
   </Stack.Navigator>
 );
 
 const SettingStack = () => (
-  <Stack.Navigator
-    initialRouteName="SettingHome"
-    screenOptions={commonScreenOptions}
-  >
+  <Stack.Navigator initialRouteName="SettingHome" screenOptions={commonScreenOptions}>
     <Stack.Screen name="SettingHome" component={SettingScreen} />
     <Stack.Screen name="UserInfoScreen" component={UserInfoScreen} />
   </Stack.Navigator>
 );
 
 const AuthStack = () => (
-  <Stack.Navigator
-    initialRouteName="LoginScreen"
-    screenOptions={commonScreenOptions}
-  >
-    <Stack.Screen name="LoginScreen" component={LoginScreen} />
-    <Stack.Screen name="RegisterScreen" component={RegisterScreen} />
+  <Stack.Navigator initialRouteName="LoginScreen" screenOptions={commonScreenOptions}>
+    <Stack.Screen name="LoginScreen" component={LoginScreen} initialParams={{ showHeader: true, showBackButton: false, showTitle: true, showSearchBar: false, screenTitle: "Đăng nhập" }} />
+    
   </Stack.Navigator>
 );
 
@@ -146,10 +129,10 @@ const HomeTabs = () => {
   return (
     <Tab.Navigator
       screenOptions={({ route }) => ({
-        tabBarIcon: ({ focused, color, size }) =>
-          getTabBarIcon(route.name, focused, color, size),
+        tabBarIcon: ({ focused, color, size }) => getTabBarIcon(route.name, focused, color, size),
         tabBarActiveTintColor: "#03a9f4",
         tabBarInactiveTintColor: "gray",
+        tabBarHideOnKeyboard: true,
         headerShown: false,
       })}
     >
@@ -157,10 +140,16 @@ const HomeTabs = () => {
       <Tab.Screen name="Thông báo" component={NotiStack} />
       <Tab.Screen name="Chuyến" component={HistoryStack} />
       <Tab.Screen name="Hỗ trợ" component={SupportStack} />
-      <Tab.Screen
-        name={isLoggedIn ? "Cá nhân" : "Đăng nhập"}
-        component={isLoggedIn ? SettingStack : AuthStack}
-      />
+      <Tab.Screen name={isLoggedIn ? "Cá nhân" : "Đăng nhập"} component={isLoggedIn ? SettingStack : AuthStack} />
     </Tab.Navigator>
   );
 };
+
+const RootStack = () => (
+  <Stack.Navigator initialRouteName="Main" screenOptions={commonScreenOptions} >
+    <Stack.Screen name="Main" component={HomeTabs}  />
+    <Stack.Screen name="Searching" component={SearchScreen}  />
+    <Stack.Screen name="RegisterScreen" component={RegisterScreen} />
+    <Stack.Screen name="ChangeTimeLocation" component={ChangeLocationTimeScreen} />
+  </Stack.Navigator>
+);

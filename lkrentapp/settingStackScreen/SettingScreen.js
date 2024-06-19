@@ -75,7 +75,7 @@ const SettingScreen = () => {
   ];
 
   const handleMenuPress = (screen) => {
-    navigation.navigate(screen, { showBackButton: true });
+    navigation.navigate(screen, { showHeader:true,showTitle:true,showBackButton: true });
   };
 
   const handleLogoutPress = async () => {

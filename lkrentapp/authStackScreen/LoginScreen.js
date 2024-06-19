@@ -13,7 +13,6 @@ import { useNavigation } from "@react-navigation/native";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useDispatch } from 'react-redux';
 import { loginRequest, loginSuccess, loginFailure } from '../store/loginSlice';
-import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import api from '../api';
 
 const googleLogo = require("../assets/gglogo.png");
@@ -149,13 +148,12 @@ export default function LoginScreen() {
   }, [validateInputs, dispatch, navigation]);
 
   const handleRegisterPress = useCallback(() => {
-    navigation.navigate("RegisterScreen", { showBackButton: true , showCloseButton:true, animationType:"slide_from_bottom"});
+    navigation.navigate("RegisterScreen", { screenTitle:"Đăng ký" ,showTitle:true , showHeader:true, showBackButton: true , showCloseButton:true, animationType:"slide_from_bottom"});
   }, [navigation]);
 
   return (
-    <KeyboardAwareScrollView>
+    <View >
       <View style={styles.container}>
-        <Text style={styles.title}>Đăng nhập</Text>
 
         <View style={styles.inputView}>
           <TextInputField
@@ -207,22 +205,14 @@ export default function LoginScreen() {
           </Pressable>
         </Text>
       </View>
-    </KeyboardAwareScrollView>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     alignItems: "center",
-    paddingTop: deviceHeight < 1000 ? 80 : 100,
-  },
-  title: {
-    fontSize: 25,
-    fontWeight: "bold",
-    textTransform: "uppercase",
-    textAlign: "left",
-    paddingVertical: 40,
-    color: "#03a9f4",
+    paddingTop: deviceHeight < 1000 ? 30 : 40,
   },
   inputView: {
     gap: 15,
