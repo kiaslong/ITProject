@@ -4,12 +4,9 @@ import ListOfCar from '../components/ListofCar';
 
 
 const SearchScreen = () => {
-  const [searchQuery, setSearchQuery] = useState('');
 
-  const handleSearch = (query) => {
-    setSearchQuery(query);
-    // Add your search logic here
-  };
+  
+  
 
   return (
     <View style={styles.container}>
