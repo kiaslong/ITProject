@@ -28,7 +28,7 @@ const SettingScreen = () => {
       id: 2,
       name: "Đăng ký cho thuê xe",
       icon: "car-sport-outline",
-      screen: "RegisterCarScreen",
+      screen: "UserRegisterCarScreen",
     },
     {
       id: 3,
