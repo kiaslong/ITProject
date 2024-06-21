@@ -209,7 +209,6 @@ const styles = StyleSheet.create({
     zIndex: 1,
     alignItems: "center",
     justifyContent: "center",
-    paddingTop: 15,
   },
   iconContainer: {
     flexDirection: "row",
