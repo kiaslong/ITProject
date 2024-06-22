@@ -17,6 +17,8 @@ import LocationPickerScreen from "./homeStackScreen/LocationPickerScreen";
 import TimePickerScreen from "./homeStackScreen/TimePickerScreen";
 import SettingScreen from "./settingStackScreen/SettingScreen";
 import UserInfoScreen from "./settingStackScreen/UserInfoScreen";
+import RegisterCarScreen from "./settingStackScreen/RegisterCarScreen";
+import UserRegisterCarScreen from "./settingStackScreen/UserRegisterCarScreen";
 import SearchScreen from "./homeStackScreen/SearchingScreen";
 import Header from "./components/Header";
 import ChangeLocationTimeScreen from "./homeStackScreen/ChangeLocationTimeScreen";
@@ -27,6 +29,8 @@ const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
 
 enableScreens();
+
+
 
 export default function App() {
   return (
@@ -47,7 +51,10 @@ const commonScreenOptions = ({ route }) => ({
       showBackButton={route.params?.showBackButton}
       showSearchBar={route.params?.showSearchBar}
       showCloseButton={route.params?.showCloseButton}
+      showIcon={route.params?.showIcon}
+      iconName={route.params?.iconName}
       screenTitle={route.params?.screenTitle}
+      functionName={route.params?.functionName}
     />
   ),
   headerStyle: { backgroundColor: "#fff" },
@@ -91,6 +98,9 @@ const SettingStack = () => (
   <Stack.Navigator initialRouteName="SettingHome" screenOptions={commonScreenOptions}>
     <Stack.Screen name="SettingHome" component={SettingScreen} />
     <Stack.Screen name="UserInfoScreen" component={UserInfoScreen} />
+  
+    
+
   </Stack.Navigator>
 );
 
@@ -155,6 +165,8 @@ const RootStack = () => (
     <Stack.Screen name="Main" component={HomeTabs}  />
     <Stack.Screen name="Searching" component={SearchScreen}  />
     <Stack.Screen name="RegisterScreen" component={RegisterScreen} />
+    <Stack.Screen name="UserRegisterCarScreen" component={UserRegisterCarScreen}  />
     <Stack.Screen name="ChangeTimeLocation" component={ChangeLocationTimeScreen} />
+    <Stack.Screen name="RegisterCarScreen" component={RegisterCarScreen} />
   </Stack.Navigator>
 );

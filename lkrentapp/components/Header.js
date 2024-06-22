@@ -7,8 +7,9 @@ import {
   Text,
 } from "react-native";
 import { useNavigation } from "@react-navigation/native";
-import { Ionicons } from "@expo/vector-icons";
+import { Ionicons, FontAwesome5 } from "@expo/vector-icons";
 import SearchBarWrapper from "./SearchBarWrapper";
+import { getFunction } from '../store/functionRegistry';
 
 const Header = ({
   showBackButton,
@@ -16,8 +17,13 @@ const Header = ({
   showSearchBar,
   showCloseButton,
   screenTitle,
+  showIcon,
+  iconName,
+  functionName,
 }) => {
   const navigation = useNavigation();
+  const onPress = getFunction(functionName);
+ 
 
   return (
     <View style={styles.headerContainer}>
@@ -39,8 +45,16 @@ const Header = ({
         </TouchableOpacity>
       )}
       {showTitle && (
-        <View style={[styles.titleContainer, showBackButton && styles.withBackButton]}>
+        <View 
+          style={[
+            styles.titleContainer,
+            showBackButton && styles.withBackButton,
+          ]}
+        >
           <Text style={styles.title}>{screenTitle}</Text>
+          {showIcon && (
+            <FontAwesome5 name={iconName} size={26} color="#666" style={[styles.icon, showBackButton && styles.iconWithBackButton]} onPress={onPress} />
+          )}
         </View>
       )}
       {showSearchBar && (
@@ -54,6 +68,7 @@ const Header = ({
 
 const deviceHeight = Dimensions.get("window").height;
 const deviceWidth = Dimensions.get("window").width;
+
 
 const styles = StyleSheet.create({
   headerContainer: {
@@ -71,12 +86,14 @@ const styles = StyleSheet.create({
   },
   titleContainer: {
     flex: 1,
+    flexDirection: "row",
     marginTop: deviceHeight * 0.075,
     justifyContent: "center",
     alignItems: "center",
+    position: "relative", // Added for positioning the icon
   },
   withBackButton: {
-    marginRight:deviceWidth * 0.1
+    marginRight: deviceWidth * 0.1,
   },
   title: {
     fontSize: 25,
@@ -89,6 +106,13 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
+  },
+  icon: {
+    position: "absolute",
+    right: 10, // Position the icon to the far right within the titleContainer
+  },
+  iconWithBackButton: {
+    right: - (deviceWidth * 0.06 + 8), // Adjust position to account for back button
   },
 });
 

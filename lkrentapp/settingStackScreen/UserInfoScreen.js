@@ -3,16 +3,11 @@ import { View, Text, Image, StyleSheet, Dimensions, ScrollView } from 'react-nat
 import { FontAwesome5 } from '@expo/vector-icons';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-const { width: screenWidth } = Dimensions.get('window');
 
 export default function UserInfoScreen() {
   return (
     <View style={styles.safeContainer}>
       <View style={styles.container}>
-        <View style={styles.titleContainer}>
-          <Text style={styles.title}>Tài khoản của tôi</Text>
-          <FontAwesome5 name="pencil-alt" size={20} color="#666" style={styles.pencilIcon} />
-        </View>
         <Image
           source={{
             uri: "https://cdn.idntimes.com/content-images/community/2022/03/1714382190-93512ef73cc9128141b72669a922c6ee-f48b234e3eecffd2d897cd799c3043de.jpg",
