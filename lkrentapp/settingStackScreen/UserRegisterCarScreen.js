@@ -1,7 +1,7 @@
-import React from 'react';
+import React,{useEffect} from 'react';
 import { View, Text, FlatList, StyleSheet, TouchableOpacity } from 'react-native';
-import { FontAwesome5 } from '@expo/vector-icons'; // Import FontAwesome5
-import { useNavigation } from '@react-navigation/native'; // Import useNavigation
+import { useNavigation } from '@react-navigation/native';
+import { registerFunction , unregisterFunction  } from '../store/functionRegistry'; // Import useNavigation
 import CarCard from "../components/CarCard";
 
 const carForYou = [
@@ -38,6 +38,28 @@ const carForYou = [
 const UserRegisterCarScreen = () => {
   const navigation = useNavigation(); // Initialize navigation
 
+  useEffect(() => {
+    const key = 'registerCar';
+    const onPress = () => navigation.navigate('RegisterCarScreen', {
+      showHeader: true,
+      showTitle: true,
+      showBackButton: true,
+      screenTitle: "Thông tin xe",
+      showIcon: true,
+      iconName: "car",
+      showCloseButton: true,
+      animationType: "slide_from_bottom"
+    });
+
+    registerFunction(key, onPress);
+   
+
+    return () => {
+      unregisterFunction(key);
+    
+    };
+  }, [navigation]);
+
   const renderItem = ({ item }) => (
     <View style={styles.itemContainer}>
       <CarCard carsInfo={item} />
@@ -46,24 +68,15 @@ const UserRegisterCarScreen = () => {
 
   return (
     <View style={styles.container}>
-      <View style={styles.titleContainer}>
-        <Text style={styles.title}>Danh sách xe</Text>
-        <FontAwesome5
-          name="car"
-          size={20}
-          color="#666"
-          style={styles.icon}
-          onPress={() => navigation.navigate('RegisterCarScreen', { showHeader: true, showTitle: true, showBackButton: true })} // Navigate on icon press
-        />
-      </View>
       <FlatList
         data={carForYou}
+        showsVerticalScrollIndicator={false}
         renderItem={renderItem}
         keyExtractor={(item) => item.id}
       />
       <TouchableOpacity
         style={styles.button}
-        onPress={() => navigation.navigate('RegisterCarScreen', { showHeader: true, showTitle: true, showBackButton: true })}
+        onPress={() => navigation.navigate('RegisterCarScreen', { showHeader: true, showTitle: true, showBackButton: true , screenTitle:"Thông tin xe", showIcon:true, iconName:"car",showCloseButton:true,animationType:"slide_from_bottom" })}
       >
         <Text style={styles.buttonText}>Đăng ký xe mới</Text>
       </TouchableOpacity>

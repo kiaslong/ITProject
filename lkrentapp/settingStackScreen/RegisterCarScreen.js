@@ -12,14 +12,11 @@ import {
   ScrollView,
   TouchableOpacity,
 } from 'react-native';
-import { FontAwesome5 } from '@expo/vector-icons';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import { Picker } from '@react-native-picker/picker';
-import { useNavigation } from '@react-navigation/native'; // Import useNavigation hook
-import * as ImagePicker from 'expo-image-picker'; // Import ImagePicker from expo
+import * as ImagePicker from 'expo-image-picker';
 
 const RegisterCarScreen = () => {
-  const navigation = useNavigation(); // Initialize navigation
 
   const licensePlateRef = useRef(null);
   const companyRef = useRef(null);
@@ -37,11 +34,11 @@ const RegisterCarScreen = () => {
   const [selectedSeats, setSelectedSeats] = useState('');
   const [showYearPicker, setShowYearPicker] = useState(false);
   const [showSeatsPicker, setShowSeatsPicker] = useState(false);
-  const [transmission, setTransmission] = useState('Automatic'); // Default to 'Automatic'
-  const [fuel, setFuel] = useState('Gasoline'); // Default to 'Gasoline'
-  const [images, setImages] = useState([]); // State to store selected images
-  const [documents, setDocuments] = useState([]); // State to store selected car documents
-  const [promotion, setPromotion] = useState('Có'); // Default to 'Có'
+  const [transmission, setTransmission] = useState('Automatic');
+  const [fuel, setFuel] = useState('Gasoline');
+  const [images, setImages] = useState([]);
+  const [documents, setDocuments] = useState([]);
+  const [promotion, setPromotion] = useState('Có');
 
   useEffect(() => {
     (async () => {
@@ -138,10 +135,10 @@ const RegisterCarScreen = () => {
       modelRef.current = '';
       setSelectedYear('');
       setSelectedSeats('');
-      setTransmission('Automatic'); // Reset to default
-      setFuel('Gasoline'); // Reset to default
-      setImages([]); // Clear images
-      setDocuments([]); // Clear documents
+      setTransmission('Automatic');
+      setFuel('Gasoline');
+      setImages([]);
+      setDocuments([]);
     }
   };
 
@@ -170,14 +167,14 @@ const RegisterCarScreen = () => {
   };
 
   const handleDeleteImage = (uri) => {
-    setImages(images.filter(image => image.uri !== uri));
+    setImages(images.filter((image) => image.uri !== uri));
   };
 
   const handleDeleteDocument = (uri) => {
-    setDocuments(documents.filter(document => document.uri !== uri));
+    setDocuments(documents.filter((document) => document.uri !== uri));
   };
 
-  const years = Array.from(new Array(30), (_, index) => (new Date()).getFullYear() - index);
+  const years = Array.from(new Array(30), (_, index) => new Date().getFullYear() - index);
   const seats = Array.from({ length: 7 }, (_, i) => (i + 4).toString());
 
   return (
@@ -185,23 +182,12 @@ const RegisterCarScreen = () => {
       style={{ flex: 1 }}
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
     >
-      <View style={styles.titleContainer}>
-        <Text style={styles.title}>Thông tin xe</Text>
-        <FontAwesome5
-          name="car"
-          size={20}
-          color="#666"
-          style={styles.icon}
-          onPress={() => navigation.navigate('UserRegisterCarScreen',{ showHeader:true,showTitle:true,showBackButton: true })} // Navigate on icon press
-        />
-      </View>
       <KeyboardAwareScrollView
         contentContainerStyle={styles.scrollContainer}
         enableOnAndroid={true}
         keyboardShouldPersistTaps="handled"
-      >
+        showsVerticalScrollIndicator={false}      >
         <View style={styles.inputView}>
-          {/* Input fields and other elements */}
           <View style={styles.inputGroup}>
             <Text style={styles.label}>Biển số xe</Text>
             <View style={[styles.inputContainer, errors.licensePlateError ? styles.inputError : null]}>
@@ -282,7 +268,7 @@ const RegisterCarScreen = () => {
                   style={styles.picker}
                   onValueChange={(itemValue) => {
                     setSelectedYear(itemValue);
-                    setShowYearPicker(false); // Hide Picker after selecting year
+                    setShowYearPicker(false);
                   }}
                 >
                   {years.map((year) => (
@@ -308,7 +294,7 @@ const RegisterCarScreen = () => {
                   style={styles.picker}
                   onValueChange={(itemValue) => {
                     setSelectedSeats(itemValue);
-                    setShowSeatsPicker(false); // Hide Picker after selecting seats
+                    setShowSeatsPicker(false);
                   }}
                 >
                   {seats.map((seat) => (
@@ -341,8 +327,7 @@ const RegisterCarScreen = () => {
               <Pressable
                 style={[
                   styles.transmissionButton,
-                  transmission === 'Manual' ?
-                  styles.transmissionButtonSelected : null,
+                  transmission === 'Manual' ? styles.transmissionButtonSelected : null,
                 ]}
                 onPress={() => setTransmission('Manual')}
               >
@@ -412,10 +397,8 @@ const RegisterCarScreen = () => {
             </View>
           </View>
 
-          {/* Middle line */}
           <View style={styles.middleLine}></View>
 
-          {/* Additional Information */}
           <Text style={styles.additionalInfoTitle}>Thông tin bổ sung</Text>
           <View style={styles.inputGroup}>
             <Text style={styles.label}>Địa chỉ xe</Text>
@@ -429,7 +412,6 @@ const RegisterCarScreen = () => {
             </View>
           </View>
 
-          {/* Image Picker */}
           <View style={styles.inputGroup}>
             <Text style={styles.label}>Hình ảnh xe</Text>
             <Pressable style={styles.pickImageButton} onPress={handlePickImage}>
@@ -453,7 +435,6 @@ const RegisterCarScreen = () => {
             </ScrollView>
           </View>
 
-          {/* Document Picker */}
           <View style={styles.inputGroup}>
             <Text style={styles.label}>Giấy tờ xe</Text>
             <Pressable style={styles.pickImageButton} onPress={handlePickDocument}>
@@ -477,7 +458,6 @@ const RegisterCarScreen = () => {
             </ScrollView>
           </View>
 
-          {/* Car Description */}
           <View style={styles.inputGroup}>
             <Text style={styles.label}>Mô tả xe</Text>
             <View style={[styles.inputContainer, styles.descriptionContainer]}>
@@ -493,7 +473,6 @@ const RegisterCarScreen = () => {
             </View>
           </View>
 
-          {/* Rental Price */}
           <View style={styles.inputGroup}>
             <Text style={styles.label}>Giá cho thuê (VNĐ)</Text>
             <View style={styles.inputContainer}>
@@ -508,7 +487,6 @@ const RegisterCarScreen = () => {
             </View>
           </View>
 
-          {/* Promotion */}
           <View style={styles.inputGroup}>
             <Text style={styles.label}>Áp dụng khuyến mãi</Text>
             <View style={styles.rowContainer}>
@@ -596,10 +574,10 @@ const styles = StyleSheet.create({
     borderRadius: 7,
     padding: 10,
     width: '100%',
-    height: 40, // Adjusted height
+    height: 40,
   },
   descriptionContainer: {
-    height: 100, // Larger height for description
+    height: 100,
   },
   input: {
     flex: 1,
@@ -607,7 +585,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
   },
   descriptionInput: {
-    textAlignVertical: 'top', // Align text to the top for multiline input
+    textAlignVertical: 'top',
   },
   inputError: {
     borderColor: 'red',
@@ -615,7 +593,7 @@ const styles = StyleSheet.create({
   label: {
     fontSize: 16,
     fontWeight: '400',
-    marginBottom: 5,
+    marginBottom: 6,
   },
   errorContainer: {
     flexDirection: 'row',
@@ -649,7 +627,7 @@ const styles = StyleSheet.create({
   },
   transmissionButton: {
     flex: 1,
-    height: 40, // Adjusted height
+    height: 40,
     justifyContent: 'center',
     alignItems: 'center',
     borderColor: '#03a9f4',
@@ -668,8 +646,8 @@ const styles = StyleSheet.create({
     color: '#fff',
   },
   buttonContainer: {
-    marginTop: 20,
     width: '100%',
+    marginBottom: 50,
   },
   button: {
     backgroundColor: '#03a9f4',

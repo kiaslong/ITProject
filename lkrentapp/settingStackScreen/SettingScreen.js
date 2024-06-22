@@ -17,18 +17,25 @@ const SettingScreen = () => {
   const dispatch = useDispatch();
   const navigation = useNavigation();
 
+
+
   const profileMenu = [
     {
       id: 1,
       name: "Tài khoản của tôi",
       icon: "person-circle-outline",
       screen: "UserInfoScreen",
+      title: "Tài khoản của tôi",
+      iconName:"pencil-alt"
     },
     {
       id: 2,
       name: "Đăng ký cho thuê xe",
       icon: "car-sport-outline",
       screen: "UserRegisterCarScreen",
+      title: "Danh Sách Xe",
+      iconName:"car",
+      functionName:"registerCar"
     },
     {
       id: 3,
@@ -74,8 +81,8 @@ const SettingScreen = () => {
     },
   ];
 
-  const handleMenuPress = (screen) => {
-    navigation.navigate(screen, { showHeader:true,showTitle:true,showBackButton: true });
+  const handleMenuPress = (screen, title, iconName , functionName) => {
+    navigation.navigate(screen, { showHeader:true, showTitle:true, showBackButton: true , screenTitle: title, showIcon:true , iconName: iconName , functionName: functionName } );
   };
 
   const handleLogoutPress = async () => {
@@ -92,7 +99,7 @@ const SettingScreen = () => {
     ({ item }) => (
       <TouchableOpacity
         style={styles.menuItem}
-        onPress={() => handleMenuPress(item.screen)}
+        onPress={() => handleMenuPress(item.screen, item.title, item.iconName , item.functionName)}
       >
         <Ionicons name={item.icon} size={23} padding={5} />
         <Text style={styles.menuText}>{item.name}</Text>

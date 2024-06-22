@@ -1,9 +1,34 @@
-import React from 'react';
-import { StyleSheet, Text, View, Dimensions, FlatList } from "react-native";
+import React , { useEffect } from 'react';
+import { StyleSheet,  View, FlatList } from "react-native";
+import { useNavigation } from '@react-navigation/native';
 import HistoryListItem from "../components/HistoryListItem";
+import { registerFunction , unregisterFunction  } from '../store/functionRegistry';
+
 
 export default function HistoryScreen() {
-  
+  const navigation = useNavigation();
+    
+  useEffect(() => {
+    navigation.setParams({
+      showIcon:true,
+      iconName:"calendar",
+      functionName:"calendarPress"
+    });
+  }, [navigation]);
+
+
+  useEffect(() => {
+    const key = 'calendarPress';
+    const onPress = () => {console.log("Chao cac ban ")} ;
+
+    registerFunction(key, onPress);
+   
+
+    return () => {
+      unregisterFunction(key);
+    
+    };
+  }, [navigation]);
 
   const history = [
     {
@@ -48,7 +73,7 @@ export default function HistoryScreen() {
   );
 }
 
-const deviceHeight = Dimensions.get("window").height;
+
 
 const styles = StyleSheet.create({
   container: {
