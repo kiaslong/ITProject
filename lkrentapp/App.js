@@ -17,6 +17,8 @@ import LocationPickerScreen from "./homeStackScreen/LocationPickerScreen";
 import TimePickerScreen from "./homeStackScreen/TimePickerScreen";
 import SettingScreen from "./settingStackScreen/SettingScreen";
 import UserInfoScreen from "./settingStackScreen/UserInfoScreen";
+import RegisterCarScreen from "./settingStackScreen/RegisterCarScreen";
+import UserRegisterCarScreen from "./settingStackScreen/UserRegisterCarScreen";
 import SearchScreen from "./homeStackScreen/SearchingScreen";
 import Header from "./components/Header";
 import ChangeLocationTimeScreen from "./homeStackScreen/ChangeLocationTimeScreen";
@@ -91,6 +93,10 @@ const SettingStack = () => (
   <Stack.Navigator initialRouteName="SettingHome" screenOptions={commonScreenOptions}>
     <Stack.Screen name="SettingHome" component={SettingScreen} />
     <Stack.Screen name="UserInfoScreen" component={UserInfoScreen} />
+    <Stack.Screen name="RegisterCarScreen" component={RegisterCarScreen} />
+    <Stack.Screen name="UserRegisterCarScreen" component={UserRegisterCarScreen} />
+
+
   </Stack.Navigator>
 );
 
