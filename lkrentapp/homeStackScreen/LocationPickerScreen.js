@@ -51,7 +51,7 @@ export default function LocationPicker({ navigation }) {
 
   return (
       <View style={styles.container}>
-        <Text style={styles.containerTitle}>Địa điểm</Text>
+       
         <View style={styles.searchContainer}>
           <Ionicons name="location-outline" size={24} color="black" style={styles.icon} />
           <TextInput
@@ -133,7 +133,8 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     paddingHorizontal: 10,
     paddingVertical: 14,
-    marginBottom: 20,
+    marginTop:20,
+    marginBottom: 25,
   },
   icon: {
     marginRight: 8,
@@ -145,7 +146,7 @@ const styles = StyleSheet.create({
   currentLocationContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 16,
+    marginBottom: 25,
   },
   currentLocationText: {
     marginLeft: 8,

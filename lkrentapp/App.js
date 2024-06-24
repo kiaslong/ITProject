@@ -22,7 +22,7 @@ import UserRegisterCarScreen from "./settingStackScreen/UserRegisterCarScreen";
 import SearchScreen from "./homeStackScreen/SearchingScreen";
 import Header from "./components/Header";
 import ChangeLocationTimeScreen from "./homeStackScreen/ChangeLocationTimeScreen";
-
+import CarDetailScreen from './homeStackScreen/CarDetailScreen';
 
 
 const Stack = createNativeStackNavigator();
@@ -70,8 +70,7 @@ const commonScreenOptions = ({ route }) => ({
 const HomeStack = () => (
   <Stack.Navigator initialRouteName="Home" screenOptions={commonScreenOptions}>
     <Stack.Screen name="Home" component={HomeScreen} />
-    <Stack.Screen name="LocationPicker" component={LocationPickerScreen} />
-    <Stack.Screen name="TimePicker" component={TimePickerScreen} />
+   
    
   </Stack.Navigator>
 );
@@ -163,6 +162,9 @@ const HomeTabs = () => {
 const RootStack = () => (
   <Stack.Navigator initialRouteName="Main" screenOptions={commonScreenOptions} >
     <Stack.Screen name="Main" component={HomeTabs}  />
+    <Stack.Screen name="CarDetail" component={CarDetailScreen} />
+    <Stack.Screen name="LocationPicker" component={LocationPickerScreen} />
+    <Stack.Screen name="TimePicker" component={TimePickerScreen} />
     <Stack.Screen name="Searching" component={SearchScreen}  />
     <Stack.Screen name="RegisterScreen" component={RegisterScreen} />
     <Stack.Screen name="UserRegisterCarScreen" component={UserRegisterCarScreen}  />

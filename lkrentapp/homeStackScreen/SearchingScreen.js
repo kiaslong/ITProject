@@ -3,14 +3,14 @@ import { View, StyleSheet,Text } from 'react-native';
 import ListOfCar from '../components/ListofCar';
 
 
-const SearchScreen = () => {
+const SearchScreen = ({navigation}) => {
 
   
   
 
   return (
     <View style={styles.container}>
-      <ListOfCar />
+      <ListOfCar navigation={navigation} />
     </View>
   );
 };
