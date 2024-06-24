@@ -2,43 +2,49 @@ import React, { useState } from 'react';
 import { View, Text, Image, StyleSheet, TouchableOpacity } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
 
-const CarCard = ({ carsInfo }) => {
+const CarCard = ({ carsInfo, navigation }) => {
   const [isFavorite, setIsFavorite] = useState(false);
 
   const toggleFavorite = () => {
     setIsFavorite(!isFavorite);
   };
 
+  const handlePress = () => {
+    navigation.navigate('CarDetail', { carInfo: carsInfo });
+  };
+
   return (
-    <View style={styles.card}>
-      <Image source={{ uri: carsInfo.image }} style={styles.image} />
-      <TouchableOpacity style={styles.heartIcon} onPress={toggleFavorite}>
-        <Icon name={isFavorite ? "heart" : "heart-o"} size={24} color="#03a9f4" />
-      </TouchableOpacity>
-      <View style={styles.status}>
-        <Text style={styles.fastBooking}>Đặt xe nhanh ⚡</Text>
-      </View>
-      <View style={styles.details}>
-        <View style={styles.info}>
-          <Text style={styles.transmission}>{carsInfo.transmission}</Text>
-          <Text style={styles.delivery}>{carsInfo.delivery}</Text>
+    <TouchableOpacity onPress={handlePress}>
+      <View style={styles.card}>
+        <Image source={{ uri: carsInfo.image }} style={styles.image} />
+        <TouchableOpacity style={styles.heartIcon} onPress={toggleFavorite}>
+          <Icon name={isFavorite ? 'heart' : 'heart-o'} size={24} color="#03a9f4" />
+        </TouchableOpacity>
+        <View style={styles.status}>
+          <Text style={styles.fastBooking}>Đặt xe nhanh ⚡</Text>
         </View>
-        <Text style={styles.title}>{carsInfo.title}</Text>
-        <Text style={styles.location}>{carsInfo.location}</Text>
-        <View style={styles.separator} />
-        <View style={styles.rating}>
-          <Text style={styles.ratingText}>{carsInfo.rating} ⭐</Text>
-          <Text style={styles.trips}>{carsInfo.trips} chuyến</Text>
-        </View>
-        <View style={styles.priceSection}>
-          <View style={styles.price}>
-            <Text style={styles.oldPrice}>{carsInfo.oldPrice}₫</Text>
-            <Text style={styles.newPrice}>{carsInfo.newPrice}₫/ngày</Text>
+        <View style={styles.details}>
+          <View style={styles.info}>
+            <Text style={styles.transmission}>{carsInfo.transmission}</Text>
+            <Text style={styles.delivery}>{carsInfo.delivery}</Text>
           </View>
-          <Text style={styles.discount}>Giảm {carsInfo.discount}</Text>
+          <Text style={styles.title}>{carsInfo.title}</Text>
+          <Text style={styles.location}>{carsInfo.location}</Text>
+          <View style={styles.separator} />
+          <View style={styles.rating}>
+            <Text style={styles.ratingText}>{carsInfo.rating} ⭐</Text>
+            <Text style={styles.trips}>{carsInfo.trips} chuyến</Text>
+          </View>
+          <View style={styles.priceSection}>
+            <View style={styles.price}>
+              <Text style={styles.oldPrice}>{carsInfo.oldPrice}₫</Text>
+              <Text style={styles.newPrice}>{carsInfo.newPrice}₫/ngày</Text>
+            </View>
+            <Text style={styles.discount}>Giảm {carsInfo.discount}</Text>
+          </View>
         </View>
       </View>
-    </View>
+    </TouchableOpacity>
   );
 };
 
@@ -57,6 +63,7 @@ const styles = StyleSheet.create({
     width: '100%',
     alignSelf: 'center',
     position: 'relative',
+    marginBottom: 16,
   },
   image: {
     width: '100%',
@@ -77,7 +84,7 @@ const styles = StyleSheet.create({
     shadowColor: '#000',
     shadowOpacity: 0.3,
     shadowRadius: 3,
-    shadowOffset: { width: 0, height: 2},
+    shadowOffset: { width: 0, height: 2 },
     elevation: 6,
   },
   status: {

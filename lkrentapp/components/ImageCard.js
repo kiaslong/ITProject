@@ -1,5 +1,6 @@
 import React from 'react';
 import { StyleSheet, Text, View, ImageBackground, TouchableOpacity, Dimensions } from 'react-native';
+import { useNavigation } from "@react-navigation/native";
 
 const { width } = Dimensions.get('window');
 
@@ -12,6 +13,20 @@ const ImageCard = ({
   showDescription = true,
   showButton = true,
 }) => {
+  const navigation = useNavigation();
+
+  const handleMenuPress = () => {
+    navigation.navigate("UserRegisterCarScreen", {
+      showHeader: true,
+      showTitle: true,
+      showBackButton: true,
+      screenTitle: "Danh Sách Xe",
+      showIcon: true,
+      iconName: "car",
+      functionName: "registerCar"
+    });
+  };
+
   return (
     <View style={styles.card}>
       <ImageBackground 
@@ -28,7 +43,7 @@ const ImageCard = ({
             </Text>
           )}
           {showButton && (
-            <TouchableOpacity style={styles.button}>
+            <TouchableOpacity style={styles.button} onPress={handleMenuPress}>
               <Text style={styles.buttonText}>{buttonText}</Text>
             </TouchableOpacity>
           )}
@@ -46,10 +61,10 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
     marginVertical: 20,
     alignSelf: 'center',
-    elevation: 5, 
-    shadowColor: '#000', 
-    shadowOffset: { width: 0, height: 2 }, 
-    shadowOpacity: 0.8, 
+    elevation: 5,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.8,
     shadowRadius: 2,
   },
   image: {
@@ -66,7 +81,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(0,0,0,0.5)',
   },
   textContainer: {
-    alignItems: 'left',
+    alignItems: 'flex-start', // Changed from 'left' to 'flex-start'
     paddingHorizontal: 20,
   },
   title: {
@@ -85,7 +100,7 @@ const styles = StyleSheet.create({
     color: '#03a9f4',
   },
   button: {
-    width:"50%",
+    width: "50%",
     backgroundColor: '#03a9f4',
     paddingVertical: 10,
     paddingHorizontal: 20,

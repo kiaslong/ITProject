@@ -134,7 +134,7 @@ function DotIndex({ currentIndex }) {
   );
 }
 
-function CarCardList({ carList }) {
+function CarCardList({ carList, navigation }) {
   const normalWidth = width * 0.9;
   const oneItemWidth = width * 0.92;
   const gap = 16;
@@ -156,7 +156,7 @@ function CarCardList({ carList }) {
               width: adjustedWidth,
             }}
           >
-            <CarCard carsInfo={item} />
+            <CarCard carsInfo={item} navigation={navigation} />
           </View>
         )}
         showsHorizontalScrollIndicator={false}
@@ -333,9 +333,9 @@ export default function HomeScreen({ navigation }) {
       <FlatListForPromotion setCurrentIndex={setCurrentIndex} />
       <DotIndex currentIndex={currentIndex} />
       <Text style={styles.carCardListText}>Xe dành cho bạn</Text>
-      <CarCardList carList={carForYou} />
+      <CarCardList carList={carForYou} navigation={navigation} />
       <Text style={styles.carCardListText}>Xe đã xem</Text>
-      <CarCardList carList={carHistory} />
+      <CarCardList carList={carHistory} navigation={navigation} />
       <Text style={styles.carCardListText}>Ưu điểm của LKRental</Text>
       <BenefitsList />
       <Text style={styles.carCardListText}>Đăng ký cho thuê xe</Text>

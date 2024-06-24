@@ -90,7 +90,7 @@ const iconData = [
   },
 ];
 
-const ListOfCar = () => {
+const ListOfCar = ({ navigation }) => {
   const [visible, setVisible] = useState(false);
   const scrollY = useRef(new Animated.Value(0)).current;
 
@@ -108,15 +108,13 @@ const ListOfCar = () => {
 
   const renderItem = ({ item }) => (
     <View style={styles.item}>
-      <CarCard carsInfo={item} />
+      <CarCard carsInfo={item} navigation={navigation} />
     </View>
   );
 
   const handleIconPress = (label) => {
     if (label === "Bộ lọc") {
-      
       setVisible(true);
-     
     }
   };
 

@@ -12,11 +12,11 @@ export default function SearchBox({ navigation }) {
   const isFocused = useIsFocused();
 
   const handleLocationPress = () => {
-    navigation.navigate('LocationPicker', { showHeader:true,showBackButton: true });
+    navigation.navigate('LocationPicker', { showHeader:true,showBackButton: true ,showTitle:true,screenTitle:"Địa điểm" });
   };
 
   const handleTimePress = () => {
-    navigation.navigate('TimePicker', { showHeader:true,showBackButton: true });
+    navigation.navigate('TimePicker', { showHeader:true,showBackButton: true, showTitle:true,screenTitle:"Thời gian" });
   };
 
   const handleSearchPress = () => {

@@ -40,6 +40,8 @@ const featureTitles = {
 
 const FilterModal = ({ visible, onClose }) => {
   const [modalVisible, setModalVisible] = useState(visible);
+  const [sortModalVisible, setSortModalVisible] = useState(false);
+  const [selectedSort, setSelectedSort] = useState("optimal");
   const slideAnim = useState(new Animated.Value(height))[0];
   const dragY = useState(new Animated.Value(0))[0];
   const initialScrollY = useRef(0);
@@ -153,396 +155,467 @@ const FilterModal = ({ visible, onClose }) => {
   );
 
   return (
-    <Modal transparent={true} visible={modalVisible} onRequestClose={onClose}>
-      <View style={styles.modalContainer}>
-        <TouchableOpacity
-          style={styles.overlay}
-          activeOpacity={1}
-          onPress={handleOverlayPress}
-        />
-        <PanGestureHandler
-          onGestureEvent={handleGesture}
-          onHandlerStateChange={handleGestureEnd}
-        >
-          <Animated.View
-            style={[
-              styles.modalWrapper,
-              { transform: [{ translateY: slideAnim }] },
-            ]}
+    <>
+      <Modal transparent={true} visible={modalVisible && !sortModalVisible} onRequestClose={onClose}>
+        <View style={styles.modalContainer}>
+          <TouchableOpacity
+            style={styles.overlay}
+            activeOpacity={1}
+            onPress={handleOverlayPress}
+          />
+          <PanGestureHandler
+            onGestureEvent={handleGesture}
+            onHandlerStateChange={handleGestureEnd}
           >
-            <Animated.View style={modalContainerStyle}>
-              <TouchableOpacity
-                onPress={onClose}
-                style={styles.closeIconButton}
-              >
-                <Ionicons name="close" size={24} color="#03a9f4" />
-              </TouchableOpacity>
-              <Text style={styles.modalTitle}>Bộ lọc</Text>
-              <TouchableOpacity onPress={null} style={styles.resetButton}>
-                <Text style={styles.resetButtonText}>Đặt lại</Text>
-              </TouchableOpacity>
-
-              <View style={styles.scrollableContent}>
-                <Animated.ScrollView
-                  showsVerticalScrollIndicator={false}
-                  style={styles.scrollView}
-                  scrollEventThrottle={30}
-                  onScroll={handleScroll}
+            <Animated.View
+              style={[
+                styles.modalWrapper,
+                { transform: [{ translateY: slideAnim }] },
+              ]}
+            >
+              <Animated.View style={modalContainerStyle}>
+                <TouchableOpacity
+                  onPress={onClose}
+                  style={styles.closeIconButton}
                 >
-                  <TouchableOpacity 
-                    onPress={() => console.log("Tối ưu pressed")}
+                  <Ionicons name="close" size={24} color="#03a9f4" />
+                </TouchableOpacity>
+                <Text style={styles.modalTitle}>Bộ lọc</Text>
+                <TouchableOpacity onPress={null} style={styles.resetButton}>
+                  <Text style={styles.resetButtonText}>Đặt lại</Text>
+                </TouchableOpacity>
+
+                <View style={styles.scrollableContent}>
+                  <Animated.ScrollView
+                    showsVerticalScrollIndicator={false}
+                    style={styles.scrollView}
+                    scrollEventThrottle={30}
+                    onScroll={handleScroll}
                   >
-                    <View style={styles.sortOption}>
-                      <Text style={styles.sortLabel}>Sắp xếp theo:</Text>
-                      <Text style={styles.sortValue}> Tối ưu </Text>
+                    <TouchableOpacity 
+                      onPress={() => setSortModalVisible(true)}
+                    >
+                      <View style={styles.sortOption}>
+                        <Text style={styles.sortLabel}>Sắp xếp theo:</Text>
+                        <Text style={styles.sortValue}>
+                          {selectedSort === "optimal" ? "Tối ưu" : 
+                           selectedSort === "nearest" ? "Khoảng cách gần nhất" :
+                           selectedSort === "lowestPrice" ? "Giá thấp nhất" :
+                           selectedSort === "highestPrice" ? "Giá cao nhất" :
+                           "Đánh giá tốt nhất"}
+                        </Text>
+                        <Ionicons name="chevron-forward" size={20} color="black" />
+                      </View>
+                    </TouchableOpacity>
+
+                    <View style={styles.separator} />
+
+                    {/* Mức giá */}
+                    <View style={styles.filterItem}>
+                      <Text style={styles.filterTitle}>Mức giá</Text>
+                      <MultiSlider
+                        values={priceRange}
+                        sliderLength={width * 0.88}
+                        onValuesChange={handlePriceChange}
+                        min={300}
+                        max={3000}
+                        step={50}
+                        selectedStyle={{
+                          backgroundColor: "#03a9f4",
+                        }}
+                        unselectedStyle={{
+                          backgroundColor: "#ddd",
+                        }}
+                        markerStyle={{
+                          height: 18,
+                          width: 18,
+                          borderRadius: 10,
+                          backgroundColor: "#03a9f4",
+                        }}
+                      />
+                      <TouchableOpacity
+                        style={styles.limitButton}
+                        disabled={true}
+                      >
+                        <Text>
+                          {priceRange[0] === 300
+                            ? `Bất kì - ${priceRange[1]}k`
+                            : `${priceRange[0]}k - ${priceRange[1]}k`}
+                        </Text>
+                      </TouchableOpacity>
                     </View>
-                  </TouchableOpacity>
 
-                  <View style={styles.separator} />
+                    <View style={styles.separator} />
 
-                  {/* Mức giá */}
-                  <View style={styles.filterItem}>
-                    <Text style={styles.filterTitle}>Mức giá</Text>
-                    <MultiSlider
-                      values={priceRange}
-                      sliderLength={width * 0.88}
-                      onValuesChange={handlePriceChange}
-                      min={300}
-                      max={3000}
-                      step={50}
-                      selectedStyle={{
-                        backgroundColor: "#03a9f4",
-                      }}
-                      unselectedStyle={{
-                        backgroundColor: "#ddd",
-                      }}
-                      markerStyle={{
-                        height: 18,
-                        width: 18,
-                        borderRadius: 10,
-                        backgroundColor: "#03a9f4",
-                      }}
-                    />
-                    <TouchableOpacity
-                      style={styles.limitButton}
-                      disabled={true}
-                    >
-                      <Text>
-                        {priceRange[0] === 300
-                          ? `Bất kì - ${priceRange[1]}k`
-                          : `${priceRange[0]}k - ${priceRange[1]}k`}
-                      </Text>
-                    </TouchableOpacity>
-                  </View>
-
-                  <View style={styles.separator} />
-
-                  {/* Truyền động */}
-                  <View style={styles.filterItem}>
-                    <Text style={styles.filterTitle}>Truyền động</Text>
-                    <View style={styles.radioGroup}>
-                      <CustomRadioButton
-                        value="all"
-                        selectedValue={transmission}
-                        onSelect={setTransmission}
-                        label="Tất cả"
-                      />
-                      <CustomRadioButton
-                        value="manual"
-                        selectedValue={transmission}
-                        onSelect={setTransmission}
-                        label="Số sàn"
-                      />
-                      <CustomRadioButton
-                        value="automatic"
-                        selectedValue={transmission}
-                        onSelect={setTransmission}
-                        label="Số tự động"
-                      />
+                    {/* Truyền động */}
+                    <View style={styles.filterItem}>
+                      <Text style={styles.filterTitle}>Truyền động</Text>
+                      <View style={styles.radioGroup}>
+                        <CustomRadioButton
+                          value="all"
+                          selectedValue={transmission}
+                          onSelect={setTransmission}
+                          label="Tất cả"
+                        />
+                        <CustomRadioButton
+                          value="manual"
+                          selectedValue={transmission}
+                          onSelect={setTransmission}
+                          label="Số sàn"
+                        />
+                        <CustomRadioButton
+                          value="automatic"
+                          selectedValue={transmission}
+                          onSelect={setTransmission}
+                          label="Số tự động"
+                        />
+                      </View>
                     </View>
-                  </View>
 
-                  <View style={styles.separator} />
+                    <View style={styles.separator} />
 
-                  {/* Giới hạn số km */}
-                  <View style={styles.filterItem}>
-                    <Text style={styles.filterTitle}>Giới hạn số km</Text>
-                    <MultiSlider
-                      values={[kmLimit]}
-                      sliderLength={width * 0.88}
-                      onValuesChange={handleSingleSliderChange(setKmLimit)}
-                      min={0}
-                      max={550}
-                      step={50}
-                      selectedStyle={{
-                        backgroundColor: "#03a9f4",
-                      }}
-                      unselectedStyle={{
-                        backgroundColor: "#ddd",
-                      }}
-                      markerStyle={{
-                        height: 18,
-                        width: 18,
-                        borderRadius: 10,
-                        backgroundColor: "#03a9f4",
-                      }}
-                    />
-                    <TouchableOpacity
-                      style={styles.limitButton}
-                      disabled={true}
-                    >
-                      <Text>
-                        {kmLimit === 0
-                          ? "Bất kì"
-                          : kmLimit === 550
-                          ? "Không giới hạn"
-                          : `Trên ${kmLimit} km/ngày`}
-                      </Text>
-                    </TouchableOpacity>
-                  </View>
-
-                  <View style={styles.separator} />
-
-                  {/* Phí vượt giới hạn */}
-                  <View style={styles.filterItem}>
-                    <Text style={styles.filterTitle}>Phí vượt giới hạn</Text>
-                    <MultiSlider
-                      values={[limitFee]}
-                      sliderLength={width * 0.88}
-                      onValuesChange={handleLimitFeeChange}
-                      min={0}
-                      max={5}
-                      step={1}
-                      selectedStyle={{
-                        backgroundColor: "#03a9f4",
-                      }}
-                      unselectedStyle={{
-                        backgroundColor: "#ddd",
-                      }}
-                      markerStyle={{
-                        height: 18,
-                        width: 18,
-                        borderRadius: 10,
-                        backgroundColor: "#03a9f4",
-                      }}
-                    />
-                    <TouchableOpacity
-                      style={styles.limitButton}
-                      disabled={true}
-                    >
-                      <Text>
-                        {limitFee === 5
-                          ? "Bất kì"
-                          : limitFee === 0
-                          ? "Miễn phí "
-                          : `Từ dưới ${limitFee}k/km`}
-                      </Text>
-                    </TouchableOpacity>
-                  </View>
-
-                  <View style={styles.separator} />
-
-                  {/* Khoảng cách */}
-                  <View style={styles.filterItem}>
-                    <Text style={styles.filterTitle}>Khoảng cách</Text>
-                    <MultiSlider
-                      values={[distance]}
-                      sliderLength={width * 0.88}
-                      onValuesChange={handleSingleSliderChange(setDistance)}
-                      min={1}
-                      max={50}
-                      step={1}
-                      selectedStyle={{
-                        backgroundColor: "#03a9f4",
-                      }}
-                      unselectedStyle={{
-                        backgroundColor: "#ddd",
-                      }}
-                      markerStyle={{
-                        height: 18,
-                        width: 18,
-                        borderRadius: 10,
-                        backgroundColor: "#03a9f4",
-                      }}
-                    />
-                    <TouchableOpacity
-                      style={styles.limitButton}
-                      disabled={true}
-                    >
-                      <Text>
-                        {distance === 50 ? "Bất kì" : `${distance} km trở lại `}
-                      </Text>
-                    </TouchableOpacity>
-                  </View>
-
-                  <View style={styles.separator} />
-
-                  {/* Số chỗ */}
-                  <View style={styles.filterItem}>
-                    <Text style={styles.filterTitle}>Số chỗ</Text>
-                    <MultiSlider
-                      values={seatRange}
-                      sliderLength={width * 0.88}
-                      onValuesChange={handleSeatRangeChange}
-                      min={2}
-                      max={10}
-                      step={1}
-                      selectedStyle={{
-                        backgroundColor: "#03a9f4",
-                      }}
-                      unselectedStyle={{
-                        backgroundColor: "#ddd",
-                      }}
-                      markerStyle={{
-                        height: 18,
-                        width: 18,
-                        borderRadius: 10,
-                        backgroundColor: "#03a9f4",
-                      }}
-                    />
-                    <TouchableOpacity
-                      style={styles.limitButton}
-                      disabled={true}
-                    >
-                      <Text>{`${seatRange[0]} chỗ - ${seatRange[1]} chỗ`}</Text>
-                    </TouchableOpacity>
-                  </View>
-
-                  <View style={styles.separator} />
-
-                  {/* Năm sản xuất */}
-                  <View style={styles.filterItem}>
-                    <Text style={styles.filterTitle}>Năm sản xuất</Text>
-                    <MultiSlider
-                      values={yearRange}
-                      sliderLength={width * 0.88}
-                      onValuesChange={handleYearRangeChange}
-                      min={2000}
-                      max={currentYear}
-                      step={1}
-                      selectedStyle={{
-                        backgroundColor: "#03a9f4",
-                      }}
-                      unselectedStyle={{
-                        backgroundColor: "#ddd",
-                      }}
-                      markerStyle={{
-                        height: 18,
-                        width: 18,
-                        borderRadius: 10,
-                        backgroundColor: "#03a9f4",
-                      }}
-                    />
-
-                    <TouchableOpacity
-                      style={styles.limitButton}
-                      disabled={true}
-                    >
-                      <Text>{`${yearRange[0]} - ${yearRange[1]}`}</Text>
-                    </TouchableOpacity>
-                  </View>
-
-                  <View style={styles.separator} />
-
-                  {/* Nhiên liệu */}
-                  <View style={styles.filterItem}>
-                    <Text style={styles.filterTitle}>Nhiên liệu</Text>
-                    <View style={styles.radioGroup}>
-                      <CustomRadioButton
-                        value="all"
-                        selectedValue={fuelType}
-                        onSelect={setFuelType}
-                        label="Tất cả"
+                    {/* Giới hạn số km */}
+                    <View style={styles.filterItem}>
+                      <Text style={styles.filterTitle}>Giới hạn số km</Text>
+                      <MultiSlider
+                        values={[kmLimit]}
+                        sliderLength={width * 0.88}
+                        onValuesChange={handleSingleSliderChange(setKmLimit)}
+                        min={0}
+                        max={550}
+                        step={50}
+                        selectedStyle={{
+                          backgroundColor: "#03a9f4",
+                        }}
+                        unselectedStyle={{
+                          backgroundColor: "#ddd",
+                        }}
+                        markerStyle={{
+                          height: 18,
+                          width: 18,
+                          borderRadius: 10,
+                          backgroundColor: "#03a9f4",
+                        }}
                       />
-                      <CustomRadioButton
-                        value="xang"
-                        selectedValue={fuelType}
-                        onSelect={setFuelType}
-                        label="Xăng"
-                      />
-                      <CustomRadioButton
-                        value="dau"
-                        selectedValue={fuelType}
-                        onSelect={setFuelType}
-                        label="Dầu"
-                      />
-                      <CustomRadioButton
-                        value="dien"
-                        selectedValue={fuelType}
-                        onSelect={setFuelType}
-                        label="Điện"
-                      />
+                      <TouchableOpacity
+                        style={styles.limitButton}
+                        disabled={true}
+                      >
+                        <Text>
+                          {kmLimit === 0
+                            ? "Bất kì"
+                            : kmLimit === 550
+                            ? "Không giới hạn"
+                            : `Trên ${kmLimit} km/ngày`}
+                        </Text>
+                      </TouchableOpacity>
                     </View>
-                  </View>
 
-                  <View style={styles.separator} />
+                    <View style={styles.separator} />
 
-                  {/* Mức nhiên liệu tiêu thụ */}
-                  <View style={styles.filterItem}>
-                    <Text style={styles.filterTitle}>
-                      Mức nhiên liệu tiêu thụ
-                    </Text>
-                    <MultiSlider
-                      values={[fuelConsumption]}
-                      sliderLength={width * 0.88}
-                      onValuesChange={handleSingleSliderChange(
-                        setFuelConsumption
-                      )}
-                      min={0}
-                      max={30}
-                      step={1}
-                      selectedStyle={{
-                        backgroundColor: "#03a9f4",
-                      }}
-                      unselectedStyle={{
-                        backgroundColor: "#ddd",
-                      }}
-                      markerStyle={{
-                        height: 18,
-                        width: 18,
-                        borderRadius: 10,
-                        backgroundColor: "#03a9f4",
-                      }}
-                    />
-                    <TouchableOpacity
-                      style={styles.limitButton}
-                      disabled={true}
-                    >
-                      <Text>
-                        {fuelConsumption === 30
-                          ? "Bất kì"
-                          : `Dưới ${fuelConsumption} l/100km`}
-                      </Text>
-                    </TouchableOpacity>
-                  </View>
-
-                  <View style={styles.separator} />
-
-                  {/* Tính năng */}
-                  <View style={styles.filterFeature}>
-                    <Text style={styles.filterTitleFeature}>Tính năng</Text>
-                    <View style={styles.featuresContainer}>
-                      {Object.keys(features).map((feature) => (
-                        <View key={feature} style={styles.checkboxContainer}>
-                          <CheckBox
-                            size={18}
-                            title={featureTitles[feature]}
-                            textStyle={{ fontWeight: "normal" }}
-                            checked={features[feature]}
-                            onPress={() => handleFeatureChange(feature)}
-                            style={styles.checkbox}
-                          />
-                        </View>
-                      ))}
+                    {/* Phí vượt giới hạn */}
+                    <View style={styles.filterItem}>
+                      <Text style={styles.filterTitle}>Phí vượt giới hạn</Text>
+                      <MultiSlider
+                        values={[limitFee]}
+                        sliderLength={width * 0.88}
+                        onValuesChange={handleLimitFeeChange}
+                        min={0}
+                        max={5}
+                        step={1}
+                        selectedStyle={{
+                          backgroundColor: "#03a9f4",
+                        }}
+                        unselectedStyle={{
+                          backgroundColor: "#ddd",
+                        }}
+                        markerStyle={{
+                          height: 18,
+                          width: 18,
+                          borderRadius: 10,
+                          backgroundColor: "#03a9f4",
+                        }}
+                      />
+                      <TouchableOpacity
+                        style={styles.limitButton}
+                        disabled={true}
+                      >
+                        <Text>
+                          {limitFee === 5
+                            ? "Bất kì"
+                            : limitFee === 0
+                            ? "Miễn phí "
+                            : `Từ dưới ${limitFee}k/km`}
+                        </Text>
+                      </TouchableOpacity>
                     </View>
-                  </View>
-                </Animated.ScrollView>
-              </View>
+
+                    <View style={styles.separator} />
+
+                    {/* Khoảng cách */}
+                    <View style={styles.filterItem}>
+                      <Text style={styles.filterTitle}>Khoảng cách</Text>
+                      <MultiSlider
+                        values={[distance]}
+                        sliderLength={width * 0.88}
+                        onValuesChange={handleSingleSliderChange(setDistance)}
+                        min={1}
+                        max={50}
+                        step={1}
+                        selectedStyle={{
+                          backgroundColor: "#03a9f4",
+                        }}
+                        unselectedStyle={{
+                          backgroundColor: "#ddd",
+                        }}
+                        markerStyle={{
+                          height: 18,
+                          width: 18,
+                          borderRadius: 10,
+                          backgroundColor: "#03a9f4",
+                        }}
+                      />
+                      <TouchableOpacity
+                        style={styles.limitButton}
+                        disabled={true}
+                      >
+                        <Text>
+                          {distance === 50 ? "Bất kì" : `${distance} km trở lại `}
+                        </Text>
+                      </TouchableOpacity>
+                    </View>
+
+                    <View style={styles.separator} />
+
+                    {/* Số chỗ */}
+                    <View style={styles.filterItem}>
+                      <Text style={styles.filterTitle}>Số chỗ</Text>
+                      <MultiSlider
+                        values={seatRange}
+                        sliderLength={width * 0.88}
+                        onValuesChange={handleSeatRangeChange}
+                        min={2}
+                        max={10}
+                        step={1}
+                        selectedStyle={{
+                          backgroundColor: "#03a9f4",
+                        }}
+                        unselectedStyle={{
+                          backgroundColor: "#ddd",
+                        }}
+                        markerStyle={{
+                          height: 18,
+                          width: 18,
+                          borderRadius: 10,
+                          backgroundColor: "#03a9f4",
+                        }}
+                      />
+                      <TouchableOpacity
+                        style={styles.limitButton}
+                        disabled={true}
+                      >
+                        <Text>{`${seatRange[0]} chỗ - ${seatRange[1]} chỗ`}</Text>
+                      </TouchableOpacity>
+                    </View>
+
+                    <View style={styles.separator} />
+
+                    {/* Năm sản xuất */}
+                    <View style={styles.filterItem}>
+                      <Text style={styles.filterTitle}>Năm sản xuất</Text>
+                      <MultiSlider
+                        values={yearRange}
+                        sliderLength={width * 0.88}
+                        onValuesChange={handleYearRangeChange}
+                        min={2000}
+                        max={currentYear}
+                        step={1}
+                        selectedStyle={{
+                          backgroundColor: "#03a9f4",
+                        }}
+                        unselectedStyle={{
+                          backgroundColor: "#ddd",
+                        }}
+                        markerStyle={{
+                          height: 18,
+                          width: 18,
+                          borderRadius: 10,
+                          backgroundColor: "#03a9f4",
+                        }}
+                      />
+
+                      <TouchableOpacity
+                        style={styles.limitButton}
+                        disabled={true}
+                      >
+                        <Text>{`${yearRange[0]} - ${yearRange[1]}`}</Text>
+                      </TouchableOpacity>
+                    </View>
+
+                    <View style={styles.separator} />
+
+                    {/* Nhiên liệu */}
+                    <View style={styles.filterItem}>
+                      <Text style={styles.filterTitle}>Nhiên liệu</Text>
+                      <View style={styles.radioGroup}>
+                        <CustomRadioButton
+                          value="all"
+                          selectedValue={fuelType}
+                          onSelect={setFuelType}
+                          label="Tất cả"
+                        />
+                        <CustomRadioButton
+                          value="xang"
+                          selectedValue={fuelType}
+                          onSelect={setFuelType}
+                          label="Xăng"
+                        />
+                        <CustomRadioButton
+                          value="dau"
+                          selectedValue={fuelType}
+                          onSelect={setFuelType}
+                          label="Dầu"
+                        />
+                        <CustomRadioButton
+                          value="dien"
+                          selectedValue={fuelType}
+                          onSelect={setFuelType}
+                          label="Điện"
+                        />
+                      </View>
+                    </View>
+
+                    <View style={styles.separator} />
+
+                    {/* Mức nhiên liệu tiêu thụ */}
+                    <View style={styles.filterItem}>
+                      <Text style={styles.filterTitle}>
+                        Mức nhiên liệu tiêu thụ
+                      </Text>
+                      <MultiSlider
+                        values={[fuelConsumption]}
+                        sliderLength={width * 0.88}
+                        onValuesChange={handleSingleSliderChange(
+                          setFuelConsumption
+                        )}
+                        min={0}
+                        max={30}
+                        step={1}
+                        selectedStyle={{
+                          backgroundColor: "#03a9f4",
+                        }}
+                        unselectedStyle={{
+                          backgroundColor: "#ddd",
+                        }}
+                        markerStyle={{
+                          height: 18,
+                          width: 18,
+                          borderRadius: 10,
+                          backgroundColor: "#03a9f4",
+                        }}
+                      />
+                      <TouchableOpacity
+                        style={styles.limitButton}
+                        disabled={true}
+                      >
+                        <Text>
+                          {fuelConsumption === 30
+                            ? "Bất kì"
+                            : `Dưới ${fuelConsumption} l/100km`}
+                        </Text>
+                      </TouchableOpacity>
+                    </View>
+
+                    <View style={styles.separator} />
+
+                    {/* Tính năng */}
+                    <View style={styles.filterFeature}>
+                      <Text style={styles.filterTitleFeature}>Tính năng</Text>
+                      <View style={styles.featuresContainer}>
+                        {Object.keys(features).map((feature) => (
+                          <View key={feature} style={styles.checkboxContainer}>
+                            <CheckBox
+                              size={18}
+                              title={featureTitles[feature]}
+                              textStyle={{ fontWeight: "normal" }}
+                              checked={features[feature]}
+                              onPress={() => handleFeatureChange(feature)}
+                              style={styles.checkbox}
+                            />
+                          </View>
+                        ))}
+                      </View>
+                    </View>
+                  </Animated.ScrollView>
+                </View>
+              </Animated.View>
             </Animated.View>
-          </Animated.View>
-        </PanGestureHandler>
-      </View>
-    </Modal>
+          </PanGestureHandler>
+        </View>
+      </Modal>
+
+      {/* Sort Modal */}
+      <Modal
+        transparent={true}
+        visible={sortModalVisible}
+        onRequestClose={() => setSortModalVisible(false)}
+      >
+        <View style={styles.sortModalContainer}>
+          <View style={styles.sortModalContent}>
+            <TouchableOpacity
+              onPress={() => {
+                setSortModalVisible(false);
+                setModalVisible(true);
+              }}
+              style={styles.backIconButton}
+            >
+              <Ionicons name="arrow-back" size={24} color="#03a9f4" />
+            </TouchableOpacity>
+            <TouchableOpacity
+              onPress={() => {
+                setSortModalVisible(false);
+                onClose();
+              }}
+              style={styles.closeIconButton}
+            >
+              <Ionicons name="close" size={24} color="#03a9f4" />
+            </TouchableOpacity>
+            <View style={styles.radioGroup}>
+              <CustomRadioButton
+                value="optimal"
+                selectedValue={selectedSort}
+                onSelect={setSelectedSort}
+                label="Tối ưu"
+              />
+              <CustomRadioButton
+                value="nearest"
+                selectedValue={selectedSort}
+                onSelect={setSelectedSort}
+                label="Khoảng cách gần nhất"
+              />
+              <CustomRadioButton
+                value="lowestPrice"
+                selectedValue={selectedSort}
+                onSelect={setSelectedSort}
+                label="Giá thấp nhất"
+              />
+              <CustomRadioButton
+                value="highestPrice"
+                selectedValue={selectedSort}
+                onSelect={setSelectedSort}
+                label="Giá cao nhất"
+              />
+              <CustomRadioButton
+                value="bestRating"
+                selectedValue={selectedSort}
+                onSelect={setSelectedSort}
+                label="Đánh giá tốt nhất"
+              />
+            </View>
+          </View>
+        </View>
+      </Modal>
+    </>
   );
 };
 
@@ -574,10 +647,21 @@ const styles = StyleSheet.create({
   },
   closeIconButton: {
     position: "absolute",
-    top: 4,
+    top: 2,
     left: 10,
     zIndex: 1,
+    padding: 4,
+    marginBottom:10,
+  },
+  backIconButton: {
+    position: "absolute",
+    top:45,
+    left: 30,
+    zIndex: 1,
     padding: 5,
+    borderWidth:1,
+    borderRadius:30,
+    borderColor:"#03a9f4"
   },
   modalTitle: {
     fontSize: 20,
@@ -600,6 +684,9 @@ const styles = StyleSheet.create({
     padding: 7,
     backgroundColor: "red",
     borderRadius: 10,
+  },
+  radioGroup:{
+    marginTop:70,
   },
   resetButtonText: {
     color: "white",
@@ -692,6 +779,21 @@ const styles = StyleSheet.create({
     backgroundColor: "#ddd",
     marginVertical: 10,
     marginHorizontal: width * 0.038,
+  },
+  sortModalContainer: {
+    flex: 1,
+    justifyContent: "flex-end",
+    alignItems: "center",
+    backgroundColor: "rgba(0, 0, 0, 0.5)",
+  },
+  sortModalContent: {
+    width: "100%",
+    backgroundColor: "white",
+    borderTopLeftRadius: 18,
+    borderTopRightRadius: 18,
+    padding: 16,
+    position: "absolute",
+    bottom: 0,
   },
 });
 

@@ -209,7 +209,7 @@ const TimePicker = ({ navigation = {} }) => {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Thời gian</Text>
+
       <ScrollView showsVerticalScrollIndicator={false}>
         {monthData.map((month, monthIndex) => (
           <View key={monthIndex} style={styles.calendar}>
@@ -372,6 +372,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     paddingHorizontal:16,
+    paddingTop:10,
     paddingBottom:16,
     backgroundColor: "white",
   },
@@ -518,6 +519,7 @@ const styles = StyleSheet.create({
   },
   confirmContainer: {
     flexDirection: "row",
+    marginBottom:20,
     justifyContent: "space-between",
   },
   textConfirmContainer: {
