@@ -26,6 +26,13 @@ const carForYou = [
     oldPrice: "574K",
     newPrice: "474K",
     discount: "30%",
+    supportsDelivery: true,
+    specs: {
+      transmission: "Số tự động",
+      seats: "8 chỗ",
+      fuel: "Xăng",
+      fuelConsumption: "10l/100km"
+    },
   },
   {
     id: "2",
@@ -40,8 +47,16 @@ const carForYou = [
     oldPrice: "600K",
     newPrice: "500K",
     discount: "20%",
+    supportsDelivery: false,
+    specs: {
+      transmission: "Số sàn",
+      seats: "8 chỗ",
+      fuel: "Xăng",
+      fuelConsumption: "10l/100km"
+    },
   },
 ];
+
 
 const iconData = [
   { id: "1", name: "repeat", label: "", iconType: "MaterialCommunityIcons" },

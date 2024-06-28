@@ -39,12 +39,13 @@ const ChangeLocationTimeScreen = ({ navigation }) => {
   }, [timeFromRedux]);
 
   const handleLocationPress = () => {
-    navigation.navigate('LocationPicker', { showBackButton: true });
+    navigation.navigate('LocationPicker', { showHeader:true,showBackButton: true ,showTitle:true,screenTitle:"Địa điểm" });
   };
 
   const handleTimePress = () => {
-    navigation.navigate('TimePicker', { showBackButton: true });
+    navigation.navigate('TimePicker', { showHeader:true,showBackButton: true, showTitle:true,screenTitle:"Thời gian" });
   };
+
 
   const handleConfirmPress = () => {
     navigation.goBack();
