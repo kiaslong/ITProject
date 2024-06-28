@@ -10,9 +10,10 @@ const LocationComponent = ({ address }) => {
 
   useEffect(() => {
     const fetchCoordinates = async () => {
-      const coords = await getCoordinates(address, 'VN', 'pk.eyJ1Ijoia2lhc2xvbmciLCJhIjoiY2x4eWhvNjdnMDBzZTJqcHdwYTNleXdvZCJ9.UWYiYGrIbAo-apVq-djg-Q');
+      const coords = await getCoordinates(address, 'VN', process.env.MAP_BOX_KEY);
       if (coords && coords.latitude && coords.longitude) {
         setLocation(coords);
+        
       }
     };
 
