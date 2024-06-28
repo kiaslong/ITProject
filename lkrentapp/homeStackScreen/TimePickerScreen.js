@@ -20,6 +20,21 @@ import { setTime } from '../store/timeSlice';
 
 const { width } = Dimensions.get("window");
 
+// Custom function to format date with day abbreviation
+const formatDateWithDay = (date) => {
+  const dayMap = {
+    0: "CN",
+    1: "T2",
+    2: "T3",
+    3: "T4",
+    4: "T5",
+    5: "T6",
+    6: "T7",
+  };
+  const day = dayMap[moment(date).day()];
+  return `${moment(date).format('HH:mm')} ${day}, ${moment(date).format('DD/MM')}`;
+};
+
 const TimePicker = ({ navigation = {} }) => {
   const dispatch = useDispatch();
   const time = useSelector(state => state.time.time);
@@ -34,6 +49,7 @@ const TimePicker = ({ navigation = {} }) => {
   const slideAnim = useState(new Animated.Value(300))[0];
 
   useEffect(() => {
+    moment.locale('vi'); // Set locale to Vietnamese
     if (time) {
       const [start, end] = time.split(" - ");
       setStartDate(moment(start, "HH:mm, DD/MM"));
@@ -43,7 +59,7 @@ const TimePicker = ({ navigation = {} }) => {
 
   const handleConfirmButton = () => {
     if (startDate && endDate) {
-      const formattedTime = `${moment(startDate).format("HH:mm, DD/MM")} - ${moment(endDate).format("HH:mm, DD/MM")}`;
+      const formattedTime = `${formatDateWithDay(startDate)} - ${formatDateWithDay(endDate)}`;
       setTimeout(() => {
         dispatch(setTime(formattedTime));
         navigation.goBack();
@@ -94,12 +110,11 @@ const TimePicker = ({ navigation = {} }) => {
   const roundToNext30Minutes = (time) => {
     const minutes = time.minute();
     if (minutes % 30 === 0) {
-      return time; 
+      return time;
     }
     const remainder = 30 - (minutes % 30);
     return time.add(remainder, 'minutes').startOf('minute');
   };
-  
 
   const handleConfirm = (time) => {
     const roundedTime = roundToNext30Minutes(moment(time));
@@ -120,7 +135,7 @@ const TimePicker = ({ navigation = {} }) => {
       if (startDate && dateTime.isSame(startDate, "minute")) {
         alert("End time cannot be the same as start time");
       } else if (startDate && dateTime.isBefore(startDate)) {
-        setStartDate(dateTime);
+        alert("End time cannot be before start time");
       } else {
         setEndDate(dateTime);
       }
@@ -142,7 +157,6 @@ const TimePicker = ({ navigation = {} }) => {
     const capitalizeFirstLetter = (string) => {
       return string.charAt(0).toUpperCase() + string.slice(1);
     };
-  
 
     for (
       let month = startMonth.clone();
@@ -162,6 +176,7 @@ const TimePicker = ({ navigation = {} }) => {
   };
 
   const monthData = getMonthData();
+  const currentDate = moment();
 
   const handleDatePress = (date, monthIndex) => {
     if (!monthData[monthIndex]) {
@@ -173,6 +188,10 @@ const TimePicker = ({ navigation = {} }) => {
       .year(monthData[monthIndex].year)
       .month(monthData[monthIndex].monthIndex)
       .date(date);
+
+    if (selectedMoment.isBefore(currentDate, 'day')) {
+      return; // Do nothing for dates before the current date
+    }
 
     if (!startDate || (startDate && endDate)) {
       showTimePicker("start", selectedMoment);
@@ -207,15 +226,21 @@ const TimePicker = ({ navigation = {} }) => {
     return false;
   };
 
+  const isDateBeforeCurrentDate = (date, monthIndex) => {
+    const selectedMoment = moment()
+      .year(monthData[monthIndex].year)
+      .month(monthData[monthIndex].monthIndex)
+      .date(date);
+
+    return selectedMoment.isBefore(currentDate, 'day');
+  };
+
   return (
     <View style={styles.container}>
-
       <ScrollView showsVerticalScrollIndicator={false}>
         {monthData.map((month, monthIndex) => (
           <View key={monthIndex} style={styles.calendar}>
-            <Text 
-              style={styles.monthTitle}
-            >{`${month.monthName} ${month.year}`}</Text>
+            <Text style={styles.monthTitle}>{`${month.monthName} ${month.year}`}</Text>
             <View style={styles.weekDays}>
               {["CN", "T2", "T3", "T4", "T5", "T6", "T7"].map((day) => (
                 <Text key={day} style={styles.weekDay}>
@@ -235,6 +260,7 @@ const TimePicker = ({ navigation = {} }) => {
                   key={date}
                   style={[
                     styles.date,
+                    isDateBeforeCurrentDate(date, monthIndex) ? styles.disabledDate : null,
                     isDateSelected(date, monthIndex, "start")
                       ? styles.startDate
                       : null,
@@ -242,14 +268,18 @@ const TimePicker = ({ navigation = {} }) => {
                       ? styles.endDate
                       : null,
                   ]}
-                  onPress={() => handleDatePress(date, monthIndex)}
+                  onPress={() => !isDateBeforeCurrentDate(date, monthIndex) && handleDatePress(date, monthIndex)}
+                  disabled={isDateBeforeCurrentDate(date, monthIndex)}
                 >
-                  <Text style={styles.dateText}>
+                  <Text style={[
+                    styles.dateText,
+                    isDateBeforeCurrentDate(date, monthIndex) ? styles.disabledDateText : null,
+                  ]}>
                     {date}
                     {isDateSelected(date, monthIndex, "start")
                       ? `\n${moment(startDate).format("HH:mm")}`
                       : isDateSelected(date, monthIndex, "end")
-                      ? `\n${moment(endDate).format("HH:mm")}`
+                      ? `\n${moment(startDate).format("HH:mm")}`
                       : null}
                   </Text>
                 </TouchableOpacity>
@@ -281,7 +311,7 @@ const TimePicker = ({ navigation = {} }) => {
           <Text style={styles.timeText}>
             Nhận xe:{" "}
             {startDate
-              ? moment(startDate).format("HH:mm, DD/MM")
+              ? formatDateWithDay(startDate)
               : "Chọn thời gian"}
           </Text>
         </TouchableOpacity>
@@ -292,7 +322,7 @@ const TimePicker = ({ navigation = {} }) => {
           <Text style={styles.timeText}>
             Trả xe:{" "}
             {endDate
-              ? moment(endDate).format("HH:mm, DD/MM")
+              ? formatDateWithDay(endDate)
               : "Chọn thời gian"}
           </Text>
         </TouchableOpacity>
@@ -303,9 +333,7 @@ const TimePicker = ({ navigation = {} }) => {
           <Text style={styles.rentalInfo}>
             {startDate &&
               endDate &&
-              `${moment(startDate).format("HH:mm, DD/MM")} - ${moment(
-                endDate
-              ).format("HH:mm, DD/MM")}`}
+              `${formatDateWithDay(startDate)} - ${formatDateWithDay(endDate)}`}
           </Text>
           <View style={{ flexDirection: "row", alignItems: "center" }}>
             <Text style={styles.numberOfDays}>
@@ -371,9 +399,9 @@ const TimePicker = ({ navigation = {} }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    paddingHorizontal:16,
-    paddingTop:10,
-    paddingBottom:16,
+    paddingHorizontal: 16,
+    paddingTop: 10,
+    paddingBottom: 16,
     backgroundColor: "white",
   },
   separator: {
@@ -381,7 +409,6 @@ const styles = StyleSheet.create({
     backgroundColor: "#E0E0E0",
     marginVertical: 16,
   },
-  // modal style
   centeredView: {
     flex: 1,
     justifyContent: "flex-end",
@@ -394,7 +421,7 @@ const styles = StyleSheet.create({
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
     padding: 14,
-    alignItems: "left",
+    alignItems: "flex-start",
     shadowColor: "#000",
     shadowOffset: {
       width: 0,
@@ -422,7 +449,7 @@ const styles = StyleSheet.create({
   },
   modalTitle: {
     fontSize: 16,
-    alignSelf: "left",
+    alignSelf: "flex-start",
     textAlign: "left",
     fontWeight: "600",
     marginBottom: 16,
@@ -431,7 +458,6 @@ const styles = StyleSheet.create({
     marginBottom: 20,
     textAlign: "left",
   },
-  //other style
   title: {
     fontSize: 24,
     fontWeight: "bold",
@@ -451,7 +477,7 @@ const styles = StyleSheet.create({
   weekDays: {
     marginBottom: 4,
     flexDirection: "row",
-    justifyContent: "space-between", // Align weekdays evenly
+    justifyContent: "space-between",
   },
   weekDay: {
     fontSize: 16,
@@ -461,7 +487,7 @@ const styles = StyleSheet.create({
   dates: {
     flexDirection: "row",
     flexWrap: "wrap",
-    justifyContent: "space-between", // Center dates horizontally
+    justifyContent: "space-between",
   },
   date: {
     width: width / 8,
@@ -482,9 +508,16 @@ const styles = StyleSheet.create({
     borderColor: "#FF4500",
   },
   dateText: {
-    fontSize: 14,
+    fontSize: 13,
     textAlign: "center",
     color: "#333",
+  },
+  disabledDate: {
+    backgroundColor: "#e0e0e0",
+    borderColor: "#e0e0e0",
+  },
+  disabledDateText: {
+    color: "#a0a0a0",
   },
   timePicker: {
     flexDirection: "row",
@@ -519,7 +552,7 @@ const styles = StyleSheet.create({
   },
   confirmContainer: {
     flexDirection: "row",
-    marginBottom:20,
+    marginBottom: 20,
     justifyContent: "space-between",
   },
   textConfirmContainer: {
@@ -527,7 +560,8 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
   },
   rentalInfo: {
-    fontSize: 16,
+    fontSize: 14,
+    marginRight:2,
     alignSelf: "center",
     textAlign: "center",
     fontWeight: "600",
@@ -540,7 +574,7 @@ const styles = StyleSheet.create({
   },
   nextButtonText: {
     color: "white",
-    fontSize: 16,
+    fontSize: 14,
     fontWeight: "bold",
   },
   numberOfDays: {

@@ -231,12 +231,36 @@ const carForYou = [
     transmission: "Số tự động",
     delivery: "Giao xe tận nơi",
     title: "KIA MORNING 2020",
-    location: "Quận Hai Bà Trưng, Hà Nội",
+    location: "Quận Phú Nhuận, Thành Phố Hồ Chí Minh",
     rating: "5.0",
     trips: "97",
     oldPrice: "574K",
     newPrice: "474K",
     discount: "30%",
+    supportsDelivery: true,
+    specs: {
+      transmission: "Số tự động",
+      seats: "8 chỗ",
+      fuel: "Xăng",
+      fuelConsumption: "10l/100km"
+    },
+    description: "Xe thơm tho, được bảo dưỡng định kỳ, bản đồ vietmap live , cảnh báo tốc độ, cảnh báo camera phạt nguội, có kích bình, bơm hơi , vá vỏ xe , đồ nghề thay vỏ, camera cập lề... ",
+    features: {
+      map: true,
+      bluetooth: true,
+      sideCamera: true,
+      reverseCamera: true,
+      collisensor:true,
+      gps: true,
+      spareTire: true,
+      dashCam: true,
+      speedAlert: true,
+      usbPort: true,
+      dvdScreen: true,
+      etc: true,
+      airbag: true,
+      
+    }
   },
   {
     id: "2",
@@ -251,7 +275,29 @@ const carForYou = [
     oldPrice: "600K",
     newPrice: "500K",
     discount: "20%",
-  },
+    supportsDelivery: false,
+    specs: {
+      transmission: "Số sàn",
+      seats: "8 chỗ",
+      fuel: "Xăng",
+      fuelConsumption: "10l/100km"
+    },
+    description: "Xe thơm tho, được bảo dưỡng định kỳ, bản đồ vietmap live , cảnh báo tốc độ, cảnh báo camera phạt nguội, có kích bình, bơm hơi , vá vỏ xe , đồ nghề thay vỏ, camera cập lề... ",
+    features: {
+      map: true,
+      bluetooth: false,
+      sideCamera: true,
+      reverseCamera: true,
+      gps: true,
+      spareTire: true,
+      dashCam: false,
+      speedAlert: true,
+      usbPort: false,
+      dvdScreen: true,
+      etc: false,
+      airbag: true
+    }
+  }
 ];
 
 const carHistory = [
@@ -262,12 +308,36 @@ const carHistory = [
     transmission: "Số tự động",
     delivery: "Giao xe tận nơi",
     title: "KIA MORNING 2020",
-    location: "Quận Hai Bà Trưng, Hà Nội",
+    location: "Quận Phú Nhuận, Thành Phố Hồ Chí Minh",
     rating: "5.0",
     trips: "97",
     oldPrice: "574K",
     newPrice: "474K",
     discount: "30%",
+    supportsDelivery: true,
+    specs: {
+      transmission: "Số tự động",
+      seats: "8 chỗ",
+      fuel: "Xăng",
+      fuelConsumption: "10l/100km"
+    },
+    description: "Xe thơm tho, được bảo dưỡng định kỳ, bản đồ vietmap live , cảnh báo tốc độ, cảnh báo camera phạt nguội, có kích bình, bơm hơi , vá vỏ xe , đồ nghề thay vỏ, camera cập lề... ",
+    features: {
+      map: true,
+      bluetooth: true,
+      sideCamera: true,
+      reverseCamera: true,
+      collisensor:true,
+      gps: true,
+      spareTire: true,
+      dashCam: true,
+      speedAlert: true,
+      usbPort: true,
+      dvdScreen: true,
+      etc: true,
+      airbag: true,
+      
+    }
   },
 ];
 
