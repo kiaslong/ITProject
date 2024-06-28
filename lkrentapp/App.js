@@ -19,6 +19,14 @@ import SettingScreen from "./settingStackScreen/SettingScreen";
 import UserInfoScreen from "./settingStackScreen/UserInfoScreen";
 import RegisterCarScreen from "./settingStackScreen/RegisterCarScreen";
 import UserRegisterCarScreen from "./settingStackScreen/UserRegisterCarScreen";
+import ChangePasswordScreen from "./settingStackScreen/ChangePasswordScreen";
+import ReferFriendScreen from "./settingStackScreen/ReferFriendScreen";
+import GiftScreen from "./settingStackScreen/GiftScreen";
+import DetailGift from "./settingStackScreen/DetailGift";
+import DrivingLicenseScreen from "./settingStackScreen/DrivingLicenseScreen";
+import MyAddressesScreen from "./settingStackScreen/MyAddressesScreen";
+import DetailMyAddressesScreen from "./settingStackScreen/DetailMyAddressesScreen";
+import FavoriteCarsScreen from "./settingStackScreen/FavoriteCarsScreen";
 import SearchScreen from "./homeStackScreen/SearchingScreen";
 import Header from "./components/Header";
 import ChangeLocationTimeScreen from "./homeStackScreen/ChangeLocationTimeScreen";
@@ -97,9 +105,18 @@ const SettingStack = () => (
   <Stack.Navigator initialRouteName="SettingHome" screenOptions={commonScreenOptions}>
     <Stack.Screen name="SettingHome" component={SettingScreen} />
     <Stack.Screen name="UserInfoScreen" component={UserInfoScreen} />
-  
-    
+    <Stack.Screen name="ChangePasswordScreen" component={ChangePasswordScreen} />
+    <Stack.Screen name="ReferFriendScreen" component={ReferFriendScreen} />
+    <Stack.Screen name="GiftScreen" component={GiftScreen} />
+    <Stack.Screen name="DetailGift" component={DetailGift} />
+    <Stack.Screen name="DrivingLicenseScreen" component={DrivingLicenseScreen} />
+    <Stack.Screen name="RegisterCarScreen" component={RegisterCarScreen} />
+    <Stack.Screen name="UserRegisterCarScreen" component={UserRegisterCarScreen}  />
+    <Stack.Screen name="MyAddressesScreen" component={MyAddressesScreen}  />
+    <Stack.Screen name="DetailMyAddressesScreen" component={DetailMyAddressesScreen}  />
+    <Stack.Screen name="FavoriteCarsScreen" component={FavoriteCarsScreen}  />
 
+    
   </Stack.Navigator>
 );
 
@@ -167,8 +184,7 @@ const RootStack = () => (
     <Stack.Screen name="TimePicker" component={TimePickerScreen} />
     <Stack.Screen name="Searching" component={SearchScreen}  />
     <Stack.Screen name="RegisterScreen" component={RegisterScreen} />
-    <Stack.Screen name="UserRegisterCarScreen" component={UserRegisterCarScreen}  />
     <Stack.Screen name="ChangeTimeLocation" component={ChangeLocationTimeScreen} />
-    <Stack.Screen name="RegisterCarScreen" component={RegisterCarScreen} />
+    
   </Stack.Navigator>
 );
