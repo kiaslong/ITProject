@@ -1,10 +1,30 @@
-import React from 'react';
-import { View, Text, Image, StyleSheet, Dimensions, ScrollView } from 'react-native';
+import React, { useEffect } from 'react';
+import { View, Text, Image, StyleSheet, Dimensions, TouchableOpacity } from 'react-native';
 import { FontAwesome5 } from '@expo/vector-icons';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { useNavigation } from '@react-navigation/native';
+import { registerFunction, unregisterFunction } from '../store/functionRegistry';
 
+const UserInfoScreen = () => {
+  const navigation = useNavigation();
 
-export default function UserInfoScreen() {
+  useEffect(() => {
+    const key = 'editUserInfo';
+    const onPress = () => navigation.navigate('EditUserInfoScreen', {
+      showHeader: true,
+      showTitle: true,
+      showBackButton: true,
+      screenTitle: "Chỉnh sửa",
+      showCloseButton: true,
+      animationType: "slide_from_bottom"
+    });
+
+    registerFunction(key, onPress);
+
+    return () => {
+      unregisterFunction(key);
+    };
+  }, [navigation]);
+
   return (
     <View style={styles.safeContainer}>
       <View style={styles.container}>
@@ -73,7 +93,6 @@ export default function UserInfoScreen() {
 
         <View style={styles.middleLine}></View>
 
-
         {/* Fifth row for Google */}
         <View style={styles.extraInfoContainer}>
           <Text style={styles.extraInfoTextLeft}>Google</Text>
@@ -89,7 +108,7 @@ export default function UserInfoScreen() {
       </View>
     </View>
   );
-}
+};
 
 const deviceHeight = Dimensions.get('window').height;
 const deviceWidth = Dimensions.get('window').width;
@@ -105,24 +124,10 @@ const styles = StyleSheet.create({
     paddingEnd: deviceWidth * 0.05,
     paddingStart: deviceWidth * 0.05,
   },
-  titleContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    width: '100%',
-  },
-  title: {
-    fontSize: deviceHeight * 0.03,
-    fontWeight: 'bold',
-    textTransform: 'uppercase',
-    color: '#03a9f4',
-    textAlign: 'center',
-  },
-  pencilIcon: {
+  iconContainer: {
     position: 'absolute',
     right: deviceWidth * 0.05,
-    fontSize: deviceHeight * 0.02,
-    color: '#666',
+    top: deviceHeight * 0.03,
   },
   image: {
     width: deviceWidth * 0.3,
@@ -216,3 +221,5 @@ const styles = StyleSheet.create({
     marginVertical: deviceHeight * 0.01,
   },
 });
+
+export default UserInfoScreen;

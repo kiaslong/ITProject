@@ -6,6 +6,7 @@ import {
   StyleSheet,
   TouchableOpacity,
   Animated,
+  Dimensions,
 } from "react-native";
 import Ionicons from "react-native-vector-icons/Ionicons";
 import MaterialCommunityIcons from "react-native-vector-icons/MaterialCommunityIcons";
@@ -13,6 +14,8 @@ import MaterialIcons from "react-native-vector-icons/MaterialIcons";
 import { useSelector } from "react-redux";
 import moment from "moment";
 import LocationComponent from "../components/LocationComponent";
+
+const { width, height } = Dimensions.get("window");
 
 const featureIcons = {
   map: { icon: "map-outline", label: "Bản đồ" },
@@ -23,8 +26,16 @@ const featureIcons = {
   spareTire: { icon: "disc-outline", label: "Lốp dự phòng" },
   dashCam: { icon: "camera-outline", label: "Camera hành trình" },
   speedAlert: { icon: "speedometer-outline", label: "Cảnh báo tốc độ" },
-  collisensor: { icon: "sensors", label: "Cảm biến va chạm", library: "MaterialIcons" },
-  usbPort: { icon: "usb", label: "Khe cắm USB", library: "MaterialCommunityIcons" },
+  collisensor: {
+    icon: "sensors",
+    label: "Cảm biến va chạm",
+    library: "MaterialIcons",
+  },
+  usbPort: {
+    icon: "usb",
+    label: "Khe cắm USB",
+    library: "MaterialCommunityIcons",
+  },
   dvdScreen: { icon: "tv-outline", label: "Màn hình DVD" },
   etc: { icon: "airplane-outline", label: "ETC" },
   airbag: { icon: "shield-checkmark-outline", label: "Túi khí an toàn" },
@@ -73,13 +84,21 @@ const CarDetails = ({ carInfo, navigation }) => {
           <View style={styles.timeContainer}>
             <Text style={styles.timeLabel}>Nhận xe</Text>
             <Text numberOfLines={1} style={styles.timeValue}>
-              {start ? `${start.format('HH:mm')} ${start.format('dd')}, ${start.format('DD/MM')}/${currentYear}` : ""}
+              {start
+                ? `${start.format("HH:mm")} ${start.format(
+                    "dd"
+                  )}, ${start.format("DD/MM")}/${currentYear}`
+                : ""}
             </Text>
           </View>
           <View style={styles.timeContainer}>
             <Text style={styles.timeLabel}>Trả xe</Text>
             <Text numberOfLines={1} style={styles.timeValue}>
-              {end ? `${end.format('HH:mm')} ${end.format('dd')}, ${end.format('DD/MM')}/${currentYear}` : ""}
+              {end
+                ? `${end.format("HH:mm")} ${end.format("dd")}, ${end.format(
+                    "DD/MM"
+                  )}/${currentYear}`
+                : ""}
             </Text>
           </View>
         </TouchableOpacity>
@@ -95,7 +114,9 @@ const CarDetails = ({ carInfo, navigation }) => {
         >
           <View
             style={
-              pickupMethod === "self" ? styles.radioButtonSelected : styles.radioButton
+              pickupMethod === "self"
+                ? styles.radioButtonSelected
+                : styles.radioButton
             }
           />
           <View style={styles.locationOptionContainer}>
@@ -123,7 +144,9 @@ const CarDetails = ({ carInfo, navigation }) => {
               <Text style={styles.locationOptionText}>
                 Tôi muốn được giao xe tận nơi
               </Text>
-              <Text style={styles.supported}>Chủ xe hỗ trợ giao xe tận nơi</Text>
+              <Text style={styles.supported}>
+                Chủ xe hỗ trợ giao xe tận nơi
+              </Text>
             </View>
           </TouchableOpacity>
         ) : (
@@ -154,10 +177,26 @@ const CarSpecs = ({ carInfo }) => (
   <View>
     <Text style={styles.bigSectionTitle}>Đặc điểm</Text>
     <View style={styles.featuresContainer}>
-      <CarSpec icon="car-sport-outline" title="Truyền động" value={carInfo.specs.transmission} />
-      <CarSpec icon="people-outline" title="Số ghế" value={carInfo.specs.seats} />
-      <CarSpec icon="water-outline" title="Nhiên liệu" value={carInfo.specs.fuel} />
-      <CarSpec icon="speedometer-outline" title="Tiêu hao" value={carInfo.specs.fuelConsumption} />
+      <CarSpec
+        icon="car-sport-outline"
+        title="Truyền động"
+        value={carInfo.specs.transmission}
+      />
+      <CarSpec
+        icon="people-outline"
+        title="Số ghế"
+        value={carInfo.specs.seats}
+      />
+      <CarSpec
+        icon="water-outline"
+        title="Nhiên liệu"
+        value={carInfo.specs.fuel}
+      />
+      <CarSpec
+        icon="speedometer-outline"
+        title="Tiêu hao"
+        value={carInfo.specs.fuelConsumption}
+      />
     </View>
   </View>
 );
@@ -180,7 +219,9 @@ const CarDescription = ({ carInfo }) => (
 );
 
 const CarFeature = ({ carInfo }) => {
-  const features = Object.keys(featureIcons).filter((feature) => carInfo.features[feature]);
+  const features = Object.keys(featureIcons).filter(
+    (feature) => carInfo.features[feature]
+  );
   if (features.length % 2 !== 0) {
     features.push(null);
   }
@@ -191,11 +232,19 @@ const CarFeature = ({ carInfo }) => {
       <View style={styles.amenitiesContainer}>
         {features.map((feature, index) => {
           if (feature) {
-            const IconComponent = getIconComponent(featureIcons[feature].library);
+            const IconComponent = getIconComponent(
+              featureIcons[feature].library
+            );
             return (
               <View style={styles.amenity} key={index}>
-                <IconComponent name={featureIcons[feature].icon} size={24} color="#03A9F4" />
-                <Text style={styles.amenityTitle}>{featureIcons[feature].label}</Text>
+                <IconComponent
+                  name={featureIcons[feature].icon}
+                  size={24}
+                  color="#03A9F4"
+                />
+                <Text style={styles.amenityTitle}>
+                  {featureIcons[feature].label}
+                </Text>
               </View>
             );
           } else {
@@ -222,23 +271,25 @@ const ConfirmRental = ({ carInfo }) => (
 const CarDetailScreen = ({ route, navigation }) => {
   const { carInfo } = route.params;
   const scrollY = useRef(new Animated.Value(0)).current;
-  const imageHeight = 220;
+  const imageHeight = height * 0.22;
 
   const headerOpacity = scrollY.interpolate({
-    inputRange: [imageHeight, imageHeight + 1],
+    inputRange: [imageHeight, imageHeight + 10],
     outputRange: [0, 1],
     extrapolate: "clamp",
   });
 
   const topIconsTranslateY = scrollY.interpolate({
     inputRange: [0, imageHeight],
-    outputRange: [0, 200],
+    outputRange: [0, height * 0.205],
     extrapolate: "clamp",
   });
 
   return (
     <>
-      <Animated.View style={[styles.animatedHeader, { opacity: headerOpacity }]}>
+      <Animated.View
+        style={[styles.animatedHeader, { opacity: headerOpacity }]}
+      >
         <View style={styles.headerContent}>
           <TouchableOpacity onPress={() => navigation.goBack()}>
             <Ionicons name="close" size={26} color="black" />
@@ -276,7 +327,10 @@ const CarDetailScreen = ({ route, navigation }) => {
               },
             ]}
           >
-            <TouchableOpacity onPress={() => navigation.goBack()} style={styles.roundIcon}>
+            <TouchableOpacity
+              onPress={() => navigation.goBack()}
+              style={styles.roundIcon}
+            >
               <Ionicons name="close" size={24} color="white" />
             </TouchableOpacity>
             <View style={styles.rightIcons}>
@@ -318,7 +372,7 @@ const styles = StyleSheet.create({
   },
   image: {
     width: "100%",
-    height: 300,
+    height: height * 0.35,
   },
   topIcons: {
     position: "absolute",
@@ -328,7 +382,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    paddingTop: 40,
+    paddingTop: height * 0.07,
   },
   roundIcon: {
     padding: 10,
@@ -340,8 +394,8 @@ const styles = StyleSheet.create({
     gap: 10,
   },
   details: {
-    padding: 8,
-    margin: 12,
+    padding: width * 0.02,
+    margin: width * 0.03,
     backgroundColor: "#fff",
     borderRadius: 8,
     shadowColor: "#000",
@@ -351,7 +405,7 @@ const styles = StyleSheet.create({
     elevation: 5,
   },
   title: {
-    fontSize: 24,
+    fontSize: width * 0.06,
     fontWeight: "bold",
     color: "#03A9F4",
     marginBottom: 8,
@@ -365,12 +419,12 @@ const styles = StyleSheet.create({
   },
   rating: {
     marginRight: 16,
-    fontSize: 16,
+    fontSize: width * 0.04,
     fontWeight: "bold",
   },
   trips: {
     color: "#757575",
-    fontSize: 16,
+    fontSize: width * 0.04,
   },
   separator: {
     height: 1,
@@ -379,14 +433,14 @@ const styles = StyleSheet.create({
     marginHorizontal: 16,
   },
   smallSectionTitle: {
-    fontSize: 18,
+    fontSize: width * 0.045,
     fontWeight: "bold",
     color: "#03A9F4",
     marginTop: 16,
     marginBottom: 8,
   },
   bigSectionTitle: {
-    fontSize: 18,
+    fontSize: width * 0.045,
     fontWeight: "bold",
     color: "#03A9F4",
     marginTop: 16,
@@ -413,11 +467,11 @@ const styles = StyleSheet.create({
   },
   timeLabel: {
     color: "#757575",
-    fontSize: 16,
+    fontSize: width * 0.04,
   },
   timeValue: {
     marginTop: 10,
-    fontSize: 13,
+    fontSize: width * 0.033,
     fontWeight: "700",
   },
   locationSection: {
@@ -470,12 +524,12 @@ const styles = StyleSheet.create({
   },
   locationOptionText: {
     color: "#03A9F4",
-    fontSize: 15,
+    fontSize: width * 0.04,
     fontWeight: "bold",
   },
   locationOptionTextDisabled: {
     color: "#BDBDBD",
-    fontSize: 15,
+    fontSize: width * 0.04,
     fontWeight: "bold",
   },
   freeDelivery: {
@@ -487,16 +541,16 @@ const styles = StyleSheet.create({
   supported: {
     color: "#03A9F4",
     marginTop: 6,
-    fontSize: 14,
+    fontSize: width * 0.035,
   },
   notSupported: {
     color: "#BDBDBD",
     marginTop: 6,
-    fontSize: 14,
+    fontSize: width * 0.035,
   },
   location: {
     color: "black",
-    fontSize: 15,
+    fontSize: width * 0.04,
     marginTop: 10,
     marginBottom: 4,
   },
@@ -508,17 +562,17 @@ const styles = StyleSheet.create({
   oldPrice: {
     textDecorationLine: "line-through",
     color: "#757575",
-    fontSize: 16,
+    fontSize: width * 0.04,
     marginRight: 10,
   },
   newPrice: {
     fontWeight: "bold",
     color: "#03A9F4",
-    fontSize: 20,
+    fontSize: width * 0.05,
   },
   totalPrice: {
     color: "#03A9F4",
-    fontSize: 16,
+    fontSize: width * 0.04,
     marginBottom: 16,
   },
   bookContainer: {
@@ -543,7 +597,7 @@ const styles = StyleSheet.create({
   },
   bookButtonText: {
     color: "white",
-    fontSize: 16,
+    fontSize: width * 0.04,
     fontWeight: "bold",
   },
   priceInfo: {
@@ -573,7 +627,7 @@ const styles = StyleSheet.create({
     zIndex: 20,
   },
   animatedHeaderTitle: {
-    fontSize: 19,
+    fontSize: width * 0.048,
     fontWeight: "bold",
     color: "#000",
   },
@@ -594,12 +648,12 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   featureTitle: {
-    fontSize: 14,
+    fontSize: width * 0.035,
     color: "#757575",
     marginTop: 8,
   },
   featureValue: {
-    fontSize: 16,
+    fontSize: width * 0.04,
     fontWeight: "bold",
     color: "#000",
     marginTop: 6,
@@ -610,7 +664,7 @@ const styles = StyleSheet.create({
     marginLeft: 12,
   },
   descriptionTitle: {
-    fontSize: 15,
+    fontSize: width * 0.04,
     color: "#757575",
     marginTop: 6,
   },
@@ -628,7 +682,7 @@ const styles = StyleSheet.create({
     margin: 8,
   },
   amenityTitle: {
-    fontSize: 14,
+    fontSize: width * 0.035,
     color: "#757575",
     textAlign: "center",
     marginLeft: 10,

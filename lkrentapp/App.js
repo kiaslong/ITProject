@@ -27,6 +27,7 @@ import DrivingLicenseScreen from "./settingStackScreen/DrivingLicenseScreen";
 import MyAddressesScreen from "./settingStackScreen/MyAddressesScreen";
 import DetailMyAddressesScreen from "./settingStackScreen/DetailMyAddressesScreen";
 import FavoriteCarsScreen from "./settingStackScreen/FavoriteCarsScreen";
+import EditUserInfoScreen from "./settingStackScreen/EditUserInfoScreen";
 import SearchScreen from "./homeStackScreen/SearchingScreen";
 import Header from "./components/Header";
 import ChangeLocationTimeScreen from "./homeStackScreen/ChangeLocationTimeScreen";
@@ -115,6 +116,7 @@ const SettingStack = () => (
     <Stack.Screen name="MyAddressesScreen" component={MyAddressesScreen}  />
     <Stack.Screen name="DetailMyAddressesScreen" component={DetailMyAddressesScreen}  />
     <Stack.Screen name="FavoriteCarsScreen" component={FavoriteCarsScreen}  />
+    <Stack.Screen name="EditUserInfoScreen" component={EditUserInfoScreen}  />
 
     
   </Stack.Navigator>

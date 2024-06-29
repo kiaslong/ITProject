@@ -28,6 +28,8 @@ const SettingScreen = () => {
       screen: "UserInfoScreen",
       title: "Tài khoản của tôi",
       iconName: "pencil-alt",
+      functionName: "editUserInfo",
+
     },
     {
       id: 2,
