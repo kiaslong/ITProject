@@ -117,12 +117,14 @@ const SettingScreen = () => {
 
   const handleOk = () => {
     setAlertVisible(false);
-    navigation.navigate("DeleteAccountScreen", {
-      showHeader: true,
-      showTitle: true,
-      showBackButton: true,
-    });
+    navigation.dispatch(
+      CommonActions.reset({
+        index: 0,
+        routes: [{ name: "Khám phá" }],
+      })
+    );
   };
+
 
   const handleLogoutPress = async () => {
     await dispatch(logout());

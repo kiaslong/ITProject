@@ -5,7 +5,7 @@ import { useRoute } from '@react-navigation/native';
 
 const DetailMyAddressesScreen = () => {
   const route = useRoute();
-  const { address, showHeader, showTitle, showBackButton, screenTitle, showCloseButton, animationType } = route.params || {};
+  const { address } = route.params || {};
 
   const [loading, setLoading] = useState(true);
   const [provinces, setProvinces] = useState([]);

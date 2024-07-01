@@ -14,12 +14,14 @@ const CustomAlert = ({ visible, onCancel, onOk }) => {
         <View style={styles.modalView}>
           <Text style={styles.title}>Cảnh cáo</Text>
           <Text style={styles.modalText}>Bạn có chắc chắn muốn xóa tài khoản của mình không?</Text>
+          <View style={styles.buttonContainer}>
           <TouchableOpacity style={styles.okButton} onPress={onOk}>
             <Text style={styles.okTextStyle}>Xác nhận</Text>
           </TouchableOpacity>
           <TouchableOpacity style={styles.cancelButton} onPress={onCancel}>
             <Text style={styles.cancelTextStyle}>Hủy</Text>
           </TouchableOpacity>
+          </View>
         </View>
       </View>
     </Modal>
@@ -58,13 +60,16 @@ const styles = StyleSheet.create({
     marginBottom: 15,
     textAlign: 'center',
   },
+  buttonContainer:{
+    flexDirection:"row",
+    padding:16
+  },
   okButton: {
     backgroundColor: 'red',
     borderRadius: 10,
     padding: 10,
-    width: '100%',
+    width: '45%',
     alignItems: 'center',
-    marginBottom: 10,
   },
   okTextStyle: {
     color: 'white',
@@ -75,7 +80,8 @@ const styles = StyleSheet.create({
     backgroundColor: 'blue',
     borderRadius: 10,
     padding: 10,
-    width: '100%',
+    width: '45%',
+    marginLeft:20,
     alignItems: 'center',
   },
   cancelTextStyle: {

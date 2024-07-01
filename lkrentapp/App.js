@@ -1,9 +1,9 @@
-import React from "react";
+import React,{useEffect} from "react";
 import { NavigationContainer } from "@react-navigation/native";
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { Ionicons } from "@expo/vector-icons";
-import { Provider, useSelector } from "react-redux";
+import { Provider } from "react-redux";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import store from "./store/store";
 import SupportScreen from "./supportStackScreen/SupportScreen";
@@ -31,26 +31,38 @@ import SearchScreen from "./homeStackScreen/SearchingScreen";
 import Header from "./components/Header";
 import ChangeLocationTimeScreen from "./homeStackScreen/ChangeLocationTimeScreen";
 import CarDetailScreen from './homeStackScreen/CarDetailScreen';
-
+import * as Location from 'expo-location';
+import { setLocation } from './store/locationSlice';
+import { useDispatch, useSelector } from 'react-redux';
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
 
 enableScreens();
 
-
-
-export default function App() {
+const App = () => {
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
-    <Provider store={store}>
-      <NavigationContainer>
-        <RootStack />
-      </NavigationContainer>
-    </Provider>
-     </GestureHandlerRootView>
+      <Provider store={store}>
+        <NavigationContainer>
+          <RootStack />
+        </NavigationContainer>
+      </Provider>
+    </GestureHandlerRootView>
   );
-}
+};
+
+const RootStack = () => {
+  const dispatch = useDispatch();
+
+ 
+
+  return (
+    <Stack.Navigator initialRouteName="Main" screenOptions={commonScreenOptions}>
+      <Stack.Screen name="Main" component={HomeTabs} />
+    </Stack.Navigator>
+  );
+};
 
 const commonScreenOptions = ({ route }) => ({
   header: () => (
@@ -78,8 +90,11 @@ const commonScreenOptions = ({ route }) => ({
 const HomeStack = () => (
   <Stack.Navigator initialRouteName="Home" screenOptions={commonScreenOptions}>
     <Stack.Screen name="Home" component={HomeScreen} />
-   
-   
+    <Stack.Screen name="LocationPicker" component={LocationPickerScreen} />
+    <Stack.Screen name="TimePicker" component={TimePickerScreen} />
+    <Stack.Screen name="Searching" component={SearchScreen} />
+    <Stack.Screen name="ChangeTimeLocation" component={ChangeLocationTimeScreen} />
+    <Stack.Screen name="CarDetail" component={CarDetailScreen} />
   </Stack.Navigator>
 );
 
@@ -111,19 +126,17 @@ const SettingStack = () => (
     <Stack.Screen name="DetailGift" component={DetailGift} />
     <Stack.Screen name="DrivingLicenseScreen" component={DrivingLicenseScreen} />
     <Stack.Screen name="RegisterCarScreen" component={RegisterCarScreen} />
-    <Stack.Screen name="UserRegisterCarScreen" component={UserRegisterCarScreen}  />
-    <Stack.Screen name="MyAddressesScreen" component={MyAddressesScreen}  />
-    <Stack.Screen name="DetailMyAddressesScreen" component={DetailMyAddressesScreen}  />
-    <Stack.Screen name="FavoriteCarsScreen" component={FavoriteCarsScreen}  />
-
-    
+    <Stack.Screen name="UserRegisterCarScreen" component={UserRegisterCarScreen} />
+    <Stack.Screen name="MyAddressesScreen" component={MyAddressesScreen} />
+    <Stack.Screen name="DetailMyAddressesScreen" component={DetailMyAddressesScreen} />
+    <Stack.Screen name="FavoriteCarsScreen" component={FavoriteCarsScreen} />
   </Stack.Navigator>
 );
 
 const AuthStack = () => (
   <Stack.Navigator initialRouteName="LoginScreen" screenOptions={commonScreenOptions}>
     <Stack.Screen name="LoginScreen" component={LoginScreen} initialParams={{ showHeader: true, showBackButton: false, showTitle: true, showSearchBar: false, screenTitle: "Đăng nhập" }} />
-    
+    <Stack.Screen name="RegisterScreen" component={RegisterScreen} />
   </Stack.Navigator>
 );
 
@@ -176,15 +189,4 @@ const HomeTabs = () => {
   );
 };
 
-const RootStack = () => (
-  <Stack.Navigator initialRouteName="Main" screenOptions={commonScreenOptions} >
-    <Stack.Screen name="Main" component={HomeTabs}  />
-    <Stack.Screen name="CarDetail" component={CarDetailScreen} />
-    <Stack.Screen name="LocationPicker" component={LocationPickerScreen} />
-    <Stack.Screen name="TimePicker" component={TimePickerScreen} />
-    <Stack.Screen name="Searching" component={SearchScreen}  />
-    <Stack.Screen name="RegisterScreen" component={RegisterScreen} />
-    <Stack.Screen name="ChangeTimeLocation" component={ChangeLocationTimeScreen} />
-    
-  </Stack.Navigator>
-);
+export default App;
