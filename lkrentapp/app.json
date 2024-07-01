@@ -23,5 +23,13 @@
         "projectId": "5d06b491-426d-4f62-9ff6-ad9da43a4018"
       }
     }
+    ,  "plugins": [
+      [
+        "expo-location",
+        {
+          "locationAlwaysAndWhenInUsePermission": "Allow $(PRODUCT_NAME) to use your location."
+        }
+      ]
+    ]
   }
 }

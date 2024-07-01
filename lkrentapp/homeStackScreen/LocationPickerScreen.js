@@ -1,59 +1,187 @@
-import React, { useState } from 'react';
-import { View, Text, StyleSheet, SectionList, TouchableOpacity, TextInput, KeyboardAvoidingView, Platform, ActivityIndicator } from 'react-native';
-import { useSelector, useDispatch } from 'react-redux';
-import { setLocation } from '../store/locationSlice';
-import { Ionicons } from '@expo/vector-icons';
-import { KeyboardAwareSectionList } from 'react-native-keyboard-aware-scroll-view';
+import React, { useState, useEffect, useCallback, useMemo } from "react";
+import {
+  View,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
+  TextInput,
+  ActivityIndicator,
+  KeyboardAvoidingView,
+  Platform,
+  Keyboard,
+  FlatList,
+} from "react-native";
+import { useSelector, useDispatch } from "react-redux";
+import { setLocation, addToHistory } from "../store/locationSlice";
+import { Ionicons } from "@expo/vector-icons";
+import {
+  autoComplete,
+  getGeocode,
+  getCityFromCoordinates,
+} from "../fetchData/Position";
+import debounce from "lodash.debounce";
+import * as Location from "expo-location";
 
-const locations = [
-  'Đường Phan Đình Phùng, Phường 15, Quận Phú Nhuận, Thành phố Hồ Chí Minh',
-  'Đường Lê Lợi, Quận 1, Thành phố Hồ Chí Minh',
-  'Đường Nguyễn Huệ, Quận 1, Thành phố Hồ Chí Minh',
-  'Đường Hai Bà Trưng, Quận 3, Thành phố Hồ Chí Minh',
-];
-
-const extractStreetName = (location) => {
-  const parts = location.split(',');
-  return parts[0] || location;
-};
-
-export default function LocationPicker({ navigation }) {
+const LocationPickerScreen = ({ navigation }) => {
   const dispatch = useDispatch();
   const currentLocation = useSelector((state) => state.location.location);
-  const [search, setSearch] = useState('');
+  const history = useSelector((state) => state.location.history);
+  const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(false);
-  const [currentLocationText, setCurrentLocationText] = useState('Vị trí hiện tại');
+  const [suggestions, setSuggestions] = useState([]);
+  const [currentLocationText, setCurrentLocationText] =
+    useState("Vị trí hiện tại");
+  const [deviceLocation, setDeviceLocation] = useState(null);
+  const apiKey = process.env.GOONG_KEY;
+  const mapboxApiKey = process.env.MAP_BOX_KEY;
 
-  const handleSelectLocation = (location) => {
-    setLoading(true);
-    setTimeout(() => {
-      dispatch(setLocation(location));
-      setLoading(false);
-      navigation.goBack();
-    }, 500); 
-  };
+  const getCurrentLocation = useCallback(async () => {
+    try {
+      const { status } = await Location.requestForegroundPermissionsAsync();
+      if (status !== "granted") {
+        console.log("Permission to access location was denied");
+        return;
+      }
 
+      const location = await Location.getCurrentPositionAsync({
+        accuracy: Location.Accuracy.Lowest,
+        maximumAge: 10000,
+        timeout: 5000,
+      });
 
-  const handleSelectCurrentLocation = () => {
-    setCurrentLocationText('Đang xác định vị trí...');
-    setTimeout(() => {
-      
-      const location = '270/100 Phan Đình Phùng P1, Quận Phú Nhuận,TP.HCM'; 
-      dispatch(setLocation(location));
-      setCurrentLocationText('Vị trí hiện tại');
-      navigation.goBack();
-    }, 700);
-  };
+      setDeviceLocation(
+        `${location.coords.latitude},${location.coords.longitude}`
+      );
+    } catch (error) {
+      console.error("Error getting current location:", error);
+    }
+  }, [mapboxApiKey]);
 
-  const filteredLocations = locations.filter(location =>
-    location.toLowerCase().includes(search.toLowerCase())
+  useEffect(() => {
+    getCurrentLocation();
+  }, [getCurrentLocation]);
+
+  const debouncedAutoComplete = useMemo(
+    () =>
+      debounce(async (input) => {
+        if (input.length > 0 && deviceLocation) {
+          setLoading(true);
+          try {
+            const suggestions = await autoComplete(input, apiKey, deviceLocation);
+            setSuggestions(suggestions);
+          } catch (error) {
+            console.error(error);
+          } finally {
+            setLoading(false);
+          }
+        } else {
+          setSuggestions([]);
+        }
+      }, 500),
+    [apiKey, deviceLocation]
+  );
+
+  useEffect(() => {
+    debouncedAutoComplete(search);
+    return () => debouncedAutoComplete.cancel();
+  }, [search, debouncedAutoComplete]);
+
+  const handleSelectLocation = useCallback(
+    (location) => {
+      setLoading(true);
+      setTimeout(() => {
+        dispatch(setLocation(location));
+        dispatch(addToHistory(location));
+        setLoading(false);
+        navigation.goBack();
+      }, 500);
+    },
+    [dispatch, navigation]
+  );
+
+  const handleSelectCurrentLocation = useCallback(async () => {
+    setCurrentLocationText("Đang xác định vị trí...");
+    try {
+      const { status } = await Location.requestForegroundPermissionsAsync();
+      if (status !== "granted") {
+        console.log("Permission to access location was denied");
+        return;
+      }
+
+      const location = await Location.getCurrentPositionAsync({
+        accuracy: Location.Accuracy.Lowest,
+        maximumAge: 10000,
+        timeout: 5000,
+      });
+
+      const address = await getGeocode(
+        location.coords.latitude,
+        location.coords.longitude,
+        apiKey
+      );
+      if (address) {
+        dispatch(setLocation(address));
+        navigation.goBack();
+      } else {
+        console.log("Could not fetch address");
+      }
+    } catch (error) {
+      console.error("Error selecting current location:", error);
+    } finally {
+      setCurrentLocationText("Vị trí hiện tại");
+    }
+  }, [apiKey, dispatch, navigation]);
+
+  const extractStreetName = useCallback((location) => {
+    const parts = location.split(",");
+    return parts[0] || location;
+  }, []);
+
+  const renderItem = useCallback(
+    ({ item }) => (
+      <TouchableOpacity
+        style={[
+          styles.item,
+          item === currentLocation && styles.currentLocationHighlight,
+        ]}
+        onPress={() => handleSelectLocation(item)}
+      >
+        <View style={styles.itemContent}>
+          <View style={styles.titleContainer}>
+            <Ionicons name="location-outline" size={24} color="black" />
+            <Text style={styles.itemTitleText}>{extractStreetName(item)}</Text>
+          </View>
+          <Text style={styles.itemText}>{item}</Text>
+        </View>
+      </TouchableOpacity>
+    ),
+    [currentLocation, extractStreetName, handleSelectLocation]
+  );
+
+  const keyExtractor = useCallback((item, index) => `${item}-${index}`, []);
+
+  const listData = useMemo(
+    () =>
+      search.length === 0
+        ? history.slice(0, 20)
+        : suggestions.slice(0, 20).map((suggestion) => suggestion.description),
+    [search.length, history, suggestions]
   );
 
   return (
-      <View style={styles.container}>
-       
+    <KeyboardAvoidingView
+      style={styles.container}
+      behavior={Platform.OS === "ios" ? "padding" : "height"}
+      keyboardVerticalOffset={Platform.OS === "ios" ? 64 : 0}
+    >
+      <View style={styles.contentContainer}>
         <View style={styles.searchContainer}>
-          <Ionicons name="location-outline" size={24} color="black" style={styles.icon} />
+          <Ionicons
+            name="location-outline"
+            size={24}
+            color="black"
+            style={styles.icon}
+          />
           <TextInput
             placeholder="Nhập địa điểm"
             style={styles.input}
@@ -61,79 +189,58 @@ export default function LocationPicker({ navigation }) {
             onChangeText={setSearch}
           />
         </View>
-        <TouchableOpacity style={styles.currentLocationContainer} onPress={handleSelectCurrentLocation}>
+        <TouchableOpacity
+          style={styles.currentLocationContainer}
+          onPress={handleSelectCurrentLocation}
+        >
           <Ionicons name="location-outline" size={24} color="#03a9f4" />
           <Text style={styles.currentLocationText}>{currentLocationText}</Text>
         </TouchableOpacity>
-        <Text style={styles.recentSearchesText}>Tìm kiếm gần đây</Text>
+        <Text style={styles.fixedHeader}>
+          {search.length === 0 ? "Tìm kiếm gần đây" : "Gợi ý tìm kiếm"}
+        </Text>
         {loading ? (
-          <ActivityIndicator style={styles.loading} size="large" color="#03a9f4" ma/>
+          <ActivityIndicator
+            style={styles.loading}
+            size="large"
+            color="#03a9f4"
+          />
         ) : (
-          <KeyboardAwareSectionList
-            initialNumToRender={5}
-            sections={[
-              { data: filteredLocations },
-            ]}
+          <FlatList
+            data={listData}
+            renderItem={renderItem}
+            keyExtractor={keyExtractor}
             showsVerticalScrollIndicator={false}
-            keyExtractor={(item, index) => item + index}
-            renderItem={({ item }) => (
-              <TouchableOpacity
-                style={[
-                  styles.item,
-                  item === currentLocation && styles.currentLocationHighlight
-                ]}
-                onPress={() => handleSelectLocation(item)}
-              >
-                <View style={styles.itemContent}>
-                  <View style={styles.titleContainer}>
-                    <Ionicons name="location-outline" size={24} color="black" />
-                    <Text style={styles.itemTitleText}>{extractStreetName(item)}</Text>
-                  </View>
-                  <Text style={styles.itemText}>{item}</Text>
-                </View>
-              </TouchableOpacity>
-            )}
-            renderSectionHeader={({ section: { title } }) => (
-              <Text style={styles.recentSearchesText}>{title}</Text>
-            )}
-            ItemSeparatorComponent={() => <View style={styles.separator} />}
+            initialNumToRender={4}
+            contentContainerStyle={styles.listContentContainer}
+            onScrollBeginDrag={Keyboard.dismiss}
           />
         )}
       </View>
-   
+    </KeyboardAvoidingView>
   );
-}
+};
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: "#fff",
+  },
+  contentContainer: {
+    flex: 1,
     paddingHorizontal: 16,
+    paddingTop: 20,
   },
-  containerTitle:{
-    marginTop:10,
-    alignSelf:'center',
-    fontSize:24,
-    fontWeight:'bold',
-    marginBottom:14,
-    color:'#03a9f4'
-  },
-  loading:{
-    marginTop:30,
-  },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
+  loading: {
+    marginTop: 30,
   },
   searchContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#f1f1f1',
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#f1f1f1",
     borderRadius: 8,
     paddingHorizontal: 10,
     paddingVertical: 14,
-    marginTop:20,
     marginBottom: 25,
   },
   icon: {
@@ -144,58 +251,62 @@ const styles = StyleSheet.create({
     fontSize: 16,
   },
   currentLocationContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 25,
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 16,
   },
   currentLocationText: {
     marginLeft: 8,
     fontSize: 16,
-    color:"#03a9f4",
-    fontWeight: 'bold',
+    color: "#03a9f4",
+    fontWeight: "bold",
   },
-  recentSearchesText: {
+  fixedHeader: {
     fontSize: 16,
-    fontWeight: '500',
+    fontWeight: "bold",
+    marginBottom: 10,
+    color: "#333",
   },
   item: {
-    backgroundColor: '#fff',
+    backgroundColor: "#fff",
     padding: 6,
-    borderRadius: 20,
+    borderRadius: 8,
     elevation: 2,
-    shadowColor: '#000',
+    shadowColor: "#000",
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.1,
     shadowRadius: 1,
-    borderColor: '#ccc',
+    borderColor: "#ccc",
     borderWidth: 1,
     marginBottom: 8,
   },
   itemContent: {
-    flexDirection: 'column',
-    alignItems: 'flex-start',
+    flexDirection: "column",
+    alignItems: "flex-start",
   },
   titleContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     padding: 4,
   },
   itemTitleText: {
     marginLeft: 8,
     fontSize: 17,
-    color: '#03a9f4',
-    fontWeight: 'bold',
+    color: "#03a9f4",
+    fontWeight: "bold",
   },
   itemText: {
     fontSize: 15,
     marginLeft: 10,
-    color: '#333',
-  },
-  separator: {
-    height: 6,
+    color: "#333",
   },
   currentLocationHighlight: {
-    borderColor: '#03a9f4',
+    borderColor: "#03a9f4",
     borderWidth: 2,
   },
+  listContentContainer: {
+    paddingBottom: 20,
+  },
 });
+
+export default React.memo(LocationPickerScreen);

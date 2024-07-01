@@ -6,6 +6,9 @@ import {
   StyleSheet,
   TouchableOpacity,
   Animated,
+  Dimensions,
+  ActivityIndicator,
+  Alert
 } from "react-native";
 import Ionicons from "react-native-vector-icons/Ionicons";
 import MaterialCommunityIcons from "react-native-vector-icons/MaterialCommunityIcons";
@@ -13,6 +16,8 @@ import MaterialIcons from "react-native-vector-icons/MaterialIcons";
 import { useSelector } from "react-redux";
 import moment from "moment";
 import LocationComponent from "../components/LocationComponent";
+
+const { width, height } = Dimensions.get('window');
 
 const featureIcons = {
   map: { icon: "map-outline", label: "Bản đồ" },
@@ -221,20 +226,36 @@ const ConfirmRental = ({ carInfo }) => (
 
 const CarDetailScreen = ({ route, navigation }) => {
   const { carInfo } = route.params;
+  const [locationLoaded, setLocationLoaded] = useState(false);
   const scrollY = useRef(new Animated.Value(0)).current;
-  const imageHeight = 220;
+  const imageHeight = height * 0.25;
 
   const headerOpacity = scrollY.interpolate({
-    inputRange: [imageHeight, imageHeight + 1],
+    inputRange: [imageHeight, imageHeight + 10],
     outputRange: [0, 1],
     extrapolate: "clamp",
   });
 
   const topIconsTranslateY = scrollY.interpolate({
     inputRange: [0, imageHeight],
-    outputRange: [0, 200],
+    outputRange: [0, height * 0.235],
     extrapolate: "clamp",
   });
+
+  useEffect(() => {
+    // Simulate fetching location data
+    setTimeout(() => {
+      setLocationLoaded(true);
+    }, 600);
+  }, []);
+
+  if (!locationLoaded) {
+    return (
+      <View style={styles.loadingContainer}>
+        <ActivityIndicator size="large" color="#03A9F4" />
+      </View>
+    );
+  }
 
   return (
     <>
@@ -276,15 +297,17 @@ const CarDetailScreen = ({ route, navigation }) => {
               },
             ]}
           >
+            <View styles={styles.leftIcons} >
             <TouchableOpacity onPress={() => navigation.goBack()} style={styles.roundIcon}>
-              <Ionicons name="close" size={24} color="white" />
+              <Ionicons name="close" size={26} color="white" />
             </TouchableOpacity>
+            </View>
             <View style={styles.rightIcons}>
               <TouchableOpacity style={styles.roundIcon}>
-                <Ionicons name="share-outline" size={24} color="white" />
+                <Ionicons name="share-outline" size={26} color="white" />
               </TouchableOpacity>
               <TouchableOpacity style={styles.roundIcon}>
-                <Ionicons name="heart-outline" size={24} color="white" />
+                <Ionicons name="heart-outline" size={26} color="white" />
               </TouchableOpacity>
             </View>
           </Animated.View>
@@ -318,30 +341,31 @@ const styles = StyleSheet.create({
   },
   image: {
     width: "100%",
-    height: 300,
+    height: height * 0.40,
   },
   topIcons: {
     position: "absolute",
     top: 0,
-    left: 9,
-    right: 9,
+    left: width *0.040,
+    right: width *0.040,
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    paddingTop: 40,
+    paddingTop : height * 0.078,
+    zIndex: 20,
   },
   roundIcon: {
     padding: 10,
     backgroundColor: "rgba(0, 0, 0, 0.5)",
-    borderRadius: 24,
+    borderRadius: 26,
   },
   rightIcons: {
     flexDirection: "row",
-    gap: 10,
+    gap: 16,
   },
   details: {
-    padding: 8,
-    margin: 12,
+    padding: width * 0.02,
+    margin: width * 0.03,
     backgroundColor: "#fff",
     borderRadius: 8,
     shadowColor: "#000",
@@ -351,7 +375,7 @@ const styles = StyleSheet.create({
     elevation: 5,
   },
   title: {
-    fontSize: 24,
+    fontSize: width * 0.06,
     fontWeight: "bold",
     color: "#03A9F4",
     marginBottom: 8,
@@ -365,12 +389,12 @@ const styles = StyleSheet.create({
   },
   rating: {
     marginRight: 16,
-    fontSize: 16,
+    fontSize: width * 0.04,
     fontWeight: "bold",
   },
   trips: {
     color: "#757575",
-    fontSize: 16,
+    fontSize: width * 0.04,
   },
   separator: {
     height: 1,
@@ -379,14 +403,14 @@ const styles = StyleSheet.create({
     marginHorizontal: 16,
   },
   smallSectionTitle: {
-    fontSize: 18,
+    fontSize: width * 0.045,
     fontWeight: "bold",
     color: "#03A9F4",
     marginTop: 16,
     marginBottom: 8,
   },
   bigSectionTitle: {
-    fontSize: 18,
+    fontSize: width * 0.045,
     fontWeight: "bold",
     color: "#03A9F4",
     marginTop: 16,
@@ -413,11 +437,11 @@ const styles = StyleSheet.create({
   },
   timeLabel: {
     color: "#757575",
-    fontSize: 16,
+    fontSize: width * 0.04,
   },
   timeValue: {
     marginTop: 10,
-    fontSize: 13,
+    fontSize: width * 0.033,
     fontWeight: "700",
   },
   locationSection: {
@@ -470,12 +494,12 @@ const styles = StyleSheet.create({
   },
   locationOptionText: {
     color: "#03A9F4",
-    fontSize: 15,
+    fontSize: width * 0.04,
     fontWeight: "bold",
   },
   locationOptionTextDisabled: {
     color: "#BDBDBD",
-    fontSize: 15,
+    fontSize: width * 0.04,
     fontWeight: "bold",
   },
   freeDelivery: {
@@ -487,16 +511,16 @@ const styles = StyleSheet.create({
   supported: {
     color: "#03A9F4",
     marginTop: 6,
-    fontSize: 14,
+    fontSize: width * 0.035,
   },
   notSupported: {
     color: "#BDBDBD",
     marginTop: 6,
-    fontSize: 14,
+    fontSize: width * 0.035,
   },
   location: {
     color: "black",
-    fontSize: 15,
+    fontSize: width * 0.04,
     marginTop: 10,
     marginBottom: 4,
   },
@@ -508,17 +532,17 @@ const styles = StyleSheet.create({
   oldPrice: {
     textDecorationLine: "line-through",
     color: "#757575",
-    fontSize: 16,
+    fontSize: width * 0.04,
     marginRight: 10,
   },
   newPrice: {
     fontWeight: "bold",
     color: "#03A9F4",
-    fontSize: 20,
+    fontSize: width * 0.05,
   },
   totalPrice: {
     color: "#03A9F4",
-    fontSize: 16,
+    fontSize: width * 0.04,
     marginBottom: 16,
   },
   bookContainer: {
@@ -543,7 +567,7 @@ const styles = StyleSheet.create({
   },
   bookButtonText: {
     color: "white",
-    fontSize: 16,
+    fontSize: width * 0.04,
     fontWeight: "bold",
   },
   priceInfo: {
@@ -573,7 +597,7 @@ const styles = StyleSheet.create({
     zIndex: 20,
   },
   animatedHeaderTitle: {
-    fontSize: 19,
+    fontSize: width * 0.048,
     fontWeight: "bold",
     color: "#000",
   },
@@ -594,12 +618,12 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   featureTitle: {
-    fontSize: 14,
+    fontSize: width * 0.035,
     color: "#757575",
     marginTop: 8,
   },
   featureValue: {
-    fontSize: 16,
+    fontSize: width * 0.04,
     fontWeight: "bold",
     color: "#000",
     marginTop: 6,
@@ -610,7 +634,7 @@ const styles = StyleSheet.create({
     marginLeft: 12,
   },
   descriptionTitle: {
-    fontSize: 15,
+    fontSize: width * 0.04,
     color: "#757575",
     marginTop: 6,
   },
@@ -628,10 +652,15 @@ const styles = StyleSheet.create({
     margin: 8,
   },
   amenityTitle: {
-    fontSize: 14,
+    fontSize: width * 0.035,
     color: "#757575",
     textAlign: "center",
     marginLeft: 10,
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
   },
 });
 

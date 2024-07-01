@@ -17,6 +17,7 @@ import PromotionCard from "../components/PromotionCard";
 import ImageCard from "../components/ImageCard";
 import BenefitsCard from "../components/BenefitsCard";
 import SearchBox from "../components/SearchBox";
+import {  useSelector } from "react-redux";
 
 
 
@@ -26,9 +27,21 @@ const Delivery = require ('../assets/delivery.png')
 const EasyPay = require('../assets/easypay.png')
 const MultiCar = require ('../assets/multicar.png')
 
-function HeartIcon() {
+
+
+
+
+function HeartIcon({navigation}) {
+ 
+
+
+  const handleHeartPress = () => {
+    navigation.navigate('FavoriteCarsScreen', { showHeader:true,showBackButton: true ,showTitle:true,screenTitle:"Xe yêu thích" });
+  };
+
+ 
   return (
-    <Pressable onPress={() => Alert.alert("Heart icon pressed")}>
+    <Pressable onPress={handleHeartPress}>
       <Ionicons
         name={"heart-outline"}
         size={24}
@@ -39,8 +52,13 @@ function HeartIcon() {
   );
 }
 function GiftIcon() {
+
+  const handleGiftPress = () => {
+    navigation.navigate('GiftScreen', { showHeader:true,showBackButton: true ,showTitle:true,screenTitle:"Quà tặng" });
+  };
+
   return (
-    <Pressable onPress={() => Alert.alert("Gift icon pressed")}>
+    <Pressable onPress={handleGiftPress}>
       <Ionicons
         name="gift-outline"
         size={24}
@@ -231,7 +249,7 @@ const carForYou = [
     transmission: "Số tự động",
     delivery: "Giao xe tận nơi",
     title: "KIA MORNING 2020",
-    location: "Quận Phú Nhuận, Thành Phố Hồ Chí Minh",
+    location: "Quận Phú Nhuận,Thành Phố Hồ Chí Minh",
     rating: "5.0",
     trips: "97",
     oldPrice: "574K",
@@ -308,7 +326,7 @@ const carHistory = [
     transmission: "Số tự động",
     delivery: "Giao xe tận nơi",
     title: "KIA MORNING 2020",
-    location: "Quận Phú Nhuận, Thành Phố Hồ Chí Minh",
+    location: "Quận 1,Thành Phố Hồ Chí Minh",
     rating: "5.0",
     trips: "97",
     oldPrice: "574K",
@@ -380,6 +398,7 @@ const benefitsData = [
 
 export default function HomeScreen({ navigation }) {
   const [currentIndex, setCurrentIndex] = useState(0);
+  const isLoggedIn = useSelector((state) => state.loggedIn.isLoggedIn);
 
   return (
     <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
@@ -391,11 +410,12 @@ export default function HomeScreen({ navigation }) {
           style={styles.headerImage}
           resizeMode="auto"
         />
-        <Text style={styles.headerText}>Welcome,{"\n"}Phan Phi Long</Text>
+        {isLoggedIn ? <Text style={styles.headerText}>Welcome,{"\n"}Phan Phi Long</Text> :<Text style={styles.headerText}>Xin chào </Text> }
         <View style={styles.iconContainer}>
-          <HeartIcon />
-          <View style={styles.verticalSeparator} />
-          <GiftIcon />
+          
+          {isLoggedIn ? <HeartIcon navigation={navigation} /> : null }
+          {isLoggedIn ? <View style={styles.verticalSeparator} /> : null }
+          {isLoggedIn ?  <GiftIcon  navigation={navigation} /> : null }
         </View>
       </View>
       <SearchBox navigation={navigation} />

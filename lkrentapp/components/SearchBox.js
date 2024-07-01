@@ -110,18 +110,17 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
   touchable: {
-    fontSize: 18,
     color: '#000',
     backgroundColor: '#d0eaff',
     padding: 12,
-    borderRadius: 12,
-    justifyContent: 'center',
+    borderRadius: 10,
+  
   },
   buttonContainer: {
     alignItems: 'center',
   },
   button: {
-    width: "88%",
+    width: "80%",
     backgroundColor: '#03a9f4',
     paddingVertical: 15,
     paddingHorizontal: 25,
@@ -129,13 +128,13 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   buttonText: {
-    fontSize: 17,
+    fontSize: 18,
     color: '#fff',
     fontWeight: 'bold',
   },
   placeholderBold: {
-    fontWeight: '400',
-    fontSize: 17,
+    fontWeight: '500',
+    fontSize: 14.5,
   },
 });
 

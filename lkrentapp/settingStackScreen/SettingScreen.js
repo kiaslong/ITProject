@@ -7,17 +7,18 @@ import {
   TouchableOpacity,
   Pressable,
   Image,
+  Alert,
 } from "react-native";
-import React, { useCallback } from "react";
+import React, { useState, useCallback } from "react";
 import { useNavigation, CommonActions } from "@react-navigation/native";
 import { useDispatch } from "react-redux";
 import { logout } from "../store/loginSlice";
+import CustomAlert from "../components/CustomAlert"; // Adjust the import path as needed
 
 const SettingScreen = () => {
+  const [alertVisible, setAlertVisible] = useState(false);
   const dispatch = useDispatch();
   const navigation = useNavigation();
-
-
 
   const profileMenu = [
     {
@@ -26,7 +27,7 @@ const SettingScreen = () => {
       icon: "person-circle-outline",
       screen: "UserInfoScreen",
       title: "Tài khoản của tôi",
-      iconName:"pencil-alt"
+      iconName: "pencil-alt",
     },
     {
       id: 2,
@@ -34,44 +35,57 @@ const SettingScreen = () => {
       icon: "car-sport-outline",
       screen: "UserRegisterCarScreen",
       title: "Danh Sách Xe",
-      iconName:"car",
-      functionName:"registerCar"
+      iconName: "car",
+      functionName: "registerCar",
     },
     {
       id: 3,
       name: "Xe yêu thích",
       icon: "heart-outline",
       screen: "FavoriteCarsScreen",
+      title: "Xe yêu thích",
+
     },
     {
       id: 4,
       name: "Địa chỉ của tôi",
       icon: "document-text-outline",
       screen: "MyAddressesScreen",
+      title: "Địa chỉ của tôi",
+      iconName: "pencil-alt",
+
     },
     {
       id: 5,
       name: "Giấy phép lái xe",
       icon: "newspaper-outline",
       screen: "DrivingLicenseScreen",
+      title: "Giấy tờ xe",
+
     },
     {
       id: 6,
       name: "Quà tặng",
       icon: "gift-outline",
-      screen: "GiftsScreen",
+      screen: "GiftScreen",
+      title: "Quà tặng",
+
     },
     {
       id: 7,
       name: "Giới thiệu bạn mới",
       icon: "people-outline",
       screen: "ReferFriendScreen",
+      title: "Giới thiệu bạn mới",
+
     },
     {
       id: 8,
       name: "Đổi mật khẩu",
       icon: "lock-closed-outline",
       screen: "ChangePasswordScreen",
+      title: "Thay đổi mật khẩu",
+
     },
     {
       id: 9,
@@ -81,9 +95,36 @@ const SettingScreen = () => {
     },
   ];
 
-  const handleMenuPress = (screen, title, iconName , functionName) => {
-    navigation.navigate(screen, { showHeader:true, showTitle:true, showBackButton: true , screenTitle: title, showIcon:true , iconName: iconName , functionName: functionName } );
+  const handleMenuPress = (screen, title, iconName, functionName) => {
+    if (screen === "DeleteAccountScreen") {
+      setAlertVisible(true);
+    } else {
+      navigation.navigate(screen, {
+        showHeader: true,
+        showTitle: true,
+        showBackButton: true,
+        screenTitle: title,
+        showIcon: true,
+        iconName: iconName,
+        functionName: functionName,
+      });
+    }
   };
+
+  const handleCancel = () => {
+    setAlertVisible(false);
+  };
+
+  const handleOk = () => {
+    setAlertVisible(false);
+    navigation.dispatch(
+      CommonActions.reset({
+        index: 0,
+        routes: [{ name: "Khám phá" }],
+      })
+    );
+  };
+
 
   const handleLogoutPress = async () => {
     await dispatch(logout());
@@ -99,7 +140,14 @@ const SettingScreen = () => {
     ({ item }) => (
       <TouchableOpacity
         style={styles.menuItem}
-        onPress={() => handleMenuPress(item.screen, item.title, item.iconName , item.functionName)}
+        onPress={() =>
+          handleMenuPress(
+            item.screen,
+            item.title,
+            item.iconName,
+            item.functionName
+          )
+        }
       >
         <Ionicons name={item.icon} size={23} padding={5} />
         <Text style={styles.menuText}>{item.name}</Text>
@@ -144,6 +192,11 @@ const SettingScreen = () => {
           <Text style={styles.buttonText}>Thoát</Text>
         </Pressable>
       </View>
+      <CustomAlert
+        visible={alertVisible}
+        onCancel={handleCancel}
+        onOk={handleOk}
+      />
     </View>
   );
 };
@@ -151,9 +204,7 @@ const SettingScreen = () => {
 export default SettingScreen;
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
+  container: { flex: 1 },
   header: {
     paddingTop: 50,
     paddingBottom: 20,
@@ -175,11 +226,7 @@ const styles = StyleSheet.create({
     shadowRadius: 5,
     elevation: 5,
   },
-  textContainer: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-  },
+  textContainer: { flex: 1, justifyContent: "center", alignItems: "center" },
   headerText: {
     fontSize: 22,
     color: "#01579b",
@@ -187,11 +234,7 @@ const styles = StyleSheet.create({
     textAlign: "center",
     marginBottom: 5,
   },
-  headerSubText: {
-    fontSize: 16,
-    color: "#757575",
-    textAlign: "center",
-  },
+  headerSubText: { fontSize: 16, color: "#757575", textAlign: "center" },
   image: {
     width: 110,
     height: 110,
@@ -200,10 +243,7 @@ const styles = StyleSheet.create({
     borderColor: "#01579b",
     marginRight: 15,
   },
-  menu: {
-    flex: 1,
-    padding: 10,
-  },
+  menu: { flex: 1, padding: 10 },
   menuItem: {
     flexDirection: "row",
     alignItems: "center",
@@ -212,12 +252,8 @@ const styles = StyleSheet.create({
     padding: 10,
     borderRadius: 10,
   },
-  menuText: {
-    fontSize: 16,
-  },
-  flexSpacer: {
-    flex: 1,
-  },
+  menuText: { fontSize: 16 },
+  flexSpacer: { flex: 1 },
   button: {
     flexDirection: "row",
     alignSelf: "center",
@@ -230,12 +266,6 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
   },
-  icon: {
-    paddingRight: 16,
-  },
-  buttonText: {
-    color: "white",
-    fontSize: 16,
-    fontWeight: "bold",
-  },
+  icon: { paddingRight: 16 },
+  buttonText: { color: "white", fontSize: 16, fontWeight: "bold" },
 });
