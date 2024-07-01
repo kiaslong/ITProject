@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Modal } from 'react-native';
 import MapView, { Circle } from 'react-native-maps';
 import Ionicons from 'react-native-vector-icons/Ionicons';
-import getCoordinates from '../fetchData/Position';
+import {getCoordinates} from '../fetchData/Position';
 
 const LocationComponent = ({ address }) => {
   const [location, setLocation] = useState(null);
