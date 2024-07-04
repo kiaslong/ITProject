@@ -1,9 +1,9 @@
-import React,{useEffect} from "react";
+import React, { useEffect, useCallback, useMemo } from "react";
 import { NavigationContainer } from "@react-navigation/native";
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { Ionicons } from "@expo/vector-icons";
-import { Provider } from "react-redux";
+import { Provider, useDispatch, useSelector } from "react-redux";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import store from "./store/store";
 import SupportScreen from "./supportStackScreen/SupportScreen";
@@ -29,11 +29,10 @@ import DetailMyAddressesScreen from "./settingStackScreen/DetailMyAddressesScree
 import FavoriteCarsScreen from "./settingStackScreen/FavoriteCarsScreen";
 import SearchScreen from "./homeStackScreen/SearchingScreen";
 import Header from "./components/Header";
+import { StatusBar } from 'expo-status-bar';
 import ChangeLocationTimeScreen from "./homeStackScreen/ChangeLocationTimeScreen";
 import CarDetailScreen from './homeStackScreen/CarDetailScreen';
-import * as Location from 'expo-location';
-import { setLocation } from './store/locationSlice';
-import { useDispatch, useSelector } from 'react-redux';
+import { fetchInitialLocation } from './store/locationSlice';
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -46,6 +45,7 @@ const App = () => {
       <Provider store={store}>
         <NavigationContainer>
           <RootStack />
+          <StatusBar style="dark" />
         </NavigationContainer>
       </Provider>
     </GestureHandlerRootView>
@@ -55,95 +55,249 @@ const App = () => {
 const RootStack = () => {
   const dispatch = useDispatch();
 
- 
+  useEffect(() => {
+    dispatch(fetchInitialLocation());
+  }, [dispatch]);
+
+  const commonScreenOptions = useCallback(({ route }) => ({
+    header: () => (
+      <Header
+        showTitle={route.params?.showTitle}
+        showBackButton={route.params?.showBackButton}
+        showSearchBar={route.params?.showSearchBar}
+        showCloseButton={route.params?.showCloseButton}
+        showIcon={route.params?.showIcon}
+        iconName={route.params?.iconName}
+        screenTitle={route.params?.screenTitle}
+        functionName={route.params?.functionName}
+      />
+    ),
+    
+    headerStyle: { backgroundColor: "#fff" },
+    headerShown: route.params?.showHeader ? true : false,
+    contentStyle: { flex: 1, backgroundColor: "#fff" },
+    animation: route.params?.animationType,
+    transitionSpec: {
+      open: { animation: "timing", config: { duration: 100 } },
+      close: { animation: "timing", config: { duration: 100 } },
+    },
+  }), []);
 
   return (
     <Stack.Navigator initialRouteName="Main" screenOptions={commonScreenOptions}>
       <Stack.Screen name="Main" component={HomeTabs} />
+      <Stack.Screen name="Searching" component={SearchScreen} />
+      <Stack.Screen name="CarDetail" component={CarDetailScreen} options={{gestureEnabled:false}} />
+      <Stack.Screen name="ChangeTimeLocation" component={ChangeLocationTimeScreen} />
+      <Stack.Screen name="RegisterScreen" component={RegisterScreen} />
+      <Stack.Screen name="RegisterCarScreen" component={RegisterCarScreen} />
+      <Stack.Screen name="UserRegisterCarScreen" component={UserRegisterCarScreen} />
+      <Stack.Screen name="TimePicker" component={TimePickerScreen} />
+      <Stack.Screen name="DrivingLicenseScreen" component={DrivingLicenseScreen}  />
     </Stack.Navigator>
   );
 };
 
-const commonScreenOptions = ({ route }) => ({
-  header: () => (
-    <Header
-      showTitle={route.params?.showTitle}
-      showBackButton={route.params?.showBackButton}
-      showSearchBar={route.params?.showSearchBar}
-      showCloseButton={route.params?.showCloseButton}
-      showIcon={route.params?.showIcon}
-      iconName={route.params?.iconName}
-      screenTitle={route.params?.screenTitle}
-      functionName={route.params?.functionName}
-    />
-  ),
-  headerStyle: { backgroundColor: "#fff" },
-  headerShown: route.params?.showHeader ? true : false,
-  contentStyle: { flex: 1, backgroundColor: "#fff" },
-  animation: route.params?.animationType,
-  transitionSpec: {
-    open: { animation: "timing", config: { duration: 100 } },
-    close: { animation: "timing", config: { duration: 100 } },
-  },
-});
+const HomeStack = () => {
+  const commonScreenOptions = useCallback(({ route }) => ({
+    header: () => (
+      <Header
+        showTitle={route.params?.showTitle}
+        showBackButton={route.params?.showBackButton}
+        showSearchBar={route.params?.showSearchBar}
+        showCloseButton={route.params?.showCloseButton}
+        showIcon={route.params?.showIcon}
+        iconName={route.params?.iconName}
+        screenTitle={route.params?.screenTitle}
+        functionName={route.params?.functionName}
+      />
+    ),
+    headerStyle: { backgroundColor: "#fff" },
+    headerShown: route.params?.showHeader ? true : false,
+    contentStyle: { flex: 1, backgroundColor: "#fff" },
+    animation: route.params?.animationType,
+    transitionSpec: {
+      open: { animation: "timing", config: { duration: 100 } },
+      close: { animation: "timing", config: { duration: 100 } },
+    },
+  }), []);
 
-const HomeStack = () => (
-  <Stack.Navigator initialRouteName="Home" screenOptions={commonScreenOptions}>
-    <Stack.Screen name="Home" component={HomeScreen} />
-    <Stack.Screen name="LocationPicker" component={LocationPickerScreen} />
-    <Stack.Screen name="TimePicker" component={TimePickerScreen} />
-    <Stack.Screen name="Searching" component={SearchScreen} />
-    <Stack.Screen name="ChangeTimeLocation" component={ChangeLocationTimeScreen} />
-    <Stack.Screen name="CarDetail" component={CarDetailScreen} />
-  </Stack.Navigator>
-);
+  return (
+    <Stack.Navigator initialRouteName="Home" screenOptions={commonScreenOptions}>
+      <Stack.Screen name="Home" component={HomeScreen} />
+      <Stack.Screen name="LocationPicker" component={LocationPickerScreen} />
+     
+    </Stack.Navigator>
+  );
+};
 
-const NotiStack = () => (
-  <Stack.Navigator initialRouteName="NotiHome" screenOptions={commonScreenOptions}>
-    <Stack.Screen name="NotiHome" component={NotiScreen} initialParams={{ showHeader: true, showBackButton: false, showTitle: true, showSearchBar: false, screenTitle: "Thông báo" }} />
-  </Stack.Navigator>
-);
+const NotiStack = () => {
+  const commonScreenOptions = useCallback(({ route }) => ({
+    header: () => (
+      <Header
+        showTitle={route.params?.showTitle}
+        showBackButton={route.params?.showBackButton}
+        showSearchBar={route.params?.showSearchBar}
+        showCloseButton={route.params?.showCloseButton}
+        showIcon={route.params?.showIcon}
+        iconName={route.params?.iconName}
+        screenTitle={route.params?.screenTitle}
+        functionName={route.params?.functionName}
+      />
+    ),
+    headerStyle: { backgroundColor: "#fff" },
+    headerShown: route.params?.showHeader ? true : false,
+    contentStyle: { flex: 1, backgroundColor: "#fff" },
+    animation: route.params?.animationType,
+    transitionSpec: {
+      open: { animation: "timing", config: { duration: 100 } },
+      close: { animation: "timing", config: { duration: 100 } },
+    },
+  }), []);
 
-const HistoryStack = () => (
-  <Stack.Navigator initialRouteName="HistoryHome" screenOptions={commonScreenOptions}>
-    <Stack.Screen name="HistoryHome" component={HistoryScreen} initialParams={{ showHeader: true, showBackButton: false, showTitle: true, showSearchBar: false, screenTitle: "Chuyến của tôi" }} />
-  </Stack.Navigator>
-);
+  return (
+    <Stack.Navigator initialRouteName="NotiHome" screenOptions={commonScreenOptions}>
+      <Stack.Screen name="NotiHome" component={NotiScreen} initialParams={{ showHeader: true, showBackButton: false, showTitle: true, showSearchBar: false, screenTitle: "Thông báo" }} />
+    </Stack.Navigator>
+  );
+};
 
-const SupportStack = () => (
-  <Stack.Navigator initialRouteName="SupportHome" screenOptions={commonScreenOptions}>
-    <Stack.Screen name="SupportHome" component={SupportScreen} initialParams={{ showHeader: true, showBackButton: false, showTitle: true, showSearchBar: false, screenTitle: "Trung tâm hỗ trợ" }} />
-  </Stack.Navigator>
-);
+const HistoryStack = () => {
+  const commonScreenOptions = useCallback(({ route }) => ({
+    header: () => (
+      <Header
+        showTitle={route.params?.showTitle}
+        showBackButton={route.params?.showBackButton}
+        showSearchBar={route.params?.showSearchBar}
+        showCloseButton={route.params?.showCloseButton}
+        showIcon={route.params?.showIcon}
+        iconName={route.params?.iconName}
+        screenTitle={route.params?.screenTitle}
+        functionName={route.params?.functionName}
+      />
+    ),
+    headerStyle: { backgroundColor: "#fff" },
+    headerShown: route.params?.showHeader ? true : false,
+    contentStyle: { flex: 1, backgroundColor: "#fff" },
+    animation: route.params?.animationType,
+    transitionSpec: {
+      open: { animation: "timing", config: { duration: 100 } },
+      close: { animation: "timing", config: { duration: 100 } },
+    },
+  }), []);
 
-const SettingStack = () => (
-  <Stack.Navigator initialRouteName="SettingHome" screenOptions={commonScreenOptions}>
-    <Stack.Screen name="SettingHome" component={SettingScreen} />
-    <Stack.Screen name="UserInfoScreen" component={UserInfoScreen} />
-    <Stack.Screen name="ChangePasswordScreen" component={ChangePasswordScreen} />
-    <Stack.Screen name="ReferFriendScreen" component={ReferFriendScreen} />
-    <Stack.Screen name="GiftScreen" component={GiftScreen} />
-    <Stack.Screen name="DetailGift" component={DetailGift} />
-    <Stack.Screen name="DrivingLicenseScreen" component={DrivingLicenseScreen} />
-    <Stack.Screen name="RegisterCarScreen" component={RegisterCarScreen} />
-    <Stack.Screen name="UserRegisterCarScreen" component={UserRegisterCarScreen} />
-    <Stack.Screen name="MyAddressesScreen" component={MyAddressesScreen} />
-    <Stack.Screen name="DetailMyAddressesScreen" component={DetailMyAddressesScreen} />
-    <Stack.Screen name="FavoriteCarsScreen" component={FavoriteCarsScreen} />
-  </Stack.Navigator>
-);
+  return (
+    <Stack.Navigator initialRouteName="HistoryHome" screenOptions={commonScreenOptions}>
+      <Stack.Screen name="HistoryHome" component={HistoryScreen} initialParams={{ showHeader: true, showBackButton: false, showTitle: true, showSearchBar: false, screenTitle: "Chuyến của tôi" }} />
+    </Stack.Navigator>
+  );
+};
 
-const AuthStack = () => (
-  <Stack.Navigator initialRouteName="LoginScreen" screenOptions={commonScreenOptions}>
-    <Stack.Screen name="LoginScreen" component={LoginScreen} initialParams={{ showHeader: true, showBackButton: false, showTitle: true, showSearchBar: false, screenTitle: "Đăng nhập" }} />
-    <Stack.Screen name="RegisterScreen" component={RegisterScreen} />
-  </Stack.Navigator>
-);
+const SupportStack = () => {
+  const commonScreenOptions = useCallback(({ route }) => ({
+    header: () => (
+      <Header
+        showTitle={route.params?.showTitle}
+        showBackButton={route.params?.showBackButton}
+        showSearchBar={route.params?.showSearchBar}
+        showCloseButton={route.params?.showCloseButton}
+        showIcon={route.params?.showIcon}
+        iconName={route.params?.iconName}
+        screenTitle={route.params?.screenTitle}
+        functionName={route.params?.functionName}
+      />
+    ),
+    headerStyle: { backgroundColor: "#fff" },
+    headerShown: route.params?.showHeader ? true : false,
+    contentStyle: { flex: 1, backgroundColor: "#fff" },
+    animation: route.params?.animationType,
+    transitionSpec: {
+      open: { animation: "timing", config: { duration: 100 } },
+      close: { animation: "timing", config: { duration: 100 } },
+    },
+  }), []);
+
+  return (
+    <Stack.Navigator initialRouteName="SupportHome" screenOptions={commonScreenOptions}>
+      <Stack.Screen name="SupportHome" component={SupportScreen} initialParams={{ showHeader: true, showBackButton: false, showTitle: true, showSearchBar: false, screenTitle: "Trung tâm hỗ trợ" }} />
+    </Stack.Navigator>
+  );
+};
+
+const SettingStack = () => {
+  const commonScreenOptions = useCallback(({ route }) => ({
+    header: () => (
+      <Header
+        showTitle={route.params?.showTitle}
+        showBackButton={route.params?.showBackButton}
+        showSearchBar={route.params?.showSearchBar}
+        showCloseButton={route.params?.showCloseButton}
+        showIcon={route.params?.showIcon}
+        iconName={route.params?.iconName}
+        screenTitle={route.params?.screenTitle}
+        functionName={route.params?.functionName}
+      />
+    ),
+    headerStyle: { backgroundColor: "#fff" },
+    headerShown: route.params?.showHeader ? true : false,
+    contentStyle: { flex: 1, backgroundColor: "#fff" },
+    animation: route.params?.animationType,
+    transitionSpec: {
+      open: { animation: "timing", config: { duration: 100 } },
+      close: { animation: "timing", config: { duration: 100 } },
+    },
+  }), []);
+
+  return (
+    <Stack.Navigator initialRouteName="SettingHome" screenOptions={commonScreenOptions}>
+      <Stack.Screen name="SettingHome" component={SettingScreen} />
+      <Stack.Screen name="UserInfoScreen" component={UserInfoScreen} />
+      <Stack.Screen name="ChangePasswordScreen" component={ChangePasswordScreen} />
+      <Stack.Screen name="ReferFriendScreen" component={ReferFriendScreen} />
+      <Stack.Screen name="GiftScreen" component={GiftScreen} />
+      <Stack.Screen name="DetailGift" component={DetailGift} />
+      <Stack.Screen name="MyAddressesScreen" component={MyAddressesScreen} />
+      <Stack.Screen name="DetailMyAddressesScreen" component={DetailMyAddressesScreen} />
+      <Stack.Screen name="FavoriteCarsScreen" component={FavoriteCarsScreen} />
+    </Stack.Navigator>
+  );
+};
+
+const AuthStack = () => {
+  const commonScreenOptions = useCallback(({ route }) => ({
+    header: () => (
+      <Header
+        showTitle={route.params?.showTitle}
+        showBackButton={route.params?.showBackButton}
+        showSearchBar={route.params?.showSearchBar}
+        showCloseButton={route.params?.showCloseButton}
+        showIcon={route.params?.showIcon}
+        iconName={route.params?.iconName}
+        screenTitle={route.params?.screenTitle}
+        functionName={route.params?.functionName}
+      />
+    ),
+    headerStyle: { backgroundColor: "#fff" },
+    headerShown: route.params?.showHeader ? true : false,
+    contentStyle: { flex: 1, backgroundColor: "#fff" },
+    animation: route.params?.animationType,
+    transitionSpec: {
+      open: { animation: "timing", config: { duration: 100 } },
+      close: { animation: "timing", config: { duration: 100 } },
+    },
+  }), []);
+
+  return (
+    <Stack.Navigator initialRouteName="LoginScreen" screenOptions={commonScreenOptions}>
+      <Stack.Screen name="LoginScreen" component={LoginScreen} initialParams={{ showHeader: true, showBackButton: false, showTitle: true, showSearchBar: false, screenTitle: "Đăng nhập" }} />
+    </Stack.Navigator>
+  );
+};
 
 const HomeTabs = () => {
   const isLoggedIn = useSelector((state) => state.loggedIn.isLoggedIn);
 
-  const getTabBarIcon = (routeName, focused, color, size) => {
+  const getTabBarIcon = useCallback((routeName, focused, color, size) => {
     let iconName;
 
     switch (routeName) {
@@ -168,18 +322,21 @@ const HomeTabs = () => {
     }
 
     return <Ionicons name={iconName} size={size} color={color} />;
-  };
+  }, []);
+
+  const screenOptions = useMemo(
+    () => ({ route }) => ({
+      tabBarIcon: ({ focused, color, size }) => getTabBarIcon(route.name, focused, color, size),
+      tabBarActiveTintColor: "#03a9f4",
+      tabBarInactiveTintColor: "gray",
+      tabBarHideOnKeyboard: true,
+      headerShown: false,
+    }),
+    [getTabBarIcon]
+  );
 
   return (
-    <Tab.Navigator
-      screenOptions={({ route }) => ({
-        tabBarIcon: ({ focused, color, size }) => getTabBarIcon(route.name, focused, color, size),
-        tabBarActiveTintColor: "#03a9f4",
-        tabBarInactiveTintColor: "gray",
-        tabBarHideOnKeyboard: true,
-        headerShown: false,
-      })}
-    >
+    <Tab.Navigator screenOptions={screenOptions}>
       <Tab.Screen name="Khám phá" component={HomeStack} />
       <Tab.Screen name="Thông báo" component={NotiStack} />
       <Tab.Screen name="Chuyến" component={HistoryStack} />

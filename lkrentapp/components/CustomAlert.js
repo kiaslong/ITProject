@@ -1,28 +1,52 @@
-// CustomAlert.js
-import React from 'react';
-import { View, Text, Modal, StyleSheet, TouchableOpacity } from 'react-native';
+import React, { useRef, useEffect } from 'react';
+import { View, Text, Modal, StyleSheet, TouchableOpacity, Animated, Dimensions } from 'react-native';
+
+const { height } = Dimensions.get("window");
 
 const CustomAlert = ({ visible, onCancel, onOk }) => {
+  const slideAnim = useRef(new Animated.Value(height)).current;
+
+  useEffect(() => {
+    if (visible) {
+      Animated.timing(slideAnim, {
+        toValue: 0,
+        duration: 300,
+        useNativeDriver: true,
+      }).start();
+    } else {
+      Animated.timing(slideAnim, {
+        toValue: height,
+        duration: 300,
+        useNativeDriver: true,
+      }).start();
+    }
+  }, [visible]);
+
   return (
     <Modal
       transparent={true}
-      animationType="slide"
+      animationType="none"
       visible={visible}
       onRequestClose={onCancel}
     >
       <View style={styles.centeredView}>
-        <View style={styles.modalView}>
+        <Animated.View
+          style={[
+            styles.modalView,
+            { transform: [{ translateY: slideAnim }] },
+          ]}
+        >
           <Text style={styles.title}>Cảnh cáo</Text>
           <Text style={styles.modalText}>Bạn có chắc chắn muốn xóa tài khoản của mình không?</Text>
           <View style={styles.buttonContainer}>
-          <TouchableOpacity style={styles.okButton} onPress={onOk}>
-            <Text style={styles.okTextStyle}>Xác nhận</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.cancelButton} onPress={onCancel}>
-            <Text style={styles.cancelTextStyle}>Hủy</Text>
-          </TouchableOpacity>
+            <TouchableOpacity style={styles.okButton} onPress={onOk}>
+              <Text style={styles.okTextStyle}>Xác nhận</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.cancelButton} onPress={onCancel}>
+              <Text style={styles.cancelTextStyle}>Hủy</Text>
+            </TouchableOpacity>
           </View>
-        </View>
+        </Animated.View>
       </View>
     </Modal>
   );
@@ -36,10 +60,10 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(0, 0, 0, 0.5)',
   },
   modalView: {
-    margin: 20,
+    width: '80%',
     backgroundColor: 'white',
     borderRadius: 20,
-    padding: 35,
+    padding: 20,
     alignItems: 'center',
     shadowColor: '#000',
     shadowOffset: {
@@ -60,9 +84,10 @@ const styles = StyleSheet.create({
     marginBottom: 15,
     textAlign: 'center',
   },
-  buttonContainer:{
-    flexDirection:"row",
-    padding:16
+  buttonContainer: {
+    flexDirection: "row",
+    justifyContent: 'space-between',
+    width: '100%',
   },
   okButton: {
     backgroundColor: 'red',
@@ -77,11 +102,10 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   cancelButton: {
-    backgroundColor: 'blue',
+    backgroundColor: '#03A9F4',
     borderRadius: 10,
     padding: 10,
     width: '45%',
-    marginLeft:20,
     alignItems: 'center',
   },
   cancelTextStyle: {
