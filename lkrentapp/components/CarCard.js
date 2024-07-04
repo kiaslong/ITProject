@@ -16,7 +16,7 @@ const CarCard = ({ carsInfo, navigation }) => {
   return (
     <TouchableOpacity onPress={handlePress}>
       <View style={styles.card}>
-        <Image source={{ uri: carsInfo.image }} style={styles.image} />
+        <Image source={{ uri: carsInfo.thumbImage }} style={styles.image} />
         <TouchableOpacity style={styles.heartIcon} onPress={toggleFavorite}>
           <Icon name={isFavorite ? 'heart' : 'heart-o'} size={24} color="#03a9f4" />
         </TouchableOpacity>
@@ -63,7 +63,6 @@ const styles = StyleSheet.create({
     width: '100%',
     alignSelf: 'center',
     position: 'relative',
-    marginBottom: 16,
   },
   image: {
     width: '100%',

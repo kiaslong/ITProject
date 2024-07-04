@@ -15,8 +15,14 @@ import FilterBottomSheet from "./FilterModal";
 const carForYou = [
   {
     id: "1",
-    image:
-      "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ7Ow-jdSFfiCijZRPsQz6GQcoF61ahECtZMA&s",
+    thumbImage: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ7Ow-jdSFfiCijZRPsQz6GQcoF61ahECtZMA&s",
+    images: [
+      "https://example.com/image1.jpg",
+      "https://example.com/image2.jpg",
+      "https://example.com/image3.jpg",
+      "https://example.com/image4.jpg",
+      "https://example.com/image5.jpg"
+    ],
     transmission: "Số tự động",
     delivery: "Giao xe tận nơi",
     title: "KIA MORNING 2020",
@@ -33,13 +39,13 @@ const carForYou = [
       fuel: "Xăng",
       fuelConsumption: "10l/100km"
     },
-    description: "Xe thơm tho, được bảo dưỡng định kỳ, bản đồ vietmap live , cảnh báo tốc độ, cảnh báo camera phạt nguội, có kích bình, bơm hơi , vá vỏ xe , đồ nghề thay vỏ, camera cập lề... ",
+    description: "Xe thơm tho, được bảo dưỡng định kỳ, bản đồ vietmap live, cảnh báo tốc độ, cảnh báo camera phạt nguội, có kích bình, bơm hơi, vá vỏ xe, đồ nghề thay vỏ, camera cập lề...",
     features: {
       map: true,
       bluetooth: true,
       sideCamera: true,
       reverseCamera: true,
-      collisensor:true,
+      collisensor: true,
       gps: true,
       spareTire: true,
       dashCam: true,
@@ -47,14 +53,19 @@ const carForYou = [
       usbPort: true,
       dvdScreen: true,
       etc: true,
-      airbag: true,
-      
+      airbag: true
     }
   },
   {
     id: "2",
-    image:
-      "https://cdni.autocarindia.com/utils/imageresizer.ashx?n=https://cms.haymarketindia.net/model/uploads/modelimages/BMW-2-Series-Gran-Coupe-271220221147.jpg&w=872&h=578&q=75&c=1",
+    thumbImage:"https://cdni.autocarindia.com/utils/imageresizer.ashx?n=https://cms.haymarketindia.net/model/uploads/modelimages/BMW-2-Series-Gran-Coupe-271220221147.jpg&w=872&h=578&q=75&c=1",
+    images: [
+      "https://example.com/thumbnail2.jpg",
+      "https://example.com/image2-2.jpg",
+      "https://example.com/image2-3.jpg",
+      "https://example.com/image2-4.jpg",
+      "https://example.com/image2-5.jpg"
+    ],
     transmission: "Số sàn",
     delivery: "Giao xe tận nơi",
     title: "HYUNDAI I10 2019",
@@ -71,7 +82,7 @@ const carForYou = [
       fuel: "Xăng",
       fuelConsumption: "10l/100km"
     },
-    description: "Xe thơm tho, được bảo dưỡng định kỳ, bản đồ vietmap live , cảnh báo tốc độ, cảnh báo camera phạt nguội, có kích bình, bơm hơi , vá vỏ xe , đồ nghề thay vỏ, camera cập lề... ",
+    description: "Xe thơm tho, được bảo dưỡng định kỳ, bản đồ vietmap live, cảnh báo tốc độ, cảnh báo camera phạt nguội, có kích bình, bơm hơi, vá vỏ xe, đồ nghề thay vỏ, camera cập lề...",
     features: {
       map: true,
       bluetooth: false,
@@ -199,6 +210,7 @@ const ListOfCar = ({ navigation }) => {
       </Animated.View>
       <Animated.FlatList
         data={carForYou}
+        initialNumToRender={4}
         renderItem={renderItem}
         showsVerticalScrollIndicator={false}
         keyExtractor={(item) => item.id}

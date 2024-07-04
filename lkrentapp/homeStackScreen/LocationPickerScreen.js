@@ -33,6 +33,7 @@ const LocationPickerScreen = ({ navigation }) => {
     useState("Vị trí hiện tại");
   const [deviceLocation, setDeviceLocation] = useState(null);
   const apiKey = process.env.GOONG_KEY;
+  const geoKey = process.env.GOONG_KEY_2
   const mapboxApiKey = process.env.MAP_BOX_KEY;
 
   const getCurrentLocation = useCallback(async () => {
@@ -117,7 +118,7 @@ const LocationPickerScreen = ({ navigation }) => {
       const address = await getGeocode(
         location.coords.latitude,
         location.coords.longitude,
-        apiKey
+        geoKey
       );
       if (address) {
         dispatch(setLocation(address));
@@ -130,7 +131,7 @@ const LocationPickerScreen = ({ navigation }) => {
     } finally {
       setCurrentLocationText("Vị trí hiện tại");
     }
-  }, [apiKey, dispatch, navigation]);
+  }, [geoKey ,dispatch, navigation]);
 
   const extractStreetName = useCallback((location) => {
     const parts = location.split(",");
