@@ -3,20 +3,20 @@ import { View, Text, Modal, StyleSheet, TouchableOpacity, Animated, Dimensions }
 
 const { height } = Dimensions.get("window");
 
-const CustomAlert = ({ visible, onCancel, onOk }) => {
+const CustomAlert = ({ visible, onCancel, onOk, title, message }) => {
   const slideAnim = useRef(new Animated.Value(height)).current;
 
   useEffect(() => {
     if (visible) {
       Animated.timing(slideAnim, {
         toValue: 0,
-        duration: 300,
+        duration: 250,
         useNativeDriver: true,
       }).start();
     } else {
       Animated.timing(slideAnim, {
         toValue: height,
-        duration: 300,
+        duration: 250,
         useNativeDriver: true,
       }).start();
     }
@@ -36,8 +36,8 @@ const CustomAlert = ({ visible, onCancel, onOk }) => {
             { transform: [{ translateY: slideAnim }] },
           ]}
         >
-          <Text style={styles.title}>Cảnh cáo</Text>
-          <Text style={styles.modalText}>Bạn có chắc chắn muốn xóa tài khoản của mình không?</Text>
+          <Text style={styles.title}>{title}</Text>
+          <Text style={styles.modalText}>{message}</Text>
           <View style={styles.buttonContainer}>
             <TouchableOpacity style={styles.okButton} onPress={onOk}>
               <Text style={styles.okTextStyle}>Xác nhận</Text>

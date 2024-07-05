@@ -16,6 +16,7 @@ import CustomAlert from "../components/CustomAlert"; // Adjust the import path a
 
 const SettingScreen = () => {
   const [alertVisible, setAlertVisible] = useState(false);
+  const [logoutPromptVisible, setLogoutPromptVisible] = useState(false);
   const dispatch = useDispatch();
   const navigation = useNavigation();
 
@@ -66,10 +67,12 @@ const SettingScreen = () => {
 
   const handleCancel = () => {
     setAlertVisible(false);
+    setLogoutPromptVisible(false);
   };
 
-  const handleOk = () => {
+  const handleOk = async () => {
     setAlertVisible(false);
+    await dispatch(logout());
     navigation.dispatch(
       CommonActions.reset({
         index: 0,
@@ -78,7 +81,12 @@ const SettingScreen = () => {
     );
   };
 
-  const handleLogoutPress = async () => {
+  const handleLogoutPress = () => {
+    setLogoutPromptVisible(true);
+  };
+
+  const confirmLogout = async () => {
+    setLogoutPromptVisible(false);
     await dispatch(logout());
     navigation.dispatch(
       CommonActions.reset({
@@ -127,6 +135,7 @@ const SettingScreen = () => {
         </View>
       </View>
       <FlatList
+        contentContainerStyle={styles.flatListContentContainer}
         showsVerticalScrollIndicator={false}
         data={profileMenu}
         keyExtractor={(item) => item.title}
@@ -150,6 +159,15 @@ const SettingScreen = () => {
         visible={alertVisible}
         onCancel={handleCancel}
         onOk={handleOk}
+        title="Cảnh cáo"
+        message="Bạn có chắc chắn muốn xóa tài khoản của mình không?"
+      />
+      <CustomAlert
+        visible={logoutPromptVisible}
+        onCancel={handleCancel}
+        onOk={confirmLogout}
+        title="Đăng xuất"
+        message="Bạn có chắc chắn muốn đăng xuất không?"
       />
     </View>
   );
@@ -237,4 +255,7 @@ const styles = StyleSheet.create({
   },
   logoutIcon: { marginRight: 10 },
   logoutText: { fontSize: 16, color: "red", fontWeight: "bold" },
+  flatListContentContainer: {
+    paddingBottom: 20, // Add padding to the bottom to ensure the last item is fully visible
+  },
 });

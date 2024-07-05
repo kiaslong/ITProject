@@ -46,46 +46,20 @@ const AdditionalFees = () => {
             <Text style={styles.sectionSpec}>4 000đ/km</Text>
           </View>
 
-          <View style={styles.sectionContent}>
-            <Text style={styles.description}>
-              Phụ phí phát sinh nếu lộ trình di chuyển vượt quá{" "}
-              <Text style={styles.boldText}>400km</Text> khi thuê xe{" "}
-              <Text style={styles.boldText}>1 ngày</Text>
-            </Text>
-          </View>
-        </View>
-
-        <View style={styles.section}>
-          <View style={styles.sectionHeaderContainer}>
-            <Text style={styles.sectionHeader}>Phí quá giờ</Text>
-            <Text style={styles.sectionSpec}>70 000đ/giờ</Text>
-          </View>
           <Text style={styles.description}>
-            Phụ phí phát sinh nếu hoàn trả xe trễ giờ. Trường hợp trễ quá{" "}
-            <Text style={styles.boldText}>5 giờ</Text>, phụ phí thêm{" "}
-            <Text style={styles.boldText}>1 ngày thuê</Text>
+            Phụ phí phát sinh nếu lộ trình di chuyển vượt quá{" "}
+            <Text style={styles.boldText}>400km</Text> khi thuê xe{" "}
+            <Text style={styles.boldText}>1 ngày</Text>
           </Text>
         </View>
 
         <View style={styles.section}>
           <View style={styles.sectionHeaderContainer}>
-            <Text style={styles.sectionHeader}>Phí vệ sinh</Text>
-            <Text style={styles.sectionSpec}>100 000đ</Text>
+            <Text style={styles.sectionHeader}>Phụ phí khác</Text>
           </View>
           <Text style={styles.description}>
-            Phụ phí phát sinh khi xe hoàn trả không đảm bảo vệ sinh (nhiều vết
-            bẩn, bùn cát, sinh lầy ...)
-          </Text>
-        </View>
-
-        <View style={styles.section}>
-          <View style={styles.sectionHeaderContainer}>
-            <Text style={styles.sectionHeader}>Phí khử mùi</Text>
-            <Text style={styles.sectionSpec}>250 000đ</Text>
-          </View>
-          <Text style={styles.description}>
-            Phụ phí phát sinh khi xe hoàn trả bị ám mùi khó chịu (mùi thuốc lá,
-            thực phẩm nặng mùi ...)
+            Phụ phí phát sinh nếu hoàn trả xe trễ, xe không đảm bảo vệ sinh hoặc
+            bị ám mùi
           </Text>
         </View>
 
@@ -139,8 +113,8 @@ const AdditionalFees = () => {
                     <Text style={styles.sectionSpec}>70 000đ/giờ</Text>
                   </View>
                   <Text style={styles.description}>
-                    Phụ phí phát sinh nếu hoàn trả xe trễ giờ. Trường hợp trễ quá{" "}
-                    <Text style={styles.boldText}>5 giờ</Text>, phụ phí thêm{" "}
+                    Phụ phí phát sinh nếu hoàn trả xe trễ giờ. Trường hợp trễ
+                    quá <Text style={styles.boldText}>5 giờ</Text>, phụ phí thêm{" "}
                     <Text style={styles.boldText}>1 ngày thuê</Text>
                   </Text>
                 </View>
@@ -182,7 +156,7 @@ const styles = StyleSheet.create({
   },
   header: {
     fontSize: 18,
-    color:"#03A9F4",
+    color: "#03A9F4",
     fontWeight: "bold",
     marginBottom: 16,
   },
@@ -210,7 +184,7 @@ const styles = StyleSheet.create({
   },
   boldText: {
     fontWeight: "bold",
-    color:"black"
+    color: "black",
   },
   description: {
     color: "#888",
@@ -220,7 +194,7 @@ const styles = StyleSheet.create({
     marginTop: 8,
   },
   moreText: {
-    fontSize:14.5,
+    fontSize: 14.5,
     alignSelf: "center",
     color: "#03A9F4",
     fontWeight: "bold",
@@ -235,7 +209,7 @@ const styles = StyleSheet.create({
     padding: 16,
     borderTopLeftRadius: 16,
     borderTopRightRadius: 16,
-    maxHeight: height ,
+    maxHeight: height,
   },
   button: {
     alignSelf: "flex-start",
@@ -250,13 +224,13 @@ const styles = StyleSheet.create({
   },
   textStyle: {
     color: "white",
-    fontSize:16,
+    fontSize: 16,
     fontWeight: "bold",
     textAlign: "center",
   },
   modalHeader: {
     fontSize: 18,
-    color:"#03A9F4",
+    color: "#03A9F4",
     fontWeight: "bold",
     marginBottom: 16,
   },

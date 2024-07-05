@@ -2,7 +2,6 @@ import React, { useState, useRef, useEffect, useMemo } from "react";
 import {
   View,
   Text,
-  Image,
   StyleSheet,
   TouchableOpacity,
   Animated,
@@ -22,6 +21,7 @@ import CollateralComponent from "./CarDetailComponent/CollateralComponent";
 import TermsComponent from "./CarDetailComponent/TermsComponent";
 import ImageView from "./CarDetailComponent/ImageView";
 import AdditionalFees from "./CarDetailComponent/AdditionalFees";
+import CancellationPolicy from "./CarDetailComponent/CancellationPolicy";
 
 const { width, height } = Dimensions.get("window");
 
@@ -265,7 +265,7 @@ const CarFeature = ({ carInfo }) => {
   );
 };
 
-const DocumentComponent = () => {
+export const DocumentComponent = () => {
   return (
     <View style={styles.wrapper}>
       <View style={styles.headerWrapper}>
@@ -292,17 +292,41 @@ const DocumentComponent = () => {
   );
 };
 
-const ConfirmRental = ({ carInfo }) => (
+const ConfirmRental = ({ carInfo,navigation }) => {
+
+
+  const time = useSelector((state) => state.time.time);
+
+
+  const handleConfirmPress = () => {
+    navigation.navigate("CarRentalInfoScreen", {
+      carInfo,
+      time:time,
+      showHeader: true,
+      showBackButton: true,
+      showTitle: true,
+      showCloseButton:true,
+      animationType:"slide_from_bottom",
+      screenTitle: "Xác nhận đặt xe",
+
+    });
+  }
+
+return (
   <View style={styles.bookContainer}>
     <View style={styles.priceInfo}>
       <Text style={styles.newPrice}>{carInfo.newPrice}₫/ngày</Text>
       <Text style={styles.totalPrice}>Giá tổng: 693K</Text>
     </View>
-    <TouchableOpacity style={styles.bookButton}>
+    <TouchableOpacity style={styles.bookButton} onPress={handleConfirmPress}>
       <Text style={styles.bookButtonText}>Chọn thuê</Text>
     </TouchableOpacity>
   </View>
 );
+
+
+  }
+
 
 const CarDetailScreen = ({ route, navigation }) => {
   const { carInfo } = route.params;
@@ -429,8 +453,9 @@ const CarDetailScreen = ({ route, navigation }) => {
         <TermsComponent />
         <View style={styles.separator} />
         <AdditionalFees />
+        <CancellationPolicy />
       </Animated.ScrollView>
-      <ConfirmRental carInfo={carInfo} />
+      <ConfirmRental carInfo={carInfo} navigation={navigation} />
     </>
   );
 };

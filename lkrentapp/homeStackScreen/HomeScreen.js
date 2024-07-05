@@ -254,7 +254,7 @@ const carForYou = [
     ],
     transmission: "Số tự động",
     delivery: "Giao xe tận nơi",
-    title: "KIA MORNING 2020",
+    title:"KIA MORNING 2020",
     location: "Quận Phú Nhuận, Thành Phố Hồ Chí Minh",
     rating: "5.0",
     trips: "97",
