@@ -2,8 +2,18 @@ import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
 
-const FooterComponent = () => {
+const FooterComponent = ({ carInfo, navigation , time }) => {
   const [isChecked, setIsChecked] = useState(true);
+
+  const handleSendPress = () => {
+    navigation.navigate("CarRentalOrder", {
+      carInfo,
+      time:time,
+      animationType:"slide_from_bottom",
+
+    });
+  }
+
 
   return (
     <View style={styles.footerContainer}>
@@ -14,7 +24,7 @@ const FooterComponent = () => {
         <Text style={styles.footerText}>Tôi đồng ý với </Text>
         <Text style={styles.footerLink}>Chính sách hủy chuyến của LKRental</Text>
       </View>
-      <TouchableOpacity style={styles.footerButton}>
+      <TouchableOpacity style={styles.footerButton} onPress={handleSendPress}>
         <Text style={styles.footerButtonText}>Gửi yêu cầu thuê xe</Text>
       </TouchableOpacity>
     </View>

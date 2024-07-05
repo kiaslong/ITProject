@@ -19,7 +19,7 @@ const CarRentalInfoScreen = ({ route, navigation }) => {
         <DocumentComponent />
         <CollateralComponent />
       </ScrollView>
-      <FooterComponent />
+      <FooterComponent carInfo={carInfo} time={time}  navigation={navigation}/>
     </View>
   );
 };

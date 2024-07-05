@@ -29,6 +29,7 @@ import DetailMyAddressesScreen from "./settingStackScreen/DetailMyAddressesScree
 import FavoriteCarsScreen from "./settingStackScreen/FavoriteCarsScreen";
 import SearchScreen from "./homeStackScreen/SearchingScreen";
 import CarRentalInfoScreen from "./homeStackScreen/CarRentalInfoScreen";
+import CarRentalOrderScreen from "./homeStackScreen/CarRentalOrderScreen";
 import Header from "./components/Header";
 import { StatusBar } from 'expo-status-bar';
 import ChangeLocationTimeScreen from "./homeStackScreen/ChangeLocationTimeScreen";
@@ -90,6 +91,8 @@ const RootStack = () => {
       <Stack.Screen name="Main" component={HomeTabs} />
       <Stack.Screen name="Searching" component={SearchScreen} />
       <Stack.Screen name="CarDetail" component={CarDetailScreen} options={{gestureEnabled:false}} />
+      <Stack.Screen name="CarRentalOrder" component={CarRentalOrderScreen} options={{gestureEnabled:false}}/>
+
       <Stack.Screen name="ChangeTimeLocation" component={ChangeLocationTimeScreen} options={{gestureEnabled:false}} />
       <Stack.Screen name="RegisterScreen" component={RegisterScreen} />
       <Stack.Screen name="RegisterCarScreen" component={RegisterCarScreen} options={{gestureEnabled:false}} />
