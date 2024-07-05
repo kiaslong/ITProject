@@ -6,7 +6,7 @@
     "orientation": "portrait",
     "jsEngine": "hermes",
     "icon": "./assets/lkrentlogo.png",
-    "userInterfaceStyle": "light",
+    "userInterfaceStyle": "automatic",
     "splash": {
       "image": "./assets/SplashScreen.png",
       "resizeMode": "contain",
