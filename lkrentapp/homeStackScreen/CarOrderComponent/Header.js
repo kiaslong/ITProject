@@ -1,0 +1,106 @@
+import React from 'react';
+import { View, Text, StyleSheet, Animated, TouchableOpacity } from 'react-native';
+import Icon from 'react-native-vector-icons/Ionicons';
+
+const HeaderOrder = ({ scale, translateY }) => {
+  return (
+    <Animated.View style={[styles.header, { transform: [{ translateY }] }]}>
+      <Animated.View style={[styles.imageContainer, { transform: [{ scale }] }]}>
+        <Animated.Image
+          source={{ uri: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQtnh7pgJUtpZWWtHn-eVA3n1DY6D6WpnGOdA&s' }}
+          style={styles.carImage}
+          resizeMode="cover"
+        />
+        <View style={styles.overlay} />
+      </Animated.View>
+      <View style={styles.content}>
+        <View style={styles.headerBottom}>
+          <View style={styles.titleContainer}>
+            <TouchableOpacity style={styles.backButton}>
+              <Icon name="close-outline" size={24} color="#fff" />
+            </TouchableOpacity>
+            <View>
+              <Text style={styles.carTitle}>FORD ECOSPORT 2021</Text>
+              <Text style={styles.tripCode}>Mã số chuyến: MLAJ611B</Text>
+            </View>
+            <Icon name="car-outline" size={18} color="#fff" style={styles.carIcon} />
+          </View>
+          <View style={styles.iconsContainer}>
+            <TouchableOpacity style={styles.iconButton}>
+              <Icon name="person-outline" size={18} color="#fff" />
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.iconButton}>
+              <Icon name="image-outline" size={18} color="#fff" />
+            </TouchableOpacity>
+          </View>
+        </View>
+      </View>
+    </Animated.View>
+  );
+};
+
+const styles = StyleSheet.create({
+  header: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    height: 130,
+    zIndex: 1,
+    backgroundColor: '#000', // Ensure background color for better visibility
+  },
+  imageContainer: {
+    ...StyleSheet.absoluteFillObject,
+  },
+  carImage: {
+    width: '100%',
+    height: '100%',
+  },
+  overlay: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+  },
+  content: {
+    position: 'absolute',
+    top: 50,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    justifyContent: 'space-between',
+    padding: 16,
+  },
+  iconsContainer: {
+    flexDirection: 'row',
+    marginTop: 20,
+  },
+  iconButton: {
+    marginLeft: 16,
+  },
+  headerBottom: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  titleContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  backButton: {
+    marginRight: 16,
+  },
+  carTitle: {
+    fontSize: 14,
+    fontWeight: 'bold',
+    color: '#fff',
+  },
+  tripCode: {
+    fontSize: 13,
+    color: '#fff',
+  },
+  carIcon: {
+    marginLeft: 10,
+    marginBottom: 16,
+  },
+});
+
+export default HeaderOrder;

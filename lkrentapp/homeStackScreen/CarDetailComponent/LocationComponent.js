@@ -73,8 +73,8 @@ const LocationComponent = ({ address }) => {
       return {
         latitude: location.latitude,
         longitude: location.longitude,
-        latitudeDelta: 0.04,
-        longitudeDelta: 0.04,
+        latitudeDelta:  Platform.OS !== 'ios' ? 0.04 : 0.01,
+        longitudeDelta: Platform.OS !== 'ios' ? 0.04 : 0.01,
       };
     }
     return null;
@@ -126,7 +126,7 @@ const LocationComponent = ({ address }) => {
       >
         <Circle
           center={location}
-          radius={900}
+          radius={Platform.OS !== 'ios' ? 900 :200}
           strokeColor="rgba(0, 0, 255, 0.5)"
           fillColor="rgba(0, 0, 255, 0.1)"
         />
@@ -140,7 +140,7 @@ const LocationComponent = ({ address }) => {
       {isFullscreen && (
         <Modal
           visible={isFullscreen}
-          animationType="slide"
+          animationType="fade"
           onRequestClose={toggleFullscreen}
         >
           <MapView
@@ -157,7 +157,7 @@ const LocationComponent = ({ address }) => {
           >
             <Circle
               center={location}
-              radius={900}
+              radius={Platform.OS !== 'ios' ? 900 :200}
               strokeColor="rgba(0, 0, 255, 0.5)"
               fillColor="rgba(0, 0, 255, 0.1)"
             />

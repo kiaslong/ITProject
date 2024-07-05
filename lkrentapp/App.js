@@ -28,10 +28,13 @@ import MyAddressesScreen from "./settingStackScreen/MyAddressesScreen";
 import DetailMyAddressesScreen from "./settingStackScreen/DetailMyAddressesScreen";
 import FavoriteCarsScreen from "./settingStackScreen/FavoriteCarsScreen";
 import SearchScreen from "./homeStackScreen/SearchingScreen";
+import CarRentalInfoScreen from "./homeStackScreen/CarRentalInfoScreen";
+import CarRentalOrderScreen from "./homeStackScreen/CarRentalOrderScreen";
 import Header from "./components/Header";
 import { StatusBar } from 'expo-status-bar';
 import ChangeLocationTimeScreen from "./homeStackScreen/ChangeLocationTimeScreen";
 import CarDetailScreen from './homeStackScreen/CarDetailScreen';
+import FullscreenMapComponent from "./homeStackScreen/CarConfirmComponent/FullScreenLocationComponent";
 import { fetchInitialLocation } from './store/locationSlice';
 
 const Stack = createNativeStackNavigator();
@@ -88,12 +91,19 @@ const RootStack = () => {
       <Stack.Screen name="Main" component={HomeTabs} />
       <Stack.Screen name="Searching" component={SearchScreen} />
       <Stack.Screen name="CarDetail" component={CarDetailScreen} options={{gestureEnabled:false}} />
-      <Stack.Screen name="ChangeTimeLocation" component={ChangeLocationTimeScreen} />
+      <Stack.Screen name="CarRentalOrder" component={CarRentalOrderScreen} options={{gestureEnabled:false}}/>
+
+      <Stack.Screen name="ChangeTimeLocation" component={ChangeLocationTimeScreen} options={{gestureEnabled:false}} />
       <Stack.Screen name="RegisterScreen" component={RegisterScreen} />
-      <Stack.Screen name="RegisterCarScreen" component={RegisterCarScreen} />
+      <Stack.Screen name="RegisterCarScreen" component={RegisterCarScreen} options={{gestureEnabled:false}} />
       <Stack.Screen name="UserRegisterCarScreen" component={UserRegisterCarScreen} />
+
+      
       <Stack.Screen name="TimePicker" component={TimePickerScreen} />
+      <Stack.Screen name="LocationPicker" component={LocationPickerScreen} />
       <Stack.Screen name="DrivingLicenseScreen" component={DrivingLicenseScreen}  />
+      <Stack.Screen name="CarRentalInfoScreen" component={CarRentalInfoScreen} options={{gestureEnabled:false}} />
+      <Stack.Screen name="FullMapScreen" component={FullscreenMapComponent} />
     </Stack.Navigator>
   );
 };
@@ -125,7 +135,7 @@ const HomeStack = () => {
   return (
     <Stack.Navigator initialRouteName="Home" screenOptions={commonScreenOptions}>
       <Stack.Screen name="Home" component={HomeScreen} />
-      <Stack.Screen name="LocationPicker" component={LocationPickerScreen} />
+     
      
     </Stack.Navigator>
   );

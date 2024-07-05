@@ -2,7 +2,6 @@ import React, { useState, useRef, useEffect, useMemo } from "react";
 import {
   View,
   Text,
-  Image,
   StyleSheet,
   TouchableOpacity,
   Animated,
@@ -22,6 +21,7 @@ import CollateralComponent from "./CarDetailComponent/CollateralComponent";
 import TermsComponent from "./CarDetailComponent/TermsComponent";
 import ImageView from "./CarDetailComponent/ImageView";
 import AdditionalFees from "./CarDetailComponent/AdditionalFees";
+import CancellationPolicy from "./CarDetailComponent/CancellationPolicy";
 
 const { width, height } = Dimensions.get("window");
 
@@ -38,8 +38,6 @@ const getIconComponent = (library) => {
   }
 };
 
-
-
 const CarDetails = ({ carInfo, navigation }) => {
   const handleTimePress = () => {
     navigation.navigate("TimePicker", {
@@ -54,9 +52,10 @@ const CarDetails = ({ carInfo, navigation }) => {
   const time = useSelector((state) => state.time.time);
 
   const currentYear = moment().year();
-  const [start, end] = useMemo(() => (
-    time.split(" - ").map((t) => moment(t, "HH:mm, DD/MM"))
-  ), [time]);
+  const [start, end] = useMemo(
+    () => time.split(" - ").map((t) => moment(t, "HH:mm, DD/MM")),
+    [time]
+  );
 
   return (
     <View style={styles.details}>
@@ -164,16 +163,8 @@ const CarSpecs = ({ carInfo }) => (
         title="Truyền động"
         value={carInfo.specs.transmission}
       />
-      <CarSpec
-        icon="people-outline"
-        title="Số ghế"
-        value={carInfo.specs.seats}
-      />
-      <CarSpec
-        icon="water-outline"
-        title="Nhiên liệu"
-        value={carInfo.specs.fuel}
-      />
+      <CarSpec icon="people-outline" title="Số ghế" value={carInfo.specs.seats} />
+      <CarSpec icon="water-outline" title="Nhiên liệu" value={carInfo.specs.fuel} />
       <CarSpec
         icon="speedometer-outline"
         title="Tiêu hao"
@@ -201,29 +192,32 @@ const CarDescription = ({ carInfo }) => (
 );
 
 const CarFeature = ({ carInfo }) => {
-  const featureIcons = useMemo(() => ({
-    map: { icon: "map-outline", label: "Bản đồ" },
-    bluetooth: { icon: "bluetooth-outline", label: "Bluetooth" },
-    sideCamera: { icon: "camera-outline", label: "Camera cặp lề" },
-    reverseCamera: { icon: "camera-reverse-outline", label: "Camera lùi" },
-    gps: { icon: "location-outline", label: "Định vị GPS" },
-    spareTire: { icon: "disc-outline", label: "Lốp dự phòng" },
-    dashCam: { icon: "camera-outline", label: "Camera hành trình" },
-    speedAlert: { icon: "speedometer-outline", label: "Cảnh báo tốc độ" },
-    collisensor: {
-      icon: "sensors",
-      label: "Cảm biến va chạm",
-      library: "MaterialIcons",
-    },
-    usbPort: {
-      icon: "usb",
-      label: "Khe cắm USB",
-      library: "MaterialCommunityIcons",
-    },
-    dvdScreen: { icon: "tv-outline", label: "Màn hình DVD" },
-    etc: { icon: "airplane-outline", label: "ETC" },
-    airbag: { icon: "shield-checkmark-outline", label: "Túi khí an toàn" },
-  }), []);
+  const featureIcons = useMemo(
+    () => ({
+      map: { icon: "map-outline", label: "Bản đồ" },
+      bluetooth: { icon: "bluetooth-outline", label: "Bluetooth" },
+      sideCamera: { icon: "camera-outline", label: "Camera cặp lề" },
+      reverseCamera: { icon: "camera-reverse-outline", label: "Camera lùi" },
+      gps: { icon: "location-outline", label: "Định vị GPS" },
+      spareTire: { icon: "disc-outline", label: "Lốp dự phòng" },
+      dashCam: { icon: "camera-outline", label: "Camera hành trình" },
+      speedAlert: { icon: "speedometer-outline", label: "Cảnh báo tốc độ" },
+      collisensor: {
+        icon: "sensors",
+        label: "Cảm biến va chạm",
+        library: "MaterialIcons",
+      },
+      usbPort: {
+        icon: "usb",
+        label: "Khe cắm USB",
+        library: "MaterialCommunityIcons",
+      },
+      dvdScreen: { icon: "tv-outline", label: "Màn hình DVD" },
+      etc: { icon: "airplane-outline", label: "ETC" },
+      airbag: { icon: "shield-checkmark-outline", label: "Túi khí an toàn" },
+    }),
+    []
+  );
 
   const features = useMemo(() => {
     const featureList = Object.keys(featureIcons).filter(
@@ -265,7 +259,7 @@ const CarFeature = ({ carInfo }) => {
   );
 };
 
-const DocumentComponent = () => {
+export const DocumentComponent = () => {
   return (
     <View style={styles.wrapper}>
       <View style={styles.headerWrapper}>
@@ -292,39 +286,82 @@ const DocumentComponent = () => {
   );
 };
 
-const ConfirmRental = ({ carInfo }) => (
-  <View style={styles.bookContainer}>
-    <View style={styles.priceInfo}>
-      <Text style={styles.newPrice}>{carInfo.newPrice}₫/ngày</Text>
-      <Text style={styles.totalPrice}>Giá tổng: 693K</Text>
+const ConfirmRental = ({ carInfo, navigation }) => {
+  const time = useSelector((state) => state.time.time);
+
+  const handleConfirmPress = () => {
+    navigation.navigate("CarRentalInfoScreen", {
+      carInfo,
+      time: time,
+      showHeader: true,
+      showBackButton: true,
+      showTitle: true,
+      showCloseButton: true,
+      animationType: "slide_from_bottom",
+      screenTitle: "Xác nhận đặt xe",
+    });
+  };
+
+  return (
+    <View style={styles.bookContainer}>
+      <View style={styles.priceInfo}>
+        <Text style={styles.newPrice}>{carInfo.newPrice}₫/ngày</Text>
+        <Text style={styles.totalPrice}>Giá tổng: 693K</Text>
+      </View>
+      <TouchableOpacity style={styles.bookButton} onPress={handleConfirmPress}>
+        <Text style={styles.bookButtonText}>Chọn thuê</Text>
+      </TouchableOpacity>
     </View>
-    <TouchableOpacity style={styles.bookButton}>
-      <Text style={styles.bookButtonText}>Chọn thuê</Text>
-    </TouchableOpacity>
-  </View>
-);
+  );
+};
 
 const CarDetailScreen = ({ route, navigation }) => {
   const { carInfo } = route.params;
   const [locationLoaded, setLocationLoaded] = useState(false);
   const scrollY = useRef(new Animated.Value(0)).current;
-  const imageHeight = height * 0.25;
+  const imageHeight = height * 0.224;
 
-  const headerOpacity = useMemo(() => (
-    scrollY.interpolate({
-      inputRange: [imageHeight, imageHeight + 10],
-      outputRange: [0, 1],
-      extrapolate: "clamp",
-    })
-  ), [scrollY, imageHeight]);
+  const headerOpacity = useMemo(
+    () =>
+      scrollY.interpolate({
+        inputRange: [imageHeight, imageHeight + 1],
+        outputRange: [0, 1],
+        extrapolate: "clamp",
+      }),
+    [scrollY, imageHeight]
+  );
 
-  const topIconsTranslateY = useMemo(() => (
-    scrollY.interpolate({
-      inputRange: [0, imageHeight],
-      outputRange: [0, height * 0.235],
-      extrapolate: "clamp",
-    })
-  ), [scrollY, imageHeight]);
+  const topIconsTranslateY = useMemo(
+    () =>
+      scrollY.interpolate({
+        inputRange: [0, imageHeight],
+        outputRange: [0, height * 0.215],
+        extrapolate: "clamp",
+      }),
+    [scrollY, imageHeight]
+  );
+
+  
+  const imageScale = useMemo(
+    () =>
+      scrollY.interpolate({
+        inputRange: [-imageHeight, 0],
+        outputRange: [2, 1],
+        extrapolate: 'clamp',
+      }),
+    [scrollY, imageHeight]
+  );
+
+  const imageTranslateY = useMemo(
+    () =>
+      scrollY.interpolate({
+        inputRange: [-imageHeight, 0],
+        outputRange: [-imageHeight / 2, 0],
+        extrapolate: 'clamp',
+      }),
+    [scrollY, imageHeight]
+  );
+
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -333,9 +370,14 @@ const CarDetailScreen = ({ route, navigation }) => {
 
     return () => {
       clearTimeout(timer);
-      scrollY.setValue(0);  // Reset scroll value
+      scrollY.setValue(0); // Reset scroll value
     };
   }, [scrollY]);
+
+  const handleScroll = Animated.event(
+    [{ nativeEvent: { contentOffset: { y: scrollY } } }],
+    { useNativeDriver: true }
+  );
 
   if (!locationLoaded) {
     return (
@@ -371,41 +413,56 @@ const CarDetailScreen = ({ route, navigation }) => {
         showsVerticalScrollIndicator={false}
         style={styles.container}
         contentContainerStyle={styles.scrollContent}
-        onScroll={Animated.event(
-          [{ nativeEvent: { contentOffset: { y: scrollY } } }],
-          { useNativeDriver: true }
-        )}
+        onScroll={handleScroll}
         scrollEventThrottle={16}
       >
-        <View>
-          <ImageView carInfo={carInfo} />
-          <Animated.View
-            style={[
-              styles.topIcons,
-              {
-                transform: [{ translateY: topIconsTranslateY }],
-              },
-            ]}
-          >
-            <View styles={styles.leftIcons}>
-              <TouchableOpacity
-                onPress={() => navigation.goBack()}
-                style={styles.roundIcon}
-                hitSlop={{ top: 30, bottom: 30, left: 100, right: 30 }}
-              >
-                <Ionicons name="close" size={26} color="white" />
-              </TouchableOpacity>
-            </View>
-            <View style={styles.rightIcons}>
-              <TouchableOpacity style={styles.roundIcon}   hitSlop={{ top: 5, bottom: 5, left: 5, right: 5 }} >
-                <Ionicons name="share-outline" size={26} color="white" />
-              </TouchableOpacity>
-              <TouchableOpacity style={styles.roundIcon}   hitSlop={{ top: 10, bottom: 5, left: 5, right: 20 }} >
-                <Ionicons name="heart-outline" size={26} color="white" />
-              </TouchableOpacity>
-            </View>
-          </Animated.View>
-        </View>
+         <Animated.View 
+          style={[
+            styles.imageContainer,
+            {
+              transform: [
+                { scale: imageScale },
+                { translateY: imageTranslateY }
+              ],
+              zIndex: 1,
+            }
+          ]}
+        >
+          <ImageView carInfo={carInfo} style={styles.image} resizeMode="cover" />
+        </Animated.View>
+        <Animated.View
+          style={[
+            styles.topIcons,
+            {
+              transform: [{ translateY: topIconsTranslateY }],
+              
+            },
+          ]}
+        >
+          <View styles={styles.leftIcons}>
+            <TouchableOpacity
+              onPress={() => navigation.goBack()}
+              style={styles.roundIcon}
+              hitSlop={{ top: 50, bottom: 50, left: 50, right: 50 }}
+            >
+              <Ionicons name="close" size={25} color="white" />
+            </TouchableOpacity>
+          </View>
+          <View style={styles.rightIcons}>
+            <TouchableOpacity
+              style={styles.roundIcon}
+              hitSlop={{ top: 10, bottom: 5, left: 5, right: 5 }}
+            >
+              <Ionicons name="share-outline" size={25} color="white" />
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.roundIcon}
+              hitSlop={{ top: 10, bottom: 5, left: 5, right: 20 }}
+            >
+              <Ionicons name="heart-outline" size={25} color="white" />
+            </TouchableOpacity>
+          </View>
+        </Animated.View>
         <Text style={styles.title}>{carInfo.title}</Text>
         <View style={styles.ratingSection}>
           <Text style={styles.rating}>{carInfo.rating} ⭐</Text>
@@ -429,8 +486,9 @@ const CarDetailScreen = ({ route, navigation }) => {
         <TermsComponent />
         <View style={styles.separator} />
         <AdditionalFees />
+        <CancellationPolicy />
       </Animated.ScrollView>
-      <ConfirmRental carInfo={carInfo} />
+      <ConfirmRental carInfo={carInfo} navigation={navigation} />
     </>
   );
 };
@@ -438,24 +496,28 @@ const CarDetailScreen = ({ route, navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#FFFFFF",
+    backgroundColor: "#fff",
   },
   scrollContent: {
     paddingBottom: 120,
   },
+  imageContainer: {
+    height: height * 0.338,
+    overflow: 'hidden',
+  },
   topIcons: {
     position: "absolute",
     top: 0,
-    left: width * 0.04,
-    right: width * 0.04,
+    left: width * 0.027,
+    right: width * 0.027,
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    paddingTop: height * 0.078,
+    paddingTop: height * 0.06,
     zIndex: 20,
   },
   roundIcon: {
-    padding: 10,
+    padding: 9,
     backgroundColor: "rgba(0, 0, 0, 0.5)",
     borderRadius: 26,
   },
@@ -475,9 +537,10 @@ const styles = StyleSheet.create({
     elevation: 5,
   },
   title: {
-    fontSize: width * 0.06,
+    fontSize: width * 0.05,
     fontWeight: "bold",
     color: "#03A9F4",
+    marginTop: 10,
     marginBottom: 8,
     marginLeft: 24,
   },
@@ -489,12 +552,12 @@ const styles = StyleSheet.create({
   },
   rating: {
     marginRight: 16,
-    fontSize: width * 0.04,
+    fontSize: width * 0.037,
     fontWeight: "bold",
   },
   trips: {
     color: "#757575",
-    fontSize: width * 0.04,
+    fontSize: width * 0.037,
   },
   separator: {
     height: 1,
@@ -691,13 +754,13 @@ const styles = StyleSheet.create({
     flex: 1,
     marginTop: 30,
     flexDirection: "row",
-    paddingHorizontal: 18,
+    paddingHorizontal: 17,
     justifyContent: "space-between",
     alignItems: "center",
     zIndex: 20,
   },
   animatedHeaderTitle: {
-    fontSize: width * 0.048,
+    fontSize: width * 0.045,
     fontWeight: "bold",
     color: "#000",
   },

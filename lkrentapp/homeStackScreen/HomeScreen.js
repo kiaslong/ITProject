@@ -246,7 +246,7 @@ const carForYou = [
     id: "1",
     thumbImage: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ7Ow-jdSFfiCijZRPsQz6GQcoF61ahECtZMA&s",
     images: [
-      "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ7Ow-jdSFfiCijZRPsQz6GQcoF61ahECtZMA&s",
+      "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQtnh7pgJUtpZWWtHn-eVA3n1DY6D6WpnGOdA&s",
       "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ7Ow-jdSFfiCijZRPsQz6GQcoF61ahECtZMA&s",
       "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ7Ow-jdSFfiCijZRPsQz6GQcoF61ahECtZMA&s",
       "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ7Ow-jdSFfiCijZRPsQz6GQcoF61ahECtZMA&s",
@@ -254,7 +254,7 @@ const carForYou = [
     ],
     transmission: "Số tự động",
     delivery: "Giao xe tận nơi",
-    title: "KIA MORNING 2020",
+    title:"KIA MORNING 2020",
     location: "Quận Phú Nhuận, Thành Phố Hồ Chí Minh",
     rating: "5.0",
     trips: "97",
