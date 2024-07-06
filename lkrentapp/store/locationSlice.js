@@ -31,12 +31,13 @@ export const fetchInitialLocation = createAsyncThunk(
       }
 
       const location = await Location.getCurrentPositionAsync({
-        accuracy: Location.Accuracy.Balanced,
+        accuracy: Location.Accuracy.Lowest,
         maximumAge: 10000,
         timeout: 5000,
       });
 
       const { latitude, longitude } = location.coords;
+      console.log(apiKey)
       const url = `https://rsapi.goong.io/Geocode?latlng=${latitude},${longitude}&api_key=${apiKey}`;
       const response = await axios.get(url);
 

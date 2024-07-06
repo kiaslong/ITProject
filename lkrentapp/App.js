@@ -269,6 +269,7 @@ const SettingStack = () => {
     <Stack.Navigator initialRouteName="SettingHome" screenOptions={commonScreenOptions}>
       <Stack.Screen name="SettingHome" component={SettingScreen} />
       <Stack.Screen name="UserInfoScreen" component={UserInfoScreen} />
+      <Stack.Screen  name="EditUserInfoScreen" component={EditUserInfoScreen} />
       <Stack.Screen name="ChangePasswordScreen" component={ChangePasswordScreen} />
       <Stack.Screen name="ReferFriendScreen" component={ReferFriendScreen} />
       <Stack.Screen name="GiftScreen" component={GiftScreen} />

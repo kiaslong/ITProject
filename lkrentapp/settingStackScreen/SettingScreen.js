@@ -80,6 +80,17 @@ const SettingScreen = () => {
     );
   };
 
+  const handleLogoutPress = async () => {
+    await dispatch(logout());
+    navigation.dispatch(
+      CommonActions.reset({
+        index: 0,
+        routes: [{ name: "Khám phá" }],
+      })
+    );
+  };
+
+
 
   const confirmLogout = async () => {
     setLogoutPromptVisible(false);

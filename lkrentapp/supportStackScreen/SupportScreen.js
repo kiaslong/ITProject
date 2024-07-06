@@ -44,11 +44,11 @@ export default function SupportScreen() {
   };
 
   const handleMessagePress = async () => {
-    const facebookLink = 'https://m.me/100008278472495';
+    const facebookLink = 'https://www.facebook.com/profile.php?id=61562056021325&is_tour_dismissed';
     try {
       await Linking.openURL(facebookLink);
     } catch (error) {
-      Alert.alert('Error', 'Unable to open Facebook Messenger. Please try again later.');
+      Alert.alert('Error', 'Unable to open Facebook. Please try again later.');
     }
   };
 
