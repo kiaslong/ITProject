@@ -7,6 +7,9 @@ import { Provider, useDispatch, useSelector } from "react-redux";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import store from "./store/store";
 import SupportScreen from "./supportStackScreen/SupportScreen";
+import CompanyInformationScreen from "./supportStackScreen/CompanyInformationScreen";
+import FAQScreen from "./supportStackScreen/FAQScreen";
+import PolicyScreen from "./supportStackScreen/PolicyScreen";
 import LoginScreen from "./authStackScreen/LoginScreen";
 import RegisterScreen from "./authStackScreen/RegisterScreen";
 import HistoryScreen from "./historyStackScreen/HistoryScreen";
@@ -27,6 +30,7 @@ import DrivingLicenseScreen from "./settingStackScreen/DrivingLicenseScreen";
 import MyAddressesScreen from "./settingStackScreen/MyAddressesScreen";
 import DetailMyAddressesScreen from "./settingStackScreen/DetailMyAddressesScreen";
 import FavoriteCarsScreen from "./settingStackScreen/FavoriteCarsScreen";
+import EditUserInfoScreen from "./settingStackScreen/EditUserInfoScreen";
 import SearchScreen from "./homeStackScreen/SearchingScreen";
 import CarRentalInfoScreen from "./homeStackScreen/CarRentalInfoScreen";
 import CarRentalOrderScreen from "./homeStackScreen/CarRentalOrderScreen";
@@ -229,7 +233,10 @@ const SupportStack = () => {
 
   return (
     <Stack.Navigator initialRouteName="SupportHome" screenOptions={commonScreenOptions}>
-      <Stack.Screen name="SupportHome" component={SupportScreen} initialParams={{ showHeader: true, showBackButton: false, showTitle: true, showSearchBar: false, screenTitle: "Trung tâm hỗ trợ" }} />
+    <Stack.Screen name="SupportHome" component={SupportScreen} initialParams={{ showHeader: true, showBackButton: false, showTitle: true, showSearchBar: false, screenTitle: "Trung tâm hỗ trợ" }} />
+    <Stack.Screen name="CompanyInformationScreen" component={CompanyInformationScreen} />
+    <Stack.Screen name="FAQScreen" component={FAQScreen} />
+    <Stack.Screen name="PolicyScreen" component={PolicyScreen} />
     </Stack.Navigator>
   );
 };

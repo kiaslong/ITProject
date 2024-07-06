@@ -24,7 +24,7 @@ const SettingScreen = () => {
     {
       title: "Account",
       data: [
-        { id: 1, name: "Tài khoản của tôi", icon: "person-circle-outline", screen: "UserInfoScreen", title: "Tài khoản của tôi", iconName: "pencil-alt" },
+        { id: 1, name: "Tài khoản của tôi", icon: "person-circle-outline", screen: "UserInfoScreen", title: "Tài khoản của tôi", iconName: "pencil-alt",functionName: "editUserInfo", },
         { id: 2, name: "Đăng ký cho thuê xe", icon: "car-sport-outline", screen: "UserRegisterCarScreen", title: "Danh Sách Xe", iconName: "car", functionName: "registerCar" },
         { id: 3, name: "Xe yêu thích", icon: "heart-outline", screen: "FavoriteCarsScreen", title: "Xe yêu thích" },
         { id: 4, name: "Địa chỉ của tôi", icon: "document-text-outline", screen: "MyAddressesScreen", title: "Địa chỉ của tôi", iconName: "pencil-alt" },
@@ -72,7 +72,6 @@ const SettingScreen = () => {
 
   const handleOk = async () => {
     setAlertVisible(false);
-    await dispatch(logout());
     navigation.dispatch(
       CommonActions.reset({
         index: 0,
@@ -81,9 +80,6 @@ const SettingScreen = () => {
     );
   };
 
-  const handleLogoutPress = () => {
-    setLogoutPromptVisible(true);
-  };
 
   const confirmLogout = async () => {
     setLogoutPromptVisible(false);
