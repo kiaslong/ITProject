@@ -17,7 +17,6 @@ import { Ionicons } from "@expo/vector-icons";
 import {
   autoComplete,
   getGeocode,
-  getCityFromCoordinates,
 } from "../fetchData/Position";
 import debounce from "lodash.debounce";
 import * as Location from "expo-location";
@@ -33,7 +32,7 @@ const LocationPickerScreen = ({ navigation }) => {
     useState("Vị trí hiện tại");
   const [deviceLocation, setDeviceLocation] = useState(null);
   const apiKey = process.env.GOONG_KEY;
-  const geoKey = process.env.GOONG_KEY_2
+  const geoKey = process.env.GOONG_KEY_2;
   const mapboxApiKey = process.env.MAP_BOX_KEY;
 
   const getCurrentLocation = useCallback(async () => {

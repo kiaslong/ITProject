@@ -1,47 +1,81 @@
 import React from "react";
-import { FontAwesome6, Ionicons } from "@expo/vector-icons";
-import {
-  View,
-  Text,
-  StyleSheet,
-  Dimensions,
-  FlatList,
-  TouchableOpacity,
-} from "react-native";
+import { View, Text, StyleSheet, Dimensions, FlatList, TouchableOpacity, Linking, Alert } from "react-native";
 import { Button } from "@rneui/themed";
+import { useNavigation } from '@react-navigation/native';
+import { Ionicons } from "@expo/vector-icons";
 
 const supportMenu = [
   {
     id: 1,
     name: "Thông tin công ty",
     icon: "business-outline",
+    screen: "CompanyInformationScreen",
+    title: "Thông tin công ty",
+    functionName: "companyInfo",
   },
   {
     id: 2,
     name: "Hỏi và trả lời",
     icon: "help-outline",
+    screen: "FAQScreen",
+    title: "Hỏi và trả lời",
+    functionName: "faq",
   },
   {
     id: 3,
     name: "Chính sách quy định",
     icon: "newspaper-outline",
+    screen: "PolicyScreen",
+    title: "Chính sách quy định",
+    functionName: "policy",
   },
 ];
 
 export default function SupportScreen() {
+  const navigation = useNavigation();
+
+  const handleCallPress = async () => {
+    const phoneNumber = 'tel:0908283821'; // Correct phone number
+    try {
+      await Linking.openURL(phoneNumber);
+    } catch (error) {
+      Alert.alert('Error', 'Unable to make the call. Please try again later.');
+    }
+  };
+
+  const handleMessagePress = async () => {
+    const facebookLink = 'https://www.facebook.com/profile.php?id=61562056021325&is_tour_dismissed';
+    try {
+      await Linking.openURL(facebookLink);
+    } catch (error) {
+      Alert.alert('Error', 'Unable to open Facebook. Please try again later.');
+    }
+  };
+
+  const handleMenuPress = (screen, title, functionName) => {
+    navigation.navigate(screen, {
+      showHeader: true,
+      showTitle: true,
+      showBackButton: true,
+      screenTitle: title,
+      showIcon: true,
+      functionName: functionName,
+    });
+  };
+
   return (
     <View style={styles.container}>
-        <FontAwesome6 name="headset" size={50} paddingTop={10} color="black" />
+      <Ionicons name="headset" size={50} paddingTop={10} color="black" />
       <View style={styles.supportCard}>
         <Text style={styles.supportText}>
-          {`Cần hỗ trợ nhanh vui lòng gọi 0123456789 (7:00-17:00) hoặc gửi tin nhắn vào LKFanpage`}
+          {`Cần hỗ trợ nhanh vui lòng gọi 0908283821 (7:00-17:00) hoặc gửi tin nhắn vào LKFanpage`}
         </Text>
         <View style={styles.buttonGroup}>
           <Button
             title="Gọi"
             icon={{
-              name: "phone",
-              type: "font-awesome",
+              name: "call-outline",
+              type: "ionicon",
               size: 24,
               color: "white",
             }}
@@ -53,12 +87,13 @@ export default function SupportScreen() {
               marginHorizontal: 10,
               marginVertical: 8,
             }}
+            onPress={handleCallPress} // Use the handleCallPress function
           />
           <Button
             title="Gửi tin nhắn"
             icon={{
-              name: "comment",
-              type: "font-awesome",
+              name: "chatbubble-ellipses-outline",
+              type: "ionicon",
               size: 24,
               color: "white",
             }}
@@ -70,6 +105,7 @@ export default function SupportScreen() {
               marginHorizontal: 15,
               marginVertical: 8,
             }}
+            onPress={handleMessagePress} // Use the handleMessagePress function
           />
         </View>
       </View>
@@ -79,7 +115,16 @@ export default function SupportScreen() {
           showsVerticalScrollIndicator={false}
           data={supportMenu}
           renderItem={({ item }) => (
-            <TouchableOpacity style={styles.menuItem}>
+            <TouchableOpacity
+              style={styles.menuItem}
+              onPress={() =>
+                handleMenuPress(
+                  item.screen,
+                  item.title,
+                  item.functionName
+                )
+              }
+            >
               <Ionicons name={item.icon} size={23} style={{ marginRight: 10 }} />
               <Text style={styles.menuText}>{item.name}</Text>
               <View style={styles.flexSpacer} />
