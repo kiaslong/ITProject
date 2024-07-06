@@ -28,6 +28,8 @@ const SettingScreen = () => {
       screen: "UserInfoScreen",
       title: "Tài khoản của tôi",
       iconName: "pencil-alt",
+      functionName: "editUserInfo",
+
     },
     {
       id: 2,
@@ -117,14 +119,12 @@ const SettingScreen = () => {
 
   const handleOk = () => {
     setAlertVisible(false);
-    navigation.dispatch(
-      CommonActions.reset({
-        index: 0,
-        routes: [{ name: "Khám phá" }],
-      })
-    );
+    navigation.navigate("DeleteAccountScreen", {
+      showHeader: true,
+      showTitle: true,
+      showBackButton: true,
+    });
   };
-
 
   const handleLogoutPress = async () => {
     await dispatch(logout());
