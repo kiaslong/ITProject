@@ -68,7 +68,7 @@ export default function SupportScreen() {
       <Ionicons name="headset" size={50} paddingTop={10} color="black" />
       <View style={styles.supportCard}>
         <Text style={styles.supportText}>
-          {`Cần hỗ trợ nhanh vui lòng gọi 0123456789 (7:00-17:00) hoặc gửi tin nhắn vào LKFanpage`}
+          {`Cần hỗ trợ nhanh vui lòng gọi 0908283821 (7:00-17:00) hoặc gửi tin nhắn vào LKFanpage`}
         </Text>
         <View style={styles.buttonGroup}>
           <Button

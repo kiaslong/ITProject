@@ -73,6 +73,7 @@ const FAQScreen = () => {
   return (
     <View style={styles.container}>
       <FlatList
+       showsVerticalScrollIndicator={false}
         data={faqData}
         renderItem={renderItem}
         keyExtractor={(item) => item.id}

@@ -37,7 +37,7 @@ const policies = [
 
 const PolicyScreen = () => {
   return (
-    <ScrollView style={styles.container}>
+    <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
       {policies.map((policy) => (
         <View key={policy.id} style={styles.policyContainer}>
           <View style={styles.titleContainer}>
@@ -56,6 +56,7 @@ const styles = StyleSheet.create({
     flex: 1,
     padding: 16,
     backgroundColor: "#fff",
+    marginBottom:10,
   },
   policyContainer: {
     marginBottom: 20,

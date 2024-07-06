@@ -5,7 +5,7 @@ const { width, height } = Dimensions.get('window');
 
 const CompanyInformationScreen = () => {
   return (
-    <ScrollView contentContainerStyle={styles.container}>
+    <ScrollView contentContainerStyle={styles.container} showsVerticalScrollIndicator={false}>
       <View style={styles.headerContainer}>
         <Text style={styles.headerText}>Thông tin về <Text style={styles.boldText}>LKRentApp</Text></Text>
       </View>
