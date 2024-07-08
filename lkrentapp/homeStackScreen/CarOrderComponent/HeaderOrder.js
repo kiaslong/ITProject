@@ -1,8 +1,21 @@
 import React from 'react';
 import { View, Text, StyleSheet, Animated, TouchableOpacity } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
+import { CommonActions } from "@react-navigation/native";
 
-const HeaderOrder = ({ scale, translateY }) => {
+const HeaderOrder = ({ scale, translateY, navigation }) => {
+
+
+  const handleBackPress = () => {
+       navigation.dispatch(
+      CommonActions.reset({
+        index: 0,
+        routes: [{ name: "Main" }], // Ensure this is the correct screen name
+      })
+    );
+    navigation.navigate("Chuyến");
+  }
+
   return (
     <Animated.View style={[styles.header, { transform: [{ translateY }] }]}>
       <Animated.View style={[styles.imageContainer, { transform: [{ scale }] }]}>
@@ -16,8 +29,8 @@ const HeaderOrder = ({ scale, translateY }) => {
       <View style={styles.content}>
         <View style={styles.headerBottom}>
           <View style={styles.titleContainer}>
-            <TouchableOpacity style={styles.backButton}>
-              <Icon name="close-outline" size={24} color="#fff" />
+            <TouchableOpacity style={styles.backButton} onPress={handleBackPress} >
+              <Icon name="close-outline" size={28} color="#fff" />
             </TouchableOpacity>
             <View>
               <Text style={styles.carTitle}>FORD ECOSPORT 2021</Text>
@@ -86,7 +99,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   backButton: {
+    padding:5,
     marginRight: 16,
+    backgroundColor: "rgba(0, 0, 0, 0.6)",
+    borderRadius: 30,
   },
   carTitle: {
     fontSize: 14,

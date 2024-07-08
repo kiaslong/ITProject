@@ -1,9 +1,11 @@
 import React, { useRef } from 'react';
 import { View, StyleSheet, Animated, Dimensions } from 'react-native';
 import CarRentalStatus from '../homeStackScreen/CarOrderComponent/CarRentalStatus'; // Adjust the import path as needed
-import HeaderOrder from './CarOrderComponent/Header'; // Adjust the import path as needed
+import HeaderOrder from './CarOrderComponent/HeaderOrder'; // Adjust the import path as needed
+import ReviewComponent from './CarDetailComponent/ReviewBox';
+import UserProfile from './CarDetailComponent/UserProfileDetail';
 
-const { height: screenHeight } = Dimensions.get('window');
+
 
 const CarRentalOrderScreen = ({ route, navigation }) => {
   const { carInfo, time } = route.params;
@@ -24,7 +26,7 @@ const CarRentalOrderScreen = ({ route, navigation }) => {
 
   return (
     <View style={styles.container}>
-      <HeaderOrder scale={scale} translateY={translateY} />
+      <HeaderOrder scale={scale} translateY={translateY} navigation={navigation} />
       <Animated.ScrollView
         contentContainerStyle={styles.scrollContainer}
         scrollEventThrottle={16}
@@ -34,7 +36,8 @@ const CarRentalOrderScreen = ({ route, navigation }) => {
         )}
       >
         <View style={{ paddingTop: headerHeight }}>
-          <CarRentalStatus carInfo={carInfo} time={time} navigation={navigation} />
+          <CarRentalStatus carInfo={carInfo} time={time}  />
+          <UserProfile carInfo={carInfo} />
         </View>
       </Animated.ScrollView>
     </View>

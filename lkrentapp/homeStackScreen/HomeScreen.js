@@ -283,6 +283,18 @@ const carForYou = [
       dvdScreen: true,
       etc: true,
       airbag: true
+    },
+    owner: {
+      name: "My",
+      rating: "5.0",
+      trips: "21 chuyến",
+      avatar: "https://cdn.idntimes.com/content-images/community/2022/03/1714382190-93512ef73cc9128141b72669a922c6ee-f48b234e3eecffd2d897cd799c3043de.jpg",
+      badgeText: "Chủ xe 5* có thời gian phản hồi nhanh chóng, tỉ lệ đồng ý cao, mức giá cạnh tranh & dịch vụ nhận được nhiều đánh giá tốt từ khách hàng.",
+      stats: {
+        responseRate: "100%",
+        approvalRate: "87%",
+        responseTime: "5 phút"
+      }
     }
   },
   {
@@ -325,9 +337,22 @@ const carForYou = [
       dvdScreen: true,
       etc: false,
       airbag: true
+    },
+    owner: {
+      name: "Khoa",
+      rating: "4.8",
+      trips: "120 chuyến",
+      avatar: "https://example.com/owner-avatar2.jpg",
+      badgeText: "Chủ xe có tỉ lệ phản hồi cao, mức giá cạnh tranh & dịch vụ nhận được nhiều đánh giá tốt từ khách hàng.",
+      stats: {
+        responseRate: "95%",
+        approvalRate: "85%",
+        responseTime: "10 phút"
+      }
     }
   }
 ];
+
 
 const carHistory = [
   {

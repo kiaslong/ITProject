@@ -2,50 +2,41 @@ import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
 
-const CarRentalStatus = ({ carInfo, time, navigation }) => {
+const CarRentalStatus = ({ carInfo, time }) => {
   return (
     <View style={styles.container}>
       <View style={styles.statusContainer}>
         <View style={styles.statusItem}>
-          <Icon name="document-text-outline" size={24} color="#34C759" />
+          <Icon name="document-text-outline" size={22} color="#03A9F4" />
           <Text style={styles.statusText}>Gửi yêu cầu</Text>
         </View>
-        <Icon name="remove" size={24} color="#34C759" />
+        <Icon name="remove" size={22} color="#03A9F4" />
         <View style={styles.statusItem}>
-          <Icon name="checkmark-circle-outline" size={24} color="#34C759" />
+          <Icon name="checkmark-circle-outline" size={22} color="#03A9F4" />
           <Text style={styles.statusText}>Duyệt yêu cầu</Text>
         </View>
-        <Icon name="remove" size={24} color="#34C759" />
+        <Icon name="remove" size={22} color="#03A9F4" />
         <View style={styles.statusItem}>
-          <Icon name="cash-outline" size={24} color="#34C759" />
+          <Icon name="cash-outline" size={22} color="#03A9F4" />
           <Text style={styles.statusText}>Thanh toán cọc</Text>
         </View>
-        <Icon name="remove" size={24} color="#34C759" />
+        <Icon name="remove" size={22} color="#03A9F4" />
         <View style={styles.statusItem}>
-          <Icon name="car-outline" size={24} color="#34C759" />
+          <Icon name="car-outline" size={22} color="#03A9F4" />
           <Text style={styles.statusText}>Khởi hành</Text>
         </View>
-        <Icon name="remove" size={24} color="#34C759" />
+        <Icon name="remove" size={22} color="#03A9F4" />
         <View style={styles.statusItem}>
-          <Icon name="checkmark-done-outline" size={24} color="#34C759" />
+          <Icon name="checkmark-done-outline" size={22} color="#03A9F4" />
           <Text style={styles.statusText}>Kết thúc</Text>
         </View>
       </View>
 
       <View style={styles.countdownContainer}>
-        <Icon name="time-outline" size={24} color="#FFA500" />
+        <Icon name="time-outline" size={22} color="#FFA500" />
         <Text style={styles.countdownText}>Thời gian thanh toán cọc còn 59 phút 41 giây</Text>
       </View>
 
-      <View style={styles.insuranceContainer}>
-        <Icon name="shield-checkmark-outline" size={24} color="#A0A0A0" />
-        <Text style={styles.insuranceText}>
-          Bảo hiểm thuê xe VNI sẽ được tự động kích hoạt khi khởi hành
-        </Text>
-        <TouchableOpacity>
-          <Text style={styles.viewMoreText}>Xem thêm</Text>
-        </TouchableOpacity>
-      </View>
     </View>
   );
 };
@@ -58,7 +49,7 @@ const styles = StyleSheet.create({
   statusContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
+    justifyContent: 'space-evenly',
     marginVertical: 16,
   },
   statusItem: {
@@ -81,23 +72,9 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: '#FF4500',
   },
-  insuranceContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    borderTopWidth: 1,
-    borderTopColor: '#E0E0E0',
-    paddingTop: 16,
-  },
-  insuranceText: {
-    flex: 1,
-    fontSize: 14,
-    color: '#A0A0A0',
-    marginLeft: 8,
-  },
   viewMoreText: {
     fontSize: 14,
-    color: '#34C759',
+    color: '#03A9F4',
     textDecorationLine: 'underline',
   },
 });

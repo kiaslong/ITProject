@@ -8,6 +8,8 @@ import {
   TextInput,
   View,
   Dimensions,
+  Keyboard,
+  TouchableWithoutFeedback,
 } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
@@ -152,64 +154,68 @@ export default function LoginScreen() {
   }, [navigation]);
 
   return (
-    <View >
-      <View style={styles.container}>
+    <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+      <View style={styles.outerContainer}>
+        <View style={styles.container}>
+          <View style={styles.inputView}>
+            <TextInputField
+              label="Email/Số điện thoại"
+              valueRef={usernameRef}
+              error={errors.usernameError}
+              placeholder="Email hoặc số điện thoại"
+              onChange={(e) => handleInputChange("username", e.nativeEvent.text)}
+              refInput={null}
+              onSubmitEditing={() => passwordInputRef.current.focus()}
+            />
+            <TextInputField
+              label="Mật khẩu"
+              valueRef={passwordRef}
+              error={errors.passwordError}
+              placeholder="Mật khẩu"
+              onChange={(e) => handleInputChange("password", e.nativeEvent.text)}
+              secureTextEntry={!passwordVisible}
+              refInput={passwordInputRef}
+              onSubmitEditing={handleLoginPress}
+              toggleVisibility={togglePasswordVisibility}
+            />
+          </View>
 
-        <View style={styles.inputView}>
-          <TextInputField
-            label="Email/Số điện thoại"
-            valueRef={usernameRef}
-            error={errors.usernameError}
-            placeholder="Email hoặc số điện thoại"
-            onChange={(e) => handleInputChange("username", e.nativeEvent.text)}
-            refInput={null}
-            onSubmitEditing={() => passwordInputRef.current.focus()}
-          />
-          <TextInputField
-            label="Mật khẩu"
-            valueRef={passwordRef}
-            error={errors.passwordError}
-            placeholder="Mật khẩu"
-            onChange={(e) => handleInputChange("password", e.nativeEvent.text)}
-            secureTextEntry={!passwordVisible}
-            refInput={passwordInputRef}
-            onSubmitEditing={handleLoginPress}
-            toggleVisibility={togglePasswordVisibility}
-          />
+          <View style={styles.forgetView}>
+            <Pressable onPress={() => Alert.alert("Quên mật khẩu !")}>
+              <Text style={styles.forgetText}>Quên mật khẩu ?</Text>
+            </Pressable>
+          </View>
+
+          <View style={styles.buttonView}>
+            <Pressable
+              style={styles.button}
+              onPress={handleLoginPress}
+            >
+              <Text style={styles.buttonText}>Đăng nhập</Text>
+            </Pressable>
+            <Text style={styles.optionsText}>Hoặc Đăng nhập với</Text>
+          </View>
+
+          <View style={styles.mediaIcons}>
+            <Image source={googleLogo} style={styles.icons} />
+          </View>
+
+          <Text style={styles.footerText}>
+            Chưa có tài khoản?
+            <Pressable onPress={handleRegisterPress}>
+              <Text style={styles.signup}> Đăng ký ngay</Text>
+            </Pressable>
+          </Text>
         </View>
-
-        <View style={styles.forgetView}>
-          <Pressable onPress={() => Alert.alert("Quên mật khẩu !")}>
-            <Text style={styles.forgetText}>Quên mật khẩu ?</Text>
-          </Pressable>
-        </View>
-
-        <View style={styles.buttonView}>
-          <Pressable
-            style={styles.button}
-            onPress={handleLoginPress}
-          >
-            <Text style={styles.buttonText}>Đăng nhập</Text>
-          </Pressable>
-          <Text style={styles.optionsText}>Hoặc Đăng nhập với</Text>
-        </View>
-
-        <View style={styles.mediaIcons}>
-          <Image source={googleLogo} style={styles.icons} />
-        </View>
-
-        <Text style={styles.footerText}>
-          Chưa có tài khoản?
-          <Pressable onPress={handleRegisterPress}>
-            <Text style={styles.signup}> Đăng ký ngay</Text>
-          </Pressable>
-        </Text>
       </View>
-    </View>
+    </TouchableWithoutFeedback>
   );
 }
 
 const styles = StyleSheet.create({
+  outerContainer: {
+    flex: 1,
+  },
   container: {
     alignItems: "center",
     paddingTop: deviceHeight < 1000 ? 30 : 40,

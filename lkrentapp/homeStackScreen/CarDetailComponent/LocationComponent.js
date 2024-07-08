@@ -54,7 +54,7 @@ const LocationComponent = ({ address }) => {
         if (cachedCoords) {
           setLocation(cachedCoords);
         } else {
-          const coords = await getCoordinates(address, process.env.MAP_BOX_KEY);
+          const coords = await getCoordinates(address,process.env.MAP_BOX_KEY);
           if (coords?.latitude && coords?.longitude) {
             setLocation(coords);
             coordinateCache.set(address, coords);
