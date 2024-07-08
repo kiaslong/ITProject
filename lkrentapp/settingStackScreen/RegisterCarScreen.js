@@ -11,13 +11,13 @@ import {
   Image,
   ScrollView,
   TouchableOpacity,
+  Modal,
 } from 'react-native';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import { Picker } from '@react-native-picker/picker';
 import * as ImagePicker from 'expo-image-picker';
 
 const RegisterCarScreen = () => {
-
   const licensePlateRef = useRef(null);
   const companyRef = useRef(null);
   const modelRef = useRef(null);
@@ -186,13 +186,13 @@ const RegisterCarScreen = () => {
         contentContainerStyle={styles.scrollContainer}
         enableOnAndroid={true}
         keyboardShouldPersistTaps="handled"
-        showsVerticalScrollIndicator={false}      >
+        showsVerticalScrollIndicator={false}
+      >
         <View style={styles.inputView}>
           <View style={styles.inputGroup}>
             <Text style={styles.label}>Biển số xe</Text>
             <View style={[styles.inputContainer, errors.licensePlateError ? styles.inputError : null]}>
               <TextInput
-                ref={licensePlateRef}
                 style={styles.input}
                 placeholder="Biển số xe"
                 onChangeText={(text) => handleInputChange('licensePlate', text)}
@@ -213,7 +213,6 @@ const RegisterCarScreen = () => {
             <Text style={styles.label}>Hãng xe</Text>
             <View style={[styles.inputContainer, errors.companyError ? styles.inputError : null]}>
               <TextInput
-                ref={companyRef}
                 style={styles.input}
                 placeholder="Hãng xe"
                 onChangeText={(text) => handleInputChange('company', text)}
@@ -234,7 +233,6 @@ const RegisterCarScreen = () => {
             <Text style={styles.label}>Mẫu xe</Text>
             <View style={[styles.inputContainer, errors.modelError ? styles.inputError : null]}>
               <TextInput
-                ref={modelRef}
                 style={styles.input}
                 placeholder="Mẫu xe"
                 onChangeText={(text) => handleInputChange('model', text)}
@@ -262,20 +260,6 @@ const RegisterCarScreen = () => {
                   {selectedYear ? selectedYear : 'Chọn năm'}
                 </Text>
               </Pressable>
-              {showYearPicker && (
-                <Picker
-                  selectedValue={selectedYear}
-                  style={styles.picker}
-                  onValueChange={(itemValue) => {
-                    setSelectedYear(itemValue);
-                    setShowYearPicker(false);
-                  }}
-                >
-                  {years.map((year) => (
-                    <Picker.Item key={year} label={year.toString()} value={year.toString()} />
-                  ))}
-                </Picker>
-              )}
             </View>
 
             <View style={styles.halfInputGroup}>
@@ -288,24 +272,10 @@ const RegisterCarScreen = () => {
                   {selectedSeats ? selectedSeats : 'Chọn số chỗ'}
                 </Text>
               </Pressable>
-              {showSeatsPicker && (
-                <Picker
-                  selectedValue={selectedSeats}
-                  style={styles.picker}
-                  onValueChange={(itemValue) => {
-                    setSelectedSeats(itemValue);
-                    setShowSeatsPicker(false);
-                  }}
-                >
-                  {seats.map((seat) => (
-                    <Picker.Item key={seat} label={seat} value={seat} />
-                  ))}
-                </Picker>
-              )}
             </View>
           </View>
 
-          <View style={styles.inputGroup}>
+          <View style={[styles.inputGroup, styles.transmissionContainer]}>
             <Text style={styles.label}>Hộp số</Text>
             <View style={styles.rowContainer}>
               <Pressable
@@ -531,6 +501,46 @@ const RegisterCarScreen = () => {
           </Pressable>
         </View>
       </KeyboardAwareScrollView>
+
+      {/* Modal for Year Picker */}
+      <Modal visible={showYearPicker} transparent={true} animationType="slide">
+        <View style={styles.modalContainer}>
+          <View style={styles.modalContent}>
+            <Picker
+              selectedValue={selectedYear}
+              onValueChange={(itemValue) => setSelectedYear(itemValue)}
+              style={styles.modalPicker}
+            >
+              {years.map((year) => (
+                <Picker.Item key={year} label={year.toString()} value={year.toString()} />
+              ))}
+            </Picker>
+            <Pressable style={styles.modalButton} onPress={() => setShowYearPicker(false)}>
+              <Text style={styles.modalButtonText}>Xác nhận</Text>
+            </Pressable>
+          </View>
+        </View>
+      </Modal>
+
+      {/* Modal for Seats Picker */}
+      <Modal visible={showSeatsPicker} transparent={true} animationType="slide">
+        <View style={styles.modalContainer}>
+          <View style={styles.modalContent}>
+            <Picker
+              selectedValue={selectedSeats}
+              onValueChange={(itemValue) => setSelectedSeats(itemValue)}
+              style={styles.modalPicker}
+            >
+              {seats.map((seat) => (
+                <Picker.Item key={seat} label={seat} value={seat} />
+              ))}
+            </Picker>
+            <Pressable style={styles.modalButton} onPress={() => setShowSeatsPicker(false)}>
+              <Text style={styles.modalButtonText}>Xác nhận</Text>
+            </Pressable>
+          </View>
+        </View>
+      </Modal>
     </KeyboardAvoidingView>
   );
 };
@@ -625,6 +635,9 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: '#000',
   },
+  transmissionContainer: {
+    marginBottom: 40, // Add margin to fix spacing
+  },
   transmissionButton: {
     flex: 1,
     height: 40,
@@ -708,6 +721,33 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   deleteButtonText: {
+    color: 'white',
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+  modalContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+  },
+  modalContent: {
+    width: '80%',
+    backgroundColor: 'white',
+    borderRadius: 10,
+    padding: 20,
+    alignItems: 'center',
+  },
+  modalPicker: {
+    width: '100%',
+  },
+  modalButton: {
+    marginTop: 20,
+    backgroundColor: '#03a9f4',
+    padding: 10,
+    borderRadius: 5,
+  },
+  modalButtonText: {
     color: 'white',
     fontSize: 16,
     fontWeight: 'bold',

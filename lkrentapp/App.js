@@ -89,18 +89,19 @@ const RootStack = () => {
       open: { animation: "timing", config: { duration: 100 } },
       close: { animation: "timing", config: { duration: 100 } },
     },
+
   }), []);
 
   return (
-    <Stack.Navigator initialRouteName="Main" screenOptions={commonScreenOptions}>
-      <Stack.Screen name="Main" component={HomeTabs} />
+    <Stack.Navigator initialRouteName="Main" screenOptions={commonScreenOptions }>
+      <Stack.Screen name="Main" component={HomeTabs}  />
       <Stack.Screen name="Searching" component={SearchScreen} />
       <Stack.Screen name="CarDetail" component={CarDetailScreen} options={{gestureEnabled:false}} />
       <Stack.Screen name="CarRentalOrder" component={CarRentalOrderScreen} options={{gestureEnabled:false}}/>
       <Stack.Screen name="ConfirmationScreen" component={ConfirmationScreen} options={{gestureEnabled:false}} />
 
       <Stack.Screen name="ChangeTimeLocation" component={ChangeLocationTimeScreen} options={{gestureEnabled:false}} />
-      <Stack.Screen name="RegisterScreen" component={RegisterScreen} />
+      <Stack.Screen name="RegisterScreen" component={RegisterScreen}  />
       <Stack.Screen name="RegisterCarScreen" component={RegisterCarScreen} options={{gestureEnabled:false}} />
       <Stack.Screen name="UserRegisterCarScreen" component={UserRegisterCarScreen} />
 
@@ -356,12 +357,12 @@ const HomeTabs = () => {
   );
 
   return (
-    <Tab.Navigator screenOptions={screenOptions}>
-      <Tab.Screen name="Khám phá" component={HomeStack} />
-      <Tab.Screen name="Thông báo" component={NotiStack} />
-      <Tab.Screen name="Chuyến" component={HistoryStack} />
-      <Tab.Screen name="Hỗ trợ" component={SupportStack} />
-      <Tab.Screen name={isLoggedIn ? "Cá nhân" : "Đăng nhập"} component={isLoggedIn ? SettingStack : AuthStack} />
+    <Tab.Navigator screenOptions={screenOptions} >
+      <Tab.Screen name="Khám phá" component={HomeStack} options={{detachInactiveScreens:true}}/>
+      <Tab.Screen name="Thông báo" component={NotiStack} options={{detachInactiveScreens:true}}/>
+      <Tab.Screen name="Chuyến" component={HistoryStack} options={{detachInactiveScreens:true}}/>
+      <Tab.Screen name="Hỗ trợ" component={SupportStack} options={{detachInactiveScreens:true}}/>
+      <Tab.Screen name={isLoggedIn ? "Cá nhân" : "Đăng nhập"} component={isLoggedIn ? SettingStack : AuthStack} options={{detachInactiveScreens:true}} />
     </Tab.Navigator>
   );
 };

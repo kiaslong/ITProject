@@ -7,14 +7,12 @@ const { width, height } = Dimensions.get("window");
 const scaleWidth = width / 375; // 375 is the width of a standard iPhone screen
 const scaleHeight = height / 667; // 667 is the height of a standard iPhone screen
 
-const CarRentalInfo = ({ carInfo, time ,navigation }) => {
-
-    const handleMapPress = () => {
-        navigation.navigate("FullMapScreen", {
-          address: carInfo.location,
-        });
-      };
-
+const CarRentalInfo = ({ carInfo, time, navigation, showCarDetail }) => {
+  const handleMapPress = () => {
+    navigation.navigate("FullMapScreen", {
+      address: carInfo.location,
+    });
+  };
 
   const currentYear = moment().year();
   const [start, end] = useMemo(
@@ -24,26 +22,30 @@ const CarRentalInfo = ({ carInfo, time ,navigation }) => {
 
   return (
     <View style={styles.container}>
-      <View style={styles.header}>
-        <Image
-          source={{
-            uri: carInfo.thumbImage, 
-          }}
-          style={styles.carImage}
-          resizeMode="contain"
-        />
-        <View style={styles.carInfo}>
-          <Text style={styles.carName}>{carInfo.title}</Text>
-          <Text style={styles.carId}>Mã số xe: {carInfo.id}</Text>
-          <View style={styles.ratingContainer}>
-            <Ionicons name="star" size={16 * scaleWidth} color="#FFD700" />
-            <Text style={styles.ratingText}>{carInfo.rating}</Text>
-            <Ionicons name="car" size={16 * scaleWidth} color="#4CAF50" />
-            <Text style={styles.tripsText}>{carInfo.trips} chuyến</Text>
+      {showCarDetail && (
+        <>
+          <View style={styles.header}>
+            <Image
+              source={{
+                uri: carInfo.thumbImage,
+              }}
+              style={styles.carImage}
+              resizeMode="contain"
+            />
+            <View style={styles.carInfo}>
+              <Text style={styles.carName}>{carInfo.title}</Text>
+              <Text style={styles.carId}>Mã số xe: {carInfo.id}</Text>
+              <View style={styles.ratingContainer}>
+                <Ionicons name="star" size={16 * scaleWidth} color="#FFD700" />
+                <Text style={styles.ratingText}>{carInfo.rating}</Text>
+                <Ionicons name="car" size={16 * scaleWidth} color="#4CAF50" />
+                <Text style={styles.tripsText}>{carInfo.trips} chuyến</Text>
+              </View>
+            </View>
           </View>
-        </View>
-      </View>
-      <View style={styles.separator} />
+          <View style={styles.separator} />
+        </>
+      )}
       <View style={styles.infoContainer}>
         <Text style={styles.sectionTitle}>Thông tin thuê xe</Text>
         <View style={styles.row}>
@@ -54,7 +56,7 @@ const CarRentalInfo = ({ carInfo, time ,navigation }) => {
             </View>
             <Text style={styles.dateText}>
               {start
-                ? `${start.format("HH:mm")} ${start.format("dd")}, ${start.format(
+                ? `${start.format("HH:mm")} ${start.format("ddd")}, ${start.format(
                     "DD/MM"
                   )}/${currentYear}`
                 : ""}
@@ -67,7 +69,7 @@ const CarRentalInfo = ({ carInfo, time ,navigation }) => {
             </View>
             <Text style={styles.dateText}>
               {end
-                ? `${end.format("HH:mm")} ${end.format("dd")}, ${end.format(
+                ? `${end.format("HH:mm")} ${end.format("ddd")}, ${end.format(
                     "DD/MM"
                   )}/${currentYear}`
                 : ""}
@@ -94,13 +96,13 @@ const CarRentalInfo = ({ carInfo, time ,navigation }) => {
 const styles = StyleSheet.create({
   container: {
     backgroundColor: "#fff",
-    marginTop:10,
+    marginTop: 10,
     paddingLeft: 16 * scaleWidth,
     paddingRight: 16 * scaleWidth,
   },
   header: {
     flexDirection: "row",
-    marginBottom:16,
+    marginBottom: 16,
   },
   carImage: {
     width: 135 * scaleWidth,
@@ -108,10 +110,9 @@ const styles = StyleSheet.create({
     borderRadius: 16 * scaleWidth,
   },
   carInfo: {
-    alignSelf:"flex-start",
+    alignSelf: "flex-start",
     marginLeft: 10 * scaleWidth,
     justifyContent: "center",
-    
   },
   carName: {
     fontSize: 16 * scaleWidth,
