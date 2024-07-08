@@ -13,7 +13,7 @@ const CarRentalInfoScreen = ({ route, navigation }) => {
     <View style={styles.container}>
       <ScrollView contentContainerStyle={styles.scrollViewContent} showsVerticalScrollIndicator={false}>
         <CarRentalInfo carInfo={carInfo} time={time} navigation={navigation} />
-        <UserProfile />
+        <UserProfile carInfo={carInfo} showStats={false} />
         <MessageComponent />
         <PricingTable />
         <DocumentComponent />

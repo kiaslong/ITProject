@@ -38,6 +38,7 @@ import Header from "./components/Header";
 import { StatusBar } from 'expo-status-bar';
 import ChangeLocationTimeScreen from "./homeStackScreen/ChangeLocationTimeScreen";
 import CarDetailScreen from './homeStackScreen/CarDetailScreen';
+import ConfirmationScreen from "./homeStackScreen/CarOrderComponent/PlaceHolderComponent";
 import FullscreenMapComponent from "./homeStackScreen/CarConfirmComponent/FullScreenLocationComponent";
 import { fetchInitialLocation } from './store/locationSlice';
 
@@ -96,6 +97,7 @@ const RootStack = () => {
       <Stack.Screen name="Searching" component={SearchScreen} />
       <Stack.Screen name="CarDetail" component={CarDetailScreen} options={{gestureEnabled:false}} />
       <Stack.Screen name="CarRentalOrder" component={CarRentalOrderScreen} options={{gestureEnabled:false}}/>
+      <Stack.Screen name="ConfirmationScreen" component={ConfirmationScreen} options={{gestureEnabled:false}} />
 
       <Stack.Screen name="ChangeTimeLocation" component={ChangeLocationTimeScreen} options={{gestureEnabled:false}} />
       <Stack.Screen name="RegisterScreen" component={RegisterScreen} />
@@ -269,7 +271,7 @@ const SettingStack = () => {
     <Stack.Navigator initialRouteName="SettingHome" screenOptions={commonScreenOptions}>
       <Stack.Screen name="SettingHome" component={SettingScreen} />
       <Stack.Screen name="UserInfoScreen" component={UserInfoScreen} />
-      <Stack.Screen  name="EditUserInfoScreen" component={EditUserInfoScreen} />
+      <Stack.Screen  name="EditUserInfoScreen" component={EditUserInfoScreen} options={{gestureEnabled:false}} />
       <Stack.Screen name="ChangePasswordScreen" component={ChangePasswordScreen} />
       <Stack.Screen name="ReferFriendScreen" component={ReferFriendScreen} />
       <Stack.Screen name="GiftScreen" component={GiftScreen} />

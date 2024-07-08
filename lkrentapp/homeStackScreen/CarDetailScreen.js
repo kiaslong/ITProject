@@ -476,7 +476,7 @@ const CarDetailScreen = ({ route, navigation }) => {
         <CarFeature carInfo={carInfo} />
         <Text style={styles.bigSectionTitle}>Vị trí xe</Text>
         <LocationComponent address={carInfo.location} />
-        <UserProfile />
+        <UserProfile carInfo={carInfo} showStats={true} />
         <ReviewComponent />
         <View style={styles.separator} />
         <DocumentComponent />
