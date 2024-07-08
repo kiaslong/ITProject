@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, Image, StyleSheet, Dimensions, ScrollView, Platform } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, Image, StyleSheet, Dimensions, ScrollView, Platform, Button, Modal } from 'react-native';
 import { FontAwesome5 } from '@expo/vector-icons';
 import * as ImagePicker from 'expo-image-picker';
 import DateTimePicker from '@react-native-community/datetimepicker';
@@ -21,7 +21,6 @@ const EditUserInfoScreen = () => {
   const onDateChange = (event, selectedDate) => {
     if (selectedDate) {
       setBirthDate(selectedDate);
-      setShowDatePicker(false);
     }
   };
 
@@ -43,6 +42,10 @@ const EditUserInfoScreen = () => {
     if (!result.canceled) {
       setImageUri(result.assets[0].uri);  // Ensure the correct URI is used
     }
+  };
+
+  const handleConfirm = () => {
+    setShowDatePicker(false);
   };
 
   return (
@@ -77,13 +80,34 @@ const EditUserInfoScreen = () => {
         </Text>
       </TouchableOpacity>
       {showDatePicker && (
-        <DateTimePicker
-          value={birthDate}
-          mode="date"
-          display="spinner"
-          onChange={onDateChange}
-          style={Platform.OS === 'ios' ? styles.datePickerIOS : undefined}
-        />
+        <Modal
+          transparent={true}
+          animationType="slide"
+          visible={showDatePicker}
+          onRequestClose={() => setShowDatePicker(false)}
+        >
+          <View style={styles.modalBackground}>
+            <View style={styles.datePickerContainer}>
+              <DateTimePicker
+                value={birthDate}
+                mode="date"
+                display="spinner"
+                onChange={onDateChange}
+                style={Platform.OS === 'ios' ? styles.datePickerIOS : undefined}
+              />
+              {Platform.OS === 'ios' && (
+                <View style={styles.confirmButtonContainer}>
+                  <Button title="Xác nhận" onPress={handleConfirm} />
+                </View>
+              )}
+              {Platform.OS === 'android' && (
+                <View style={styles.confirmButtonContainer}>
+                  <Button title="Xác nhận" onPress={handleConfirm} />
+                </View>
+              )}
+            </View>
+          </View>
+        </Modal>
       )}
       <Text style={styles.inputLabel}>Giới tính</Text>
       <View style={styles.genderContainer}>
@@ -198,5 +222,20 @@ const styles = StyleSheet.create({
     color: 'white',
     fontSize: 16,
     fontWeight: 'bold',
+  },
+  modalBackground: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+  },
+  datePickerContainer: {
+    backgroundColor: '#fff',
+    borderRadius: 10,
+    padding: 20,
+    alignItems: 'center',
+  },
+  confirmButtonContainer: {
+    marginTop: 10,
   },
 });
