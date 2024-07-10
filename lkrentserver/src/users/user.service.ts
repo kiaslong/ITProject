@@ -1,45 +1,53 @@
-import { Injectable, BadRequestException, UnauthorizedException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { LoginUserDto } from './dto/login-user.dto';
-import * as bcrypt from 'bcryptjs';
 import { JwtService } from '@nestjs/jwt';
+import * as bcrypt from 'bcryptjs';
 
 @Injectable()
 export class UserService {
-  constructor(private prisma: PrismaService, private jwtService: JwtService) {}
+  constructor(
+    private prisma: PrismaService,
+    private jwtService: JwtService,
+  ) {}
 
-  async register(createUserDto: CreateUserDto) {
-    const { email, phoneNumber, password } = createUserDto;
-
-    const existingUser = await this.prisma.user.findUnique({ where: { email } });
-    if (existingUser) {
-      throw new BadRequestException('Email already exists');
-    }
-
-    const hashedPassword = await bcrypt.hash(password, 10);
+  async create(createUserDto: CreateUserDto) {
+    const salt = await bcrypt.genSalt();
+    const hashedPassword = await bcrypt.hash(createUserDto.password, salt);
     const user = await this.prisma.user.create({
-      data: { email, phoneNumber, password: hashedPassword },
+      data: {
+        ...createUserDto,
+        password: hashedPassword,
+        fullName: createUserDto.fullName || "FullName",
+        dateOfBirth: createUserDto.dateOfBirth || new Date(),
+        role: createUserDto.role || "user",
+      },
     });
-
-    return this.generateToken(user);
+    return user;
   }
 
-  async login(loginUserDto: LoginUserDto) {
-    const { email, password } = loginUserDto;
-    const user = await this.prisma.user.findUnique({ where: { email } });
-
-    if (!user || !(await bcrypt.compare(password, user.password))) {
-      throw new UnauthorizedException('Invalid credentials');
+  async validateUser(loginUserDto: LoginUserDto) {
+    const user = await this.prisma.user.findUnique({
+      where: { phoneNumber: loginUserDto.phoneNumber },
+    });
+    if (user && await bcrypt.compare(loginUserDto.password, user.password)) {
+      return user;
     }
-
-    return this.generateToken(user);
+    return null;
   }
 
-  private generateToken(user: any) {
-    const payload = { sub: user.id, email: user.email };
-    return {
-      access_token: this.jwtService.sign(payload),
-    };
+  public async generateToken(user: any): Promise<string> {
+    const payload = { phoneNumber: user.phoneNumber, sub: user.id };
+    return this.jwtService.sign(payload);
+  }
+
+  async validateToken(token: string) {
+    try {
+      const decoded = this.jwtService.verify(token);
+      return { valid: true, decoded };
+    } catch (e) {
+      return { valid: false };
+    }
   }
 }

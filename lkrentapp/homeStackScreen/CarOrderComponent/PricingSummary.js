@@ -94,13 +94,14 @@ const PricingSummary = () => {
                 { transform: [{ translateY: modalAnim }] },
               ]}
             >
-              <TouchableOpacity
-                style={styles.closeButton}
-                onPress={closeModal}
-              >
-                <Icon name="close-outline" size={28} color="#000" />
-              </TouchableOpacity>
+               <TouchableOpacity
+                  style={[styles.button, styles.buttonClose]}
+                  onPress={closeModal}
+                >
+                  <Text style={styles.textStyle}>X</Text>
+                </TouchableOpacity>
               {content}
+              <View style={styles.paddingBottom} ></View>
             </Animated.View>
           </TouchableWithoutFeedback>
         </View>
@@ -284,9 +285,23 @@ const styles = StyleSheet.create({
     borderTopRightRadius: 16,
     maxHeight: height * 0.8,
   },
-  closeButton: {
-    marginBottom: 10,
-    alignSelf: 'flex-start',
+  button: {
+    alignSelf: "flex-start",
+    borderRadius: 28,
+    padding: 5,
+    width: 28,
+    height: 28,
+    marginBottom:16,
+    marginTop:16,
+  },
+  buttonClose: {
+    backgroundColor: "#03A9F4",
+  },
+  textStyle: {
+    color: "white",
+    fontSize: 16,
+    fontWeight: "bold",
+    textAlign: "center",
   },
   detailTitle: {
     fontSize: 18,
@@ -298,6 +313,9 @@ const styles = StyleSheet.create({
     fontSize: 15,
     marginBottom: 10,
   },
+  paddingBottom:{
+    paddingBottom:20,
+  }
 });
 
 export default PricingSummary;

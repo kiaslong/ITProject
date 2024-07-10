@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import React, { useState } from "react";
 import {
   Alert,
   Pressable,
@@ -15,35 +15,21 @@ import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view
 import api from "../api"; // Import the Axios instance
 
 const RegisterScreen = () => {
-  const phoneNumberRef = useRef(null);
-  const emailRef = useRef(null);
-  const passwordRef = useRef(null);
-  const retypePasswordRef = useRef(null);
-
+  const [phoneNumber, setPhoneNumber] = useState("");
+  const [fullName, setFullName] = useState("");
+  const [password, setPassword] = useState("");
+  const [retypePassword, setRetypePassword] = useState("");
   const [visibility, setVisibility] = useState({
     passwordVisible: false,
     retypePasswordVisible: false,
   });
   const [errors, setErrors] = useState({
     phoneNumberError: "",
-    emailError: "",
+    fullNameError: "",
     passwordError: "",
     retypePasswordError: "",
   });
-
   const [agree, setAgree] = useState(false);
-
-  const handleInputChange = (name, value) => {
-    if (name === "phoneNumber") {
-      phoneNumberRef.current = value;
-    } else if (name === "email") {
-      emailRef.current = value;
-    } else if (name === "password") {
-      passwordRef.current = value;
-    } else if (name === "retypePassword") {
-      retypePasswordRef.current = value;
-    }
-  };
 
   const toggleVisibility = (field) => {
     setVisibility({ ...visibility, [field]: !visibility[field] });
@@ -52,7 +38,7 @@ const RegisterScreen = () => {
   const clearErrorMessages = () => {
     setErrors({
       phoneNumberError: "",
-      emailError: "",
+      fullNameError: "",
       passwordError: "",
       retypePasswordError: "",
     });
@@ -60,55 +46,51 @@ const RegisterScreen = () => {
 
   const validateInputs = () => {
     let valid = true;
-    const phoneNumber = phoneNumberRef.current?.trim();
-    const email = emailRef.current?.trim();
-    const password = passwordRef.current?.trim();
-    const retypePassword = retypePasswordRef.current?.trim();
+    const trimmedPhoneNumber = phoneNumber.trim();
+    const trimmedFullName = fullName.trim();
+    const trimmedPassword = password.trim();
+    const trimmedRetypePassword = retypePassword.trim();
 
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     const phoneRegex = /^\d{10,15}$/;
     const passwordRegex =
       /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
 
     const newErrors = {
       phoneNumberError: "",
-      emailError: "",
+      fullNameError: "",
       passwordError: "",
       retypePasswordError: "",
     };
 
-    if (!phoneNumber) {
+    if (!trimmedPhoneNumber) {
       newErrors.phoneNumberError = "Phone number is required.";
       valid = false;
-    } else if (!phoneRegex.test(phoneNumber)) {
+    } else if (!phoneRegex.test(trimmedPhoneNumber)) {
       newErrors.phoneNumberError = "Phone number is not valid.";
       valid = false;
     }
 
-    if (!email) {
-      newErrors.emailError = "Email is required.";
-      valid = false;
-    } else if (!emailRegex.test(email)) {
-      newErrors.emailError = "Email is not valid.";
+    if (!trimmedFullName) {
+      newErrors.fullNameError = "Full name is required.";
       valid = false;
     }
 
-    if (!password) {
+    if (!trimmedPassword) {
       newErrors.passwordError = "Password is required.";
       valid = false;
-    } else if (password.length < 8) {
+    } else if (trimmedPassword.length < 8) {
       newErrors.passwordError = "Password must contain at least 8 characters.";
       valid = false;
-    } else if (!passwordRegex.test(password)) {
+    } else if (!passwordRegex.test(trimmedPassword)) {
       newErrors.passwordError =
         "Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character.";
       valid = false;
     }
 
-    if (!retypePassword) {
+    if (!trimmedRetypePassword) {
       newErrors.retypePasswordError = "Retype password is required.";
       valid = false;
-    } else if (retypePassword !== password) {
+    } else if (trimmedRetypePassword !== trimmedPassword) {
       newErrors.retypePasswordError = "Passwords do not match.";
       valid = false;
     }
@@ -124,15 +106,11 @@ const RegisterScreen = () => {
 
   const handleRegisterPress = async () => {
     if (validateInputs()) {
-      const email = emailRef.current?.trim();
-      const phoneNumber = phoneNumberRef.current?.trim();
-      const password = passwordRef.current?.trim();
-      console.log("Registering with", { email, phoneNumber, password });
       try {
         const response = await api.post("/auth/register", {
-          email,
-          phoneNumber,
-          password,
+          phoneNumber: phoneNumber.trim(),
+          fullName: fullName.trim(),
+          password: password.trim(),
         });
 
         console.log("Registration response:", response.data);
@@ -162,36 +140,36 @@ const RegisterScreen = () => {
             {[
               {
                 label: "Số điện thoại",
-                value: phoneNumberRef,
+                value: phoneNumber,
+                onChange: setPhoneNumber,
                 error: errors.phoneNumberError,
                 placeholder: "0123456789",
-                nextRef: emailRef,
                 name: "phoneNumber",
               },
               {
-                label: "Email",
-                value: emailRef,
-                error: errors.emailError,
-                placeholder: "philong@gmail.com",
-                nextRef: passwordRef,
-                name: "email",
+                label: "Họ và tên",
+                value: fullName,
+                onChange: setFullName,
+                error: errors.fullNameError,
+                placeholder: "Nguyễn Văn A",
+                name: "fullName",
               },
               {
                 label: "Mật khẩu",
-                value: passwordRef,
+                value: password,
+                onChange: setPassword,
                 error: errors.passwordError,
                 placeholder: "Mật khẩu",
-                nextRef: retypePasswordRef,
                 name: "password",
                 secure: !visibility.passwordVisible,
                 toggleVisibility: () => toggleVisibility("passwordVisible"),
               },
               {
                 label: "Xác nhận mật khẩu",
-                value: retypePasswordRef,
+                value: retypePassword,
+                onChange: setRetypePassword,
                 error: errors.retypePasswordError,
                 placeholder: "Nhập lại mật khẩu",
-                nextRef: null,
                 name: "retypePassword",
                 secure: !visibility.retypePasswordVisible,
                 toggleVisibility: () =>
@@ -207,11 +185,10 @@ const RegisterScreen = () => {
                   ]}
                 >
                   <TextInput
-                    ref={input.value}
                     style={styles.input}
                     placeholder={input.placeholder}
-                    defaultValue={input.value.current}
-                    onChangeText={(text) => handleInputChange(input.name, text)}
+                    value={input.value}
+                    onChangeText={input.onChange}
                     autoCorrect={false}
                     autoCapitalize="none"
                     secureTextEntry={input.secure}

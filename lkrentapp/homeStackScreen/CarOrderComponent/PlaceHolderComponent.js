@@ -11,13 +11,24 @@ const ConfirmationScreen = ({ route }) => {
     const navigation = useNavigation();
 
     const { carInfo, time } = route.params;
+   
+
     const handlePayPress = () => {
-        navigation.navigate("CarRentalOrder", {
-          carInfo,
-          time:time,
-          animationType:"slide_from_bottom",
-        });
-      }
+      navigation.navigate("Payment", {
+        carInfo,
+        time,
+        animationType: "slide_from_bottom",
+        showHeader:true,
+        showTitle:true,
+        screenTitle:"Thanh toán",
+        showCloseButton:true,
+        showBackButton:true,
+        customGoBackRoute:"CarRentalOrder",
+        customData1:carInfo,
+        customData2:time,
+      });
+    };
+    
       const handleAddAnotherCarPress = () => {
         navigation.dispatch(
           CommonActions.reset({

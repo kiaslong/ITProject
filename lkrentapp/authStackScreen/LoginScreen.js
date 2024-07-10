@@ -16,6 +16,7 @@ import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useDispatch } from 'react-redux';
 import { loginRequest, loginSuccess, loginFailure } from '../store/loginSlice';
 import api from '../api';
+import { saveToken } from '../utils/tokenStorage'; // Import the saveToken utility
 
 const googleLogo = require("../assets/gglogo.png");
 
@@ -57,12 +58,12 @@ const TextInputField = React.memo(({ label, valueRef, error, placeholder, onChan
 ));
 
 export default function LoginScreen() {
-  const usernameRef = useRef("");
+  const phoneNumberRef = useRef("");
   const passwordRef = useRef("");
 
   const [passwordVisible, setPasswordVisible] = useState(false);
   const [errors, setErrors] = useState({
-    usernameError: "",
+    phoneNumberError: "",
     passwordError: "",
   });
 
@@ -72,8 +73,8 @@ export default function LoginScreen() {
   const dispatch = useDispatch();
 
   const handleInputChange = useCallback((name, text) => {
-    if (name === "username") {
-      usernameRef.current = text;
+    if (name === "phoneNumber") {
+      phoneNumberRef.current = text;
     } else if (name === "password") {
       passwordRef.current = text;
     }
@@ -85,29 +86,28 @@ export default function LoginScreen() {
 
   const clearErrorMessages = useCallback(() => {
     setErrors({
-      usernameError: "",
+      phoneNumberError: "",
       passwordError: "",
     });
   }, []);
 
   const validateInputs = useCallback(() => {
     let valid = true;
-    const username = usernameRef.current.trim();
+    const phoneNumber = phoneNumberRef.current.trim();
     const password = passwordRef.current.trim();
 
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     const phoneRegex = /^\d{10,15}$/;
 
     const newErrors = {
-      usernameError: "",
+      phoneNumberError: "",
       passwordError: "",
     };
 
-    if (username === "") {
-      newErrors.usernameError = "Email or phone number is required.";
+    if (phoneNumber === "") {
+      newErrors.phoneNumberError = "Phone number is required.";
       valid = false;
-    } else if (!emailRegex.test(username) && !phoneRegex.test(username)) {
-      newErrors.usernameError = "Username must be a valid email or phone number.";
+    } else if (!phoneRegex.test(phoneNumber)) {
+      newErrors.phoneNumberError = "Phone number is not valid.";
       valid = false;
     }
 
@@ -134,13 +134,15 @@ export default function LoginScreen() {
 
       try {
         const response = await api.post('/auth/login', {
-          email: usernameRef.current.trim(),
+          phoneNumber: phoneNumberRef.current.trim(),
           password: passwordRef.current.trim(),
         });
 
-        const { access_token } = response.data;
+        const { token } = response.data;
 
-        dispatch(loginSuccess({ token: access_token }));
+        await saveToken(token); // Save the token
+
+        dispatch(loginSuccess({ token: token }));
         navigation.navigate("Cá nhân");
       } catch (error) {
         dispatch(loginFailure());
@@ -159,11 +161,11 @@ export default function LoginScreen() {
         <View style={styles.container}>
           <View style={styles.inputView}>
             <TextInputField
-              label="Email/Số điện thoại"
-              valueRef={usernameRef}
-              error={errors.usernameError}
-              placeholder="Email hoặc số điện thoại"
-              onChange={(e) => handleInputChange("username", e.nativeEvent.text)}
+              label="Số điện thoại"
+              valueRef={phoneNumberRef}
+              error={errors.phoneNumberError}
+              placeholder="Số điện thoại"
+              onChange={(e) => handleInputChange("phoneNumber", e.nativeEvent.text)}
               refInput={null}
               onSubmitEditing={() => passwordInputRef.current.focus()}
             />

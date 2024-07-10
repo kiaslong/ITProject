@@ -1,17 +1,10 @@
-import { Ionicons } from "@expo/vector-icons";
-import {
-  View,
-  Text,
-  FlatList,
-  StyleSheet,
-  TouchableOpacity,
-  Pressable,
-  Image,
-} from "react-native";
 import React, { useState, useCallback } from "react";
+import { View, Text, FlatList, StyleSheet, TouchableOpacity, Pressable, Image } from "react-native";
+import { Ionicons } from "@expo/vector-icons";
 import { useNavigation, CommonActions } from "@react-navigation/native";
 import { useDispatch } from "react-redux";
 import { logout } from "../store/loginSlice";
+import { removeToken } from "../utils/tokenStorage"; // Import removeToken
 import CustomAlert from "../components/CustomAlert"; // Adjust the import path as needed
 
 const SettingScreen = () => {
@@ -24,7 +17,7 @@ const SettingScreen = () => {
     {
       title: "Account",
       data: [
-        { id: 1, name: "Tài khoản của tôi", icon: "person-circle-outline", screen: "UserInfoScreen", title: "Tài khoản của tôi", iconName: "pencil-alt",functionName: "editUserInfo", },
+        { id: 1, name: "Tài khoản của tôi", icon: "person-circle-outline", screen: "UserInfoScreen", title: "Tài khoản của tôi", iconName: "pencil-alt", functionName: "editUserInfo" },
         { id: 2, name: "Đăng ký cho thuê xe", icon: "car-sport-outline", screen: "UserRegisterCarScreen", title: "Danh Sách Xe", iconName: "car", functionName: "registerCar" },
         { id: 3, name: "Xe yêu thích", icon: "heart-outline", screen: "FavoriteCarsScreen", title: "Xe yêu thích" },
         { id: 4, name: "Địa chỉ của tôi", icon: "document-text-outline", screen: "MyAddressesScreen", title: "Địa chỉ của tôi", iconName: "pencil-alt" },
@@ -81,19 +74,7 @@ const SettingScreen = () => {
   };
 
   const handleLogoutPress = async () => {
-    await dispatch(logout());
-    navigation.dispatch(
-      CommonActions.reset({
-        index: 0,
-        routes: [{ name: "Khám phá" }],
-      })
-    );
-  };
-
-
-
-  const confirmLogout = async () => {
-    setLogoutPromptVisible(false);
+    await removeToken(); // Remove the token
     await dispatch(logout());
     navigation.dispatch(
       CommonActions.reset({
@@ -168,13 +149,6 @@ const SettingScreen = () => {
         onOk={handleOk}
         title="Cảnh cáo"
         message="Bạn có chắc chắn muốn xóa tài khoản của mình không?"
-      />
-      <CustomAlert
-        visible={logoutPromptVisible}
-        onCancel={handleCancel}
-        onOk={confirmLogout}
-        title="Đăng xuất"
-        message="Bạn có chắc chắn muốn đăng xuất không?"
       />
     </View>
   );

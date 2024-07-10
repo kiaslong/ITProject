@@ -4,6 +4,10 @@ CREATE TABLE "User" (
     "email" TEXT NOT NULL,
     "phoneNumber" TEXT NOT NULL,
     "password" TEXT NOT NULL,
+    "fullName" TEXT NOT NULL DEFAULT 'FullName',
+    "dateOfBirth" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "avatarUrl" TEXT,
+    "role" TEXT NOT NULL DEFAULT 'user',
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
 
