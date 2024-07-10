@@ -10,7 +10,6 @@ import {
   Dimensions,
   Keyboard,
   TouchableWithoutFeedback,
-  TouchableOpacity
 } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
@@ -19,7 +18,6 @@ import { loginRequest, loginSuccess, loginFailure } from "../store/loginSlice";
 import api from "../api";
 import { saveToken } from "../utils/tokenStorage";
 
-const googleLogo = require("../assets/gglogo.png");
 
 const deviceHeight = Dimensions.get("window").height;
 

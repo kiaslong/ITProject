@@ -1,21 +1,45 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, Image, StyleSheet, Dimensions, ScrollView, Platform, Button, Modal } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, Image, StyleSheet, Dimensions, ScrollView, Platform, Button, Modal, Alert } from 'react-native';
 import { FontAwesome5 } from '@expo/vector-icons';
 import * as ImagePicker from 'expo-image-picker';
 import DateTimePicker from '@react-native-community/datetimepicker';
+import api from "../api";
 
 const { width, height } = Dimensions.get('window');
 
-const EditUserInfoScreen = () => {
+const EditUserInfoScreen = ({ route }) => {
+  const  userId  = 2; // Get the user ID from route params
   const [username, setUsername] = useState('');
   const [birthDate, setBirthDate] = useState(new Date());
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [gender, setGender] = useState('Nam'); // Default gender
   const [imageUri, setImageUri] = useState('https://cdn.idntimes.com/content-images/community/2022/03/1714382190-93512ef73cc9128141b72669a922c6ee-f48b234e3eecffd2d897cd799c3043de.jpg');
 
-  const handleSave = () => {
-    // Handle save logic here
-    alert('Thông tin đã được lưu');
+  const handleSave = async () => {
+    try {
+      const formData = new FormData();
+      formData.append('fullName', username);
+      formData.append('dateOfBirth', birthDate.toISOString());
+      formData.append('gender', gender);
+      if (imageUri && !imageUri.startsWith('http')) {
+        formData.append('avatar', {
+          uri: imageUri,
+          type: 'image/jpeg',
+          name: 'avatar.jpg',
+        });
+      }
+
+      await api.put(`/auth/${userId}/profile`, formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+
+      Alert.alert('Thông tin đã được lưu');
+    } catch (error) {
+      console.error(error);
+      Alert.alert('Lỗi khi lưu thông tin');
+    }
   };
 
   const onDateChange = (event, selectedDate) => {

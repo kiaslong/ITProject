@@ -11,6 +11,7 @@ model User {
   id          Int      @id @default(autoincrement())
   email       String?   @unique
   phoneNumber String   @unique
+  gender      String   @default("Nam")
   password    String
   fullName    String   @default("FullName")
   dateOfBirth DateTime @default(now())

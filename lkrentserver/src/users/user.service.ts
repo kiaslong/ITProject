@@ -3,13 +3,16 @@ import { PrismaService } from '../prisma/prisma.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { LoginUserDto } from './dto/login-user.dto';
 import { JwtService } from '@nestjs/jwt';
+import { UpdateUserProfileDto } from './dto/update-user.dto';
 import * as bcrypt from 'bcryptjs';
+import { CloudinaryService } from '../cloudinary/cloudinary.service';
 
 @Injectable()
 export class UserService {
   constructor(
     private prisma: PrismaService,
     private jwtService: JwtService,
+    private cloudinaryService: CloudinaryService,
   ) {}
 
   async create(createUserDto: CreateUserDto) {
@@ -50,4 +53,27 @@ export class UserService {
       return { valid: false };
     }
   }
+
+  async updateProfile(userId: number, updateUserProfileDto: UpdateUserProfileDto, file?: Express.Multer.File) {
+    let avatarUrl: string | undefined;
+    if (file) {
+      avatarUrl = await this.cloudinaryService.uploadAvatar(file);
+    }
+
+    const data: any = { ...updateUserProfileDto };
+    if (avatarUrl) {
+      data.avatarUrl = avatarUrl;
+    }
+
+    // Set default gender to 'Nam' if not provided
+    data.gender = data.gender || 'Nam';
+
+
+
+    return this.prisma.user.update({
+      where: { id: userId },
+      data,
+    });
+  }
+
 }

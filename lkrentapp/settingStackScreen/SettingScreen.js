@@ -73,7 +73,12 @@ const SettingScreen = () => {
     );
   };
 
-  const handleLogoutPress = async () => {
+  const handleLogoutPress = () => {
+    setLogoutPromptVisible(true);
+  };
+
+  const handleLogoutConfirm = async () => {
+    setLogoutPromptVisible(false);
     await removeToken(); // Remove the token
     await dispatch(logout());
     navigation.dispatch(
@@ -149,6 +154,13 @@ const SettingScreen = () => {
         onOk={handleOk}
         title="Cảnh cáo"
         message="Bạn có chắc chắn muốn xóa tài khoản của mình không?"
+      />
+      <CustomAlert
+        visible={logoutPromptVisible}
+        onCancel={handleCancel}
+        onOk={handleLogoutConfirm}
+        title="Đăng xuất"
+        message="Bạn có chắc chắn muốn đăng xuất không?"
       />
     </View>
   );

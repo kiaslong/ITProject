@@ -4,6 +4,7 @@ import { UserController } from './user.controller';
 import { PrismaModule } from '../prisma/prisma.module';
 import { JwtModule } from '@nestjs/jwt';
 import { ConfigModule } from '@nestjs/config';
+import { CloudinaryModule } from 'src/cloudinary/cloudinary.module';
 
 @Module({
   imports: [
@@ -13,6 +14,7 @@ import { ConfigModule } from '@nestjs/config';
       signOptions: { expiresIn: '1d' },
     }),
     ConfigModule,
+    CloudinaryModule
   ],
   controllers: [UserController],
   providers: [UserService],
