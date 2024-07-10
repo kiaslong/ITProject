@@ -46,6 +46,7 @@ import { getToken } from './utils/tokenStorage';
 import { loginSuccess, logout } from './store/loginSlice'; 
 import api from "./api";
 
+
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
 
@@ -138,6 +139,7 @@ const RootStack = () => {
       <Stack.Screen name="CarRentalOrder" component={CarRentalOrderScreen} options={{gestureEnabled:false}}/>
       <Stack.Screen name="ConfirmationScreen" component={ConfirmationScreen} options={{gestureEnabled:false}} />
       <Stack.Screen name="Payment" component={PaymentMethodScreen} options={{gestureEnabled:false}} />
+
 
       <Stack.Screen name="ChangeTimeLocation" component={ChangeLocationTimeScreen} options={{gestureEnabled:false}} />
       <Stack.Screen name="RegisterScreen" component={RegisterScreen}  />

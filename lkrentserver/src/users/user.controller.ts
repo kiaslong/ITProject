@@ -34,18 +34,5 @@ export class UserController {
     return this.userService.validateToken(token);
   }
 
-  @Get('google')
-  @UseGuards(AuthGuard('google'))
-  async googleAuth(@Req() req) {
-    // Initiates the Google OAuth login flow
-  }
 
-  @Get('google/callback')
-  @UseGuards(AuthGuard('google'))
-  async googleAuthRedirect(@Req() req) {
-    // Handles the Google OAuth callback and redirect
-    const user = req.user;
-    const token = await this.userService.generateToken(user);
-    return { token };
-  }
 }
