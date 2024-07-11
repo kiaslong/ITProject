@@ -24,7 +24,6 @@ export class UserService {
         password: hashedPassword,
         fullName: createUserDto.fullName || "FullName",
         dateOfBirth: createUserDto.dateOfBirth || new Date(),
-        role: createUserDto.role || "user",
       },
     });
     return user;
@@ -54,6 +53,12 @@ export class UserService {
     }
   }
 
+  async getUserInfo(userId: number) {
+    return this.prisma.user.findUnique({
+      where: { id: userId },
+    });
+  }
+
   async updateProfile(userId: number, updateUserProfileDto: UpdateUserProfileDto, file?: Express.Multer.File) {
     let avatarUrl: string | undefined;
     if (file) {
@@ -68,6 +73,7 @@ export class UserService {
     // Set default gender to 'Nam' if not provided
     data.gender = data.gender || 'Nam';
 
+    console.log(updateUserProfileDto)
 
 
     return this.prisma.user.update({

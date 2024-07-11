@@ -158,7 +158,14 @@ export default function LoginScreen() {
 
         await saveToken(token); // Save the token
 
-        dispatch(loginSuccess({ token: token }));
+        const userInfoResponse = await api.get("/auth/info", {
+          headers: {
+            Authorization:token,
+          },
+        });
+
+        const user = userInfoResponse.data;
+        dispatch(loginSuccess({ user}));
         navigation.navigate("Cá nhân");
       } catch (error) {
         dispatch(loginFailure());

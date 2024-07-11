@@ -61,12 +61,12 @@ const App = () => {
       const token = await getToken();
       if (token) {
         try {
-          const response = await api.post('/auth/validate-token', { token });
-          if (response.data.valid) {
-            store.dispatch(loginSuccess({ token })); // Dispatch loginSuccess if token is valid
-          } else {
-            store.dispatch(logout()); // Dispatch logout if token is invalid
-          }
+          const response = await api.get('/auth/info', {
+            headers: {
+              Authorization: token,
+            },
+          });
+            store.dispatch(loginSuccess({ user: response.data }));
         } catch (error) {
           console.error('Token validation failed:', error);
           store.dispatch(logout()); // Dispatch logout if there's an error in validation

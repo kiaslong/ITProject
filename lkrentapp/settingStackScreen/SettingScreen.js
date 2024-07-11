@@ -1,17 +1,26 @@
-import React, { useState, useCallback } from "react";
-import { View, Text, FlatList, StyleSheet, TouchableOpacity, Pressable, Image } from "react-native";
+import React, { useState, useCallback, useEffect } from "react";
+import { View, Text, FlatList, StyleSheet, TouchableOpacity, Pressable, ActivityIndicator } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useNavigation, CommonActions } from "@react-navigation/native";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
+import { Image } from 'expo-image';
 import { logout } from "../store/loginSlice";
-import { removeToken } from "../utils/tokenStorage"; // Import removeToken
-import CustomAlert from "../components/CustomAlert"; // Adjust the import path as needed
+import { removeToken } from "../utils/tokenStorage";
+import CustomAlert from "../components/CustomAlert";
 
 const SettingScreen = () => {
+  const user = useSelector(state => state.loggedIn.user);
   const [alertVisible, setAlertVisible] = useState(false);
   const [logoutPromptVisible, setLogoutPromptVisible] = useState(false);
   const dispatch = useDispatch();
   const navigation = useNavigation();
+  const blurhash =
+  '|rF?hV%2WCj[ayj[a|j[az_NaeWBj@ayfRayfQfQM{M|azj[azf6fQfQfQIpWXofj[ayj[j[fQayWCoeoeaya}j[ayfQa{oLj?j[WVj[ayayj[fQoff7azayj[ayj[j[ayofayayayj[fQj[ayayj[ayfjj[j[ayjuayj[';
+  const imageUri = user?.avatarUrl || 'https://cdn.idntimes.com/content-images/community/2022/03/1714382190-93512ef73cc9128141b72669a922c6ee-f48b234e3eecffd2d897cd799c3043de.jpg';
+
+
+
+ 
 
   const profileMenu = [
     {
@@ -40,7 +49,7 @@ const SettingScreen = () => {
     }
   ];
 
-  const handleMenuPress = (screen, title, iconName, functionName, animationType, showCloseButton) => {
+  const handleMenuPress = useCallback((screen, title, iconName, functionName, animationType, showCloseButton) => {
     if (screen === "DeleteAccountScreen") {
       setAlertVisible(true);
     } else {
@@ -56,14 +65,14 @@ const SettingScreen = () => {
         functionName: functionName,
       });
     }
-  };
+  }, [navigation]);
 
-  const handleCancel = () => {
+  const handleCancel = useCallback(() => {
     setAlertVisible(false);
     setLogoutPromptVisible(false);
-  };
+  }, []);
 
-  const handleOk = async () => {
+  const handleOk = useCallback(async () => {
     setAlertVisible(false);
     navigation.dispatch(
       CommonActions.reset({
@@ -71,15 +80,15 @@ const SettingScreen = () => {
         routes: [{ name: "Khám phá" }],
       })
     );
-  };
+  }, [navigation]);
 
-  const handleLogoutPress = () => {
+  const handleLogoutPress = useCallback(() => {
     setLogoutPromptVisible(true);
-  };
+  }, []);
 
-  const handleLogoutConfirm = async () => {
+  const handleLogoutConfirm = useCallback(async () => {
     setLogoutPromptVisible(false);
-    await removeToken(); // Remove the token
+    await removeToken();
     await dispatch(logout());
     navigation.dispatch(
       CommonActions.reset({
@@ -87,7 +96,7 @@ const SettingScreen = () => {
         routes: [{ name: "Khám phá" }],
       })
     );
-  };
+  }, [dispatch, navigation]);
 
   const renderItem = useCallback(
     ({ item }) => (
@@ -102,29 +111,31 @@ const SettingScreen = () => {
         <Ionicons name="chevron-forward-outline" size={20} color="black" />
       </TouchableOpacity>
     ),
-    []
+    [handleMenuPress]
   );
 
-  const renderGroup = ({ item }) => (
+  const renderGroup = useCallback(({ item }) => (
     <View key={item.title}>
       <Text style={styles.sectionHeader}>{item.title}</Text>
       {item.data.map((menuItem) => renderItem({ item: menuItem }))}
     </View>
-  );
+  ), [renderItem]);
+
+
 
   return (
     <View style={styles.container}>
       <View style={styles.header}>
         <View style={styles.headerBackground} />
         <View style={styles.avatarContainer}>
-          <Image
-            source={{
-              uri: "https://cdn.idntimes.com/content-images/community/2022/03/1714382190-93512ef73cc9128141b72669a922c6ee-f48b234e3eecffd2d897cd799c3043de.jpg",
-            }}
+        <Image
+            source={{ uri: imageUri}}
             style={styles.image}
-            resizeMode="cover"
+            contentFit='contain'
+            cachePolicy="disk"
+            placeholder={blurhash}
           />
-          <Text style={styles.headerText}>Long Phan</Text>
+          <Text style={styles.headerText}>{user.fullName || 'LKRENTAL'}</Text>
         </View>
       </View>
       <FlatList

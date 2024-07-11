@@ -1,11 +1,23 @@
-import React, { useEffect } from 'react';
-import { View, Text, Image, StyleSheet, Dimensions, TouchableOpacity } from 'react-native';
+import React, { useEffect, useState ,useCallback} from 'react';
+import { View, Text, StyleSheet, Dimensions, ActivityIndicator } from 'react-native';
 import { FontAwesome5 } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
+import { useSelector } from 'react-redux';
 import { registerFunction, unregisterFunction } from '../store/functionRegistry';
+import { Image } from 'expo-image';
 
 const UserInfoScreen = () => {
   const navigation = useNavigation();
+  const user = useSelector(state => state.loggedIn.user);
+  const blurhash =
+  '|rF?hV%2WCj[ayj[a|j[az_NaeWBj@ayfRayfQfQM{M|azj[azf6fQfQfQIpWXofj[ayj[j[fQayWCoeoeaya}j[ayfQa{oLj?j[WVj[ayayj[fQoff7azayj[ayj[j[ayofayayayj[fQj[ayayj[ayfjj[j[ayjuayj[';
+  const imageUri = user?.avatarUrl || 'https://cdn.idntimes.com/content-images/community/2022/03/1714382190-93512ef73cc9128141b72669a922c6ee-f48b234e3eecffd2d897cd799c3043de.jpg';
+
+
+ 
+
+
+
 
   useEffect(() => {
     const key = 'editUserInfo';
@@ -15,7 +27,8 @@ const UserInfoScreen = () => {
       showBackButton: true,
       screenTitle: "Chỉnh sửa",
       showCloseButton: true,
-      animationType: "slide_from_bottom"
+      animationType: "slide_from_bottom",
+      user
     });
 
     registerFunction(key, onPress);
@@ -27,85 +40,72 @@ const UserInfoScreen = () => {
 
   return (
     <View style={styles.safeContainer}>
-      <View style={styles.container}>
-        <Image
-          source={{
-            uri: "https://cdn.idntimes.com/content-images/community/2022/03/1714382190-93512ef73cc9128141b72669a922c6ee-f48b234e3eecffd2d897cd799c3043de.jpg",
-          }}
-          style={styles.image}
-          resizeMode="cover"
-        />
-        <Text style={styles.username}>LKRENTAL</Text>
-        <Text style={styles.registerTime}>Ngày tham gia: 1/1/2024</Text>
-        <View style={styles.infoContainer}>
-          <View style={styles.infoBox}>
-            <FontAwesome5 name="suitcase-rolling" size={24} color="#03a9f4" />
-            <Text style={styles.infoText}>0 chuyến</Text>
-          </View>
-          <View style={styles.infoBox}>
-            <FontAwesome5 name="award" size={24} color="yellow" />
-            <Text style={styles.infoText}>0 điểm</Text>
-          </View>
-        </View>
-
-        {/* First row of extra information */}
-        <View style={styles.extraInfoContainer}>
-          <Text style={styles.extraInfoTextLeft}>Giấy phép lái xe</Text>
-          <View style={styles.extraInfoBoxContainer}>
-            <View style={[styles.extraInfoBox, styles.extraInfoBoxBackground, styles.extraInfoBoxOrange]}>
-              <FontAwesome5 name="exclamation-circle" size={20} color="orange" style={styles.extraInfoIcon} />
-              <Text style={styles.extraInfoText}>Chưa xác thực</Text>
+        <View style={styles.container}>
+          <Image
+            source={{ uri: imageUri}}
+            style={styles.image}
+            contentFit='cover'
+            cachePolicy="disk"
+            placeholder={blurhash}
+          />
+          <Text style={styles.username}>{user?.fullName || 'LKRENTAL'}</Text>
+          <Text style={styles.registerTime}>Ngày tham gia: {new Date(user?.createdAt).toLocaleDateString('vi-VN')}</Text>
+          <View style={styles.infoContainer}>
+            <View style={styles.infoBox}>
+              <FontAwesome5 name="suitcase-rolling" size={24} color="#03a9f4" />
+              <Text style={styles.infoText}>0 chuyến</Text>
+            </View>
+            <View style={styles.infoBox}>
+              <FontAwesome5 name="award" size={24} color="yellow" />
+              <Text style={styles.infoText}>0 điểm</Text>
             </View>
           </View>
-          <Text style={styles.extraInfoTextRight}>Xác thực ngay</Text>
-          <FontAwesome5 name="angle-right" color="black" style={styles.angleIcon} />
-        </View>
 
-        <View style={styles.middleLine}></View>
-
-        {/* Second row of extra information */}
-        <View style={styles.extraInfoContainer}>
-          <Text style={styles.extraInfoTextLeft}>Số điện thoại</Text>
-          <View style={styles.extraInfoBoxContainer}>
-            <View style={[styles.extraInfoBox, styles.extraInfoBoxBackground, styles.extraInfoBoxGreen]}>
-              <FontAwesome5 name="check-circle" size={20} color="green" style={styles.extraInfoIcon} />
-              <Text style={styles.extraInfoText}>Đã xác thực</Text>
+          {/* First row of extra information */}
+          <View style={styles.extraInfoContainer}>
+            <Text style={styles.extraInfoTextLeft}>Giấy phép lái xe</Text>
+            <View style={styles.extraInfoBoxContainer}>
+              <View style={[styles.extraInfoBox, styles.extraInfoBoxBackground, styles.extraInfoBoxOrange]}>
+                <FontAwesome5 name="exclamation-circle" size={20} color="orange" style={styles.extraInfoIcon} />
+                <Text style={styles.extraInfoText}>Chưa xác thực</Text>
+              </View>
             </View>
+            <Text style={styles.extraInfoTextRight}>Xác thực ngay</Text>
+            <FontAwesome5 name="angle-right" color="black" style={styles.angleIcon} />
           </View>
-          <Text style={styles.extraInfoTextRight}>+0123456789</Text>
-          <FontAwesome5 name="angle-right" color="black" style={styles.angleIcon} />
-        </View>
 
-        <View style={styles.middleLine}></View>
+          <View style={styles.middleLine}></View>
 
-        {/* Third row of extra information */}
-        <View style={styles.extraInfoContainer}>
-          <Text style={styles.extraInfoTextLeft}>Email</Text>
-          <View style={styles.extraInfoBoxContainer}>
-            <View style={[styles.extraInfoBox, styles.extraInfoBoxBackground, styles.extraInfoBoxOrange]}>
-              <FontAwesome5 name="exclamation-circle" size={20} color="orange" style={styles.extraInfoIcon} />
-              <Text style={styles.extraInfoText}>Chưa xác thực</Text>
+          {/* Second row of extra information */}
+          <View style={styles.extraInfoContainer}>
+            <Text style={styles.extraInfoTextLeft}>Số điện thoại</Text>
+            <View style={styles.extraInfoBoxContainer}>
+              <View style={[styles.extraInfoBox, styles.extraInfoBoxBackground, styles.extraInfoBoxGreen]}>
+                <FontAwesome5 name="check-circle" size={20} color="green" style={styles.extraInfoIcon} />
+                <Text style={styles.extraInfoText}>Đã xác thực</Text>
+              </View>
             </View>
+            <Text style={styles.extraInfoTextRight}>{user?.phoneNumber || '+0123456789'}</Text>
+            <FontAwesome5 name="angle-right" color="black" style={styles.angleIcon} />
           </View>
-          <Text style={styles.extraInfoTextRight}>Xác thực ngay</Text>
-          <FontAwesome5 name="angle-right" color="black" style={styles.angleIcon} />
-        </View>
 
-        <View style={styles.middleLine}></View>
+          <View style={styles.middleLine}></View>
 
-        {/* Fifth row for Google */}
-        <View style={styles.extraInfoContainer}>
-          <Text style={styles.extraInfoTextLeft}>Google</Text>
-          <View style={styles.extraInfoBoxContainer}>
-            <View style={[styles.extraInfoBox, styles.extraInfoBoxBackground, styles.extraInfoBoxOrange]}>
-              <FontAwesome5 name="exclamation-circle" size={20} color="orange" style={styles.extraInfoIcon} />
-              <Text style={styles.extraInfoText}>Chưa xác thực</Text>
+          {/* Third row of extra information */}
+          <View style={styles.extraInfoContainer}>
+            <Text style={styles.extraInfoTextLeft}>Email</Text>
+            <View style={styles.extraInfoBoxContainer}>
+              <View style={[styles.extraInfoBox, styles.extraInfoBoxBackground, styles.extraInfoBoxOrange]}>
+                <FontAwesome5 name="exclamation-circle" size={20} color="orange" style={styles.extraInfoIcon} />
+                <Text style={styles.extraInfoText}>Chưa xác thực</Text>
+              </View>
             </View>
+            <Text style={styles.extraInfoTextRight}>{user?.email || 'Xác thực ngay'}</Text>
+            <FontAwesome5 name="angle-right" color="black" style={styles.angleIcon} />
           </View>
-          <Text style={styles.extraInfoTextRight}>Liên kết ngay</Text>
-          <FontAwesome5 name="angle-right" color="black" style={styles.angleIcon} />
+
+          <View style={styles.middleLine}></View>
         </View>
-      </View>
     </View>
   );
 };
@@ -117,6 +117,8 @@ const styles = StyleSheet.create({
   safeContainer: {
     flex: 1,
     backgroundColor: '#fff',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   container: {
     flex: 1,
@@ -206,7 +208,7 @@ const styles = StyleSheet.create({
     fontSize: deviceHeight * 0.015,
   },
   extraInfoTextRight: {
-    flex:1,
+    flex: 1,
     textAlign: 'right',
     color: '#666',
     fontSize: deviceHeight * 0.015,

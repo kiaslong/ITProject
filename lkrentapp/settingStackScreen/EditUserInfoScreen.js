@@ -1,19 +1,29 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, Image, StyleSheet, Dimensions, ScrollView, Platform, Button, Modal, Alert } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, Dimensions, ScrollView, Platform, Button, Modal, Alert, ActivityIndicator } from 'react-native';
 import { FontAwesome5 } from '@expo/vector-icons';
 import * as ImagePicker from 'expo-image-picker';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import api from "../api";
+import { useDispatch } from "react-redux";
+import { updateUser } from "../store/loginSlice";
+import { useNavigation } from '@react-navigation/native';
+import { getToken } from '../utils/tokenStorage';
+import { Image } from 'expo-image';
 
-const { width, height } = Dimensions.get('window');
+const { width } = Dimensions.get('window');
 
 const EditUserInfoScreen = ({ route }) => {
-  const  userId  = 2; // Get the user ID from route params
-  const [username, setUsername] = useState('');
-  const [birthDate, setBirthDate] = useState(new Date());
+  const navigation = useNavigation();
+  const dispatch = useDispatch();
+  const { user } = route.params;
+  const userId = user.id;
+  const [username, setUsername] = useState(user.fullName);
+  const [birthDate, setBirthDate] = useState(new Date(user.dateOfBirth));
   const [showDatePicker, setShowDatePicker] = useState(false);
-  const [gender, setGender] = useState('Nam'); // Default gender
-  const [imageUri, setImageUri] = useState('https://cdn.idntimes.com/content-images/community/2022/03/1714382190-93512ef73cc9128141b72669a922c6ee-f48b234e3eecffd2d897cd799c3043de.jpg');
+  const [gender, setGender] = useState(user.gender);
+  const blurhash =
+  '|rF?hV%2WCj[ayj[a|j[az_NaeWBj@ayfRayfQfQM{M|azj[azf6fQfQfQIpWXofj[ayj[j[fQayWCoeoeaya}j[ayfQa{oLj?j[WVj[ayayj[fQoff7azayj[ayj[j[ayofayayayj[fQj[ayayj[ayfjj[j[ayjuayj[';
+  const [imageUri,setImageUri] = useState(user?.avatarUrl || 'https://cdn.idntimes.com/content-images/community/2022/03/1714382190-93512ef73cc9128141b72669a922c6ee-f48b234e3eecffd2d897cd799c3043de.jpg');
 
   const handleSave = async () => {
     try {
@@ -35,36 +45,62 @@ const EditUserInfoScreen = ({ route }) => {
         },
       });
 
-      Alert.alert('Thông tin đã được lưu');
+      const token = await getToken();
+
+      const userInfoResponse = await api.get("/auth/info", {
+        headers: {
+          Authorization: token,
+        },
+      });
+
+
+
+      dispatch(updateUser(userInfoResponse.data));
+
+      Alert.alert('Thông tin đã được lưu', '', [
+        {
+          text: "OK",
+          onPress: () => {
+            setTimeout(() => {
+              navigation.goBack();
+            }, 500);
+          },
+        },
+      ]);
     } catch (error) {
       console.error(error);
       Alert.alert('Lỗi khi lưu thông tin');
     }
   };
 
-  const onDateChange = (event, selectedDate) => {
-    if (selectedDate) {
-      setBirthDate(selectedDate);
+  const pickImage = async () => {
+    try {
+      const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
+
+      if (permissionResult.granted === false) {
+        alert("You've refused to allow this app to access your photos!");
+        return;
+      }
+
+      const result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        allowsEditing: true,
+        aspect: [4, 3],
+        quality: 1,
+      });
+
+      if (!result.canceled) {
+        setImageUri(result.assets[0].uri);  // Ensure the correct URI is used
+      }
+    } catch (error) {
+      console.error(error);
+      Alert.alert('Lỗi khi chọn ảnh');
     }
   };
 
-  const pickImage = async () => {
-    const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
-    
-    if (permissionResult.granted === false) {
-      alert("You've refused to allow this app to access your photos!");
-      return;
-    }
-
-    const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.Images,
-      allowsEditing: true,
-      aspect: [4, 3],
-      quality: 1,
-    });
-
-    if (!result.canceled) {
-      setImageUri(result.assets[0].uri);  // Ensure the correct URI is used
+  const onDateChange = (event, selectedDate) => {
+    if (selectedDate) {
+      setBirthDate(selectedDate);
     }
   };
 
@@ -82,7 +118,9 @@ const EditUserInfoScreen = ({ route }) => {
           <Image
             source={{ uri: imageUri }}
             style={styles.image}
-            resizeMode="cover"
+            contentFit='scale-down'
+            cachePolicy="disk"
+            placeholder={blurhash}
           />
         </TouchableOpacity>
       </View>

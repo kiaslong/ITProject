@@ -4,23 +4,20 @@ import {
   Pressable,
   StyleSheet,
   Text,
-  TextInput,
   View,
   KeyboardAvoidingView,
   Platform,
   Image,
   ScrollView,
   TouchableOpacity,
-  Modal,
 } from 'react-native';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
-import { Picker } from '@react-native-picker/picker';
 import * as ImagePicker from 'expo-image-picker';
+import InputField from './RegisterCarComponent/InputField';
+import ModalPicker from './RegisterCarComponent/ModalPicker';
 
 const RegisterCarScreen = () => {
   const licensePlateRef = useRef(null);
-  const companyRef = useRef(null);
-  const modelRef = useRef(null);
   const descriptionRef = useRef(null);
   const priceRef = useRef(null);
 
@@ -34,11 +31,15 @@ const RegisterCarScreen = () => {
   const [selectedSeats, setSelectedSeats] = useState('');
   const [showYearPicker, setShowYearPicker] = useState(false);
   const [showSeatsPicker, setShowSeatsPicker] = useState(false);
+  const [showMakePicker, setShowMakePicker] = useState(false);
+  const [showModelPicker, setShowModelPicker] = useState(false);
   const [transmission, setTransmission] = useState('Automatic');
   const [fuel, setFuel] = useState('Gasoline');
   const [images, setImages] = useState([]);
   const [documents, setDocuments] = useState([]);
   const [promotion, setPromotion] = useState('Có');
+  const [selectedMake, setSelectedMake] = useState('');
+  const [selectedModel, setSelectedModel] = useState('');
 
   useEffect(() => {
     (async () => {
@@ -52,10 +53,6 @@ const RegisterCarScreen = () => {
   const handleInputChange = (name, value) => {
     if (name === 'licensePlate') {
       licensePlateRef.current = value;
-    } else if (name === 'company') {
-      companyRef.current = value;
-    } else if (name === 'model') {
-      modelRef.current = value;
     }
   };
 
@@ -70,8 +67,6 @@ const RegisterCarScreen = () => {
   const validateInputs = () => {
     let valid = true;
     const licensePlate = licensePlateRef.current?.trim();
-    const company = companyRef.current?.trim();
-    const model = modelRef.current?.trim();
 
     if (!licensePlate) {
       setErrors((prevState) => ({
@@ -81,7 +76,7 @@ const RegisterCarScreen = () => {
       valid = false;
     }
 
-    if (!company) {
+    if (!selectedMake) {
       setErrors((prevState) => ({
         ...prevState,
         companyError: 'Hãng xe là bắt buộc.',
@@ -89,7 +84,7 @@ const RegisterCarScreen = () => {
       valid = false;
     }
 
-    if (!model) {
+    if (!selectedModel) {
       setErrors((prevState) => ({
         ...prevState,
         modelError: 'Mẫu xe là bắt buộc.',
@@ -127,12 +122,10 @@ const RegisterCarScreen = () => {
   const handleRegister = () => {
     if (validateInputs()) {
       const licensePlate = licensePlateRef.current?.trim();
-      const company = companyRef.current?.trim();
-      const model = modelRef.current?.trim();
       Alert.alert('Thành công', 'Đăng ký xe thành công');
       licensePlateRef.current = '';
-      companyRef.current = '';
-      modelRef.current = '';
+      setSelectedMake('');
+      setSelectedModel('');
       setSelectedYear('');
       setSelectedSeats('');
       setTransmission('Automatic');
@@ -174,8 +167,80 @@ const RegisterCarScreen = () => {
     setDocuments(documents.filter((document) => document.uri !== uri));
   };
 
-  const years = Array.from(new Array(30), (_, index) => new Date().getFullYear() - index);
-  const seats = Array.from({ length: 7 }, (_, i) => (i + 4).toString());
+
+  const handleYearSelect = (item) => {
+    setSelectedYear(item)
+    setShowYearPicker(false);
+  };
+
+  const handleSeatSelect = (item) => {
+      setSelectedSeats(item)
+      setShowSeatsPicker(false);
+  };
+
+
+  const handleMakeSelect = (make) => {
+    setSelectedMake(make);
+    setSelectedModel('');
+    setShowMakePicker(false);
+  };
+
+  const handleModelSelect = (model) => {
+    setSelectedModel(model);
+    setShowModelPicker(false);
+  };
+
+  const years = Array.from(new Array(10), (_, index) => new Date().getFullYear() - index);
+  const seats = Array.from({ length: 6 }, (_, i) => (i + 4).toString());
+
+  const carBrandsAndModels = {
+    Audi: ["A3", "A4", "A6", "Q3", "Q5", "Q7"],
+    Baic: ["X25", "X35", "X55", "D20"],
+    Bentley: ["Continental", "Bentayga", "Flying Spur"],
+    BMW: ["3 Series", "5 Series", "X3", "X5", "7 Series"],
+    Brilliance: ["V5", "H230", "H330", "H530"],
+    Buick: ["Encore", "Envision", "Enclave", "LaCrosse"],
+    Chevrolet: ["Spark", "Cruze", "Malibu", "Equinox", "Traverse"],
+    Daewoo: ["Matiz", "Gentra", "Nexia", "Lacetti"],
+    Daihatsu: ["Terios", "Sirion", "Xenia", "Ayla"],
+    Dongben: ["X30", "V29", "T30"],
+    Dongfeng: ["AX7", "S30", "H30 Cross"],
+    Fairy: ["F6", "SUP"],
+    Fiat: ["500", "Panda", "Tipo", "500X"],
+    Ford: ["Fiesta", "Focus", "Mustang", "Explorer", "F-150"],
+    Geely: ["Coolray", "Azkarra", "Okavango"],
+    Haima: ["S5", "M3", "M6"],
+    Honda: ["Civic", "Accord", "CR-V", "HR-V", "Pilot"],
+    Hyundai: ["Accent", "Elantra", "Sonata", "Tucson", "Santa Fe"],
+    Isuzu: ["D-Max", "MU-X", "NPR"],
+    Jaguar: ["XE", "XF", "F-PACE", "I-PACE"],
+    Kenbo: ["S2", "S3", "S7"],
+    Kia: ["Rio", "Cerato", "Sportage", "Sorento"],
+    "Land Rover": ["Range Rover", "Discovery", "Defender"],
+    Lexus: ["IS", "ES", "RX", "NX", "LX"],
+    Luxgen: ["U5", "U6", "S3", "S5"],
+    Mazda: ["Mazda3", "Mazda6", "CX-5", "CX-9"],
+    Mercedes: ["A-Class", "C-Class", "E-Class", "GLC", "S-Class"],
+    Mitsubishi: ["Mirage", "Outlander", "Pajero", "Xpander"],
+    "Morris Garages": ["ZS", "HS", "RX5"],
+    Nissan: ["Altima", "Sentra", "Rogue", "X-Trail", "Patrol"],
+    Peugeot: ["208", "308", "3008", "5008"],
+    Porsche: ["911", "Cayenne", "Panamera", "Macan"],
+    Renault: ["Clio", "Megane", "Captur", "Koleos"],
+    Riich: ["G5", "M1"],
+    Samsung: ["SM3", "SM5", "SM6", "QM6"],
+    SsangYong: ["Tivoli", "Korando", "Rexton"],
+    Subaru: ["Impreza", "Forester", "Outback", "XV"],
+    Suzuki: ["Swift", "Vitara", "Ertiga", "Jimny"],
+    Tobe: ["M'car", "W'car"],
+    Toyota: ["Corolla", "Camry", "RAV4", "Fortuner", "Land Cruiser"],
+    UAZ: ["Patriot", "Hunter", "Pickup"],
+    Vinfast: ["Fadil", "Lux A2.0", "Lux SA2.0"],
+    Volkswagen: ["Golf", "Passat", "Tiguan", "Atlas"],
+    Volvo: ["S60", "XC40", "XC60", "XC90"],
+    Wuling: ["Hongguang", "Confero", "Cortez", "Almaz"],
+    Zotye: ["T600", "Z300", "SR9"]
+  };
 
   return (
     <KeyboardAvoidingView
@@ -189,65 +254,46 @@ const RegisterCarScreen = () => {
         showsVerticalScrollIndicator={false}
       >
         <View style={styles.inputView}>
-          <View style={styles.inputGroup}>
-            <Text style={styles.label}>Biển số xe</Text>
-            <View style={[styles.inputContainer, errors.licensePlateError ? styles.inputError : null]}>
-              <TextInput
-                style={styles.input}
-                placeholder="Biển số xe"
-                onChangeText={(text) => handleInputChange('licensePlate', text)}
-                autoCorrect={false}
-                autoCapitalize="none"
-                returnKeyType="next"
-                onSubmitEditing={() => companyRef.current.focus()}
-              />
-            </View>
-            {errors.licensePlateError ? (
-              <View style={styles.errorContainer}>
-                <Text style={styles.errorText}>{errors.licensePlateError}</Text>
-              </View>
-            ) : null}
-          </View>
+          <InputField
+            label="Biển số xe"
+            error={errors.licensePlateError}
+            placeholder="Biển số xe"
+            onChangeText={(text) => handleInputChange('licensePlate', text)}
+            autoCorrect={false}
+            autoCapitalize="none"
+            returnKeyType="next"
+          />
 
-          <View style={styles.inputGroup}>
-            <Text style={styles.label}>Hãng xe</Text>
-            <View style={[styles.inputContainer, errors.companyError ? styles.inputError : null]}>
-              <TextInput
-                style={styles.input}
-                placeholder="Hãng xe"
-                onChangeText={(text) => handleInputChange('company', text)}
-                autoCorrect={false}
-                autoCapitalize="none"
-                returnKeyType="next"
-                onSubmitEditing={() => modelRef.current.focus()}
-              />
+          <Text style={styles.label}>Hãng xe</Text>
+          <Pressable
+            style={[styles.inputContainer, errors.companyError ? styles.inputError : null]}
+            onPress={() => setShowMakePicker(true)}
+          >
+            <Text style={styles.selectedText}>
+              {selectedMake ? selectedMake : 'Chọn hãng xe'}
+            </Text>
+          </Pressable>
+          {errors.companyError ? (
+            <View style={styles.errorContainer}>
+              <Text style={styles.errorText}>{errors.companyError}</Text>
             </View>
-            {errors.companyError ? (
-              <View style={styles.errorContainer}>
-                <Text style={styles.errorText}>{errors.companyError}</Text>
-              </View>
-            ) : null}
-          </View>
+          ) : null}
 
-          <View style={styles.inputGroup}>
-            <Text style={styles.label}>Mẫu xe</Text>
-            <View style={[styles.inputContainer, errors.modelError ? styles.inputError : null]}>
-              <TextInput
-                style={styles.input}
-                placeholder="Mẫu xe"
-                onChangeText={(text) => handleInputChange('model', text)}
-                autoCorrect={false}
-                autoCapitalize="none"
-                returnKeyType="next"
-                onSubmitEditing={() => setShowYearPicker(true)}
-              />
+          <Text style={styles.label}>Mẫu xe</Text>
+          <Pressable
+            style={[styles.inputContainer, errors.modelError ? styles.inputError : null]}
+            onPress={() => setShowModelPicker(true)}
+            disabled={!selectedMake}
+          >
+            <Text style={styles.selectedText}>
+              {selectedModel ? selectedModel : 'Chọn mẫu xe'}
+            </Text>
+          </Pressable>
+          {errors.modelError ? (
+            <View style={styles.errorContainer}>
+              <Text style={styles.errorText}>{errors.modelError}</Text>
             </View>
-            {errors.modelError ? (
-              <View style={styles.errorContainer}>
-                <Text style={styles.errorText}>{errors.modelError}</Text>
-              </View>
-            ) : null}
-          </View>
+          ) : null}
 
           <View style={styles.rowContainer}>
             <View style={styles.halfInputGroup}>
@@ -314,7 +360,7 @@ const RegisterCarScreen = () => {
           </View>
 
           <View style={styles.inputGroup}>
-            <Text style={styles.label}>Nhiên liệu</Text>
+            <Text style={styles.fuelLabel}>Nhiên liệu</Text>
             <View style={styles.rowContainer}>
               <Pressable
                 style={[
@@ -370,17 +416,12 @@ const RegisterCarScreen = () => {
           <View style={styles.middleLine}></View>
 
           <Text style={styles.additionalInfoTitle}>Thông tin bổ sung</Text>
-          <View style={styles.inputGroup}>
-            <Text style={styles.label}>Địa chỉ xe</Text>
-            <View style={styles.inputContainer}>
-              <TextInput
-                style={styles.input}
-                placeholder="Nhập địa chỉ xe"
-                autoCorrect={false}
-                autoCapitalize="none"
-              />
-            </View>
-          </View>
+          <InputField
+            label="Địa chỉ xe"
+            placeholder="Nhập địa chỉ xe"
+            autoCorrect={false}
+            autoCapitalize="none"
+          />
 
           <View style={styles.inputGroup}>
             <Text style={styles.label}>Hình ảnh xe</Text>
@@ -428,34 +469,24 @@ const RegisterCarScreen = () => {
             </ScrollView>
           </View>
 
-          <View style={styles.inputGroup}>
-            <Text style={styles.label}>Mô tả xe</Text>
-            <View style={[styles.inputContainer, styles.descriptionContainer]}>
-              <TextInput
-                ref={descriptionRef}
-                style={[styles.input, styles.descriptionInput]}
-                placeholder="Nhập mô tả xe"
-                autoCorrect={false}
-                autoCapitalize="none"
-                multiline={true}
-                numberOfLines={4}
-              />
-            </View>
-          </View>
+          <InputField
+            label="Mô tả xe"
+            ref={descriptionRef}
+            placeholder="Nhập mô tả xe"
+            autoCorrect={false}
+            autoCapitalize="none"
+            multiline={true}
+            numberOfLines={4}
+          />
 
-          <View style={styles.inputGroup}>
-            <Text style={styles.label}>Giá cho thuê (VNĐ)</Text>
-            <View style={styles.inputContainer}>
-              <TextInput
-                ref={priceRef}
-                style={styles.input}
-                placeholder="Nhập giá cho thuê"
-                keyboardType="numeric"
-                autoCorrect={false}
-                autoCapitalize="none"
-              />
-            </View>
-          </View>
+          <InputField
+            label="Giá cho thuê (VNĐ)"
+            ref={priceRef}
+            placeholder="Nhập giá cho thuê"
+            keyboardType="numeric"
+            autoCorrect={false}
+            autoCapitalize="none"
+          />
 
           <View style={styles.inputGroup}>
             <Text style={styles.label}>Áp dụng khuyến mãi</Text>
@@ -502,45 +533,37 @@ const RegisterCarScreen = () => {
         </View>
       </KeyboardAwareScrollView>
 
-      {/* Modal for Year Picker */}
-      <Modal visible={showYearPicker} transparent={true} animationType="slide">
-        <View style={styles.modalContainer}>
-          <View style={styles.modalContent}>
-            <Picker
-              selectedValue={selectedYear}
-              onValueChange={(itemValue) => setSelectedYear(itemValue)}
-              style={styles.modalPicker}
-            >
-              {years.map((year) => (
-                <Picker.Item key={year} label={year.toString()} value={year.toString()} />
-              ))}
-            </Picker>
-            <Pressable style={styles.modalButton} onPress={() => setShowYearPicker(false)}>
-              <Text style={styles.modalButtonText}>Xác nhận</Text>
-            </Pressable>
-          </View>
-        </View>
-      </Modal>
+      <ModalPicker
+        visible={showYearPicker}
+        items={years.map((year) => year.toString())}
+        onSelect={ (item)=> handleYearSelect(item)}
+        label="Năm sản xuất"
+        onClose={() => setShowYearPicker(false)}
+      />
 
-      {/* Modal for Seats Picker */}
-      <Modal visible={showSeatsPicker} transparent={true} animationType="slide">
-        <View style={styles.modalContainer}>
-          <View style={styles.modalContent}>
-            <Picker
-              selectedValue={selectedSeats}
-              onValueChange={(itemValue) => setSelectedSeats(itemValue)}
-              style={styles.modalPicker}
-            >
-              {seats.map((seat) => (
-                <Picker.Item key={seat} label={seat} value={seat} />
-              ))}
-            </Picker>
-            <Pressable style={styles.modalButton} onPress={() => setShowSeatsPicker(false)}>
-              <Text style={styles.modalButtonText}>Xác nhận</Text>
-            </Pressable>
-          </View>
-        </View>
-      </Modal>
+      <ModalPicker
+        visible={showSeatsPicker}
+        items={seats}
+        onSelect={(item)=>handleSeatSelect(item)}
+        label="Số chỗ"
+        onClose={() => setShowSeatsPicker(false)}
+      />
+
+      <ModalPicker
+        visible={showMakePicker}
+        items={Object.keys(carBrandsAndModels)}
+        onSelect={handleMakeSelect}
+        label="Nhà sản xuất"
+        onClose={() => setShowMakePicker(false)}
+      />
+
+      <ModalPicker
+        visible={showModelPicker}
+        items={carBrandsAndModels[selectedMake] || []}
+        onSelect={handleModelSelect}
+        label="Mẫu xe"
+        onClose={() => setShowModelPicker(false)}
+      />
     </KeyboardAvoidingView>
   );
 };
@@ -573,9 +596,6 @@ const styles = StyleSheet.create({
   inputView: {
     marginVertical: 20,
   },
-  inputGroup: {
-    marginBottom: 20,
-  },
   inputContainer: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -585,48 +605,7 @@ const styles = StyleSheet.create({
     padding: 10,
     width: '100%',
     height: 40,
-  },
-  descriptionContainer: {
-    height: 100,
-  },
-  input: {
-    flex: 1,
-    height: '100%',
-    paddingHorizontal: 10,
-  },
-  descriptionInput: {
-    textAlignVertical: 'top',
-  },
-  inputError: {
-    borderColor: 'red',
-  },
-  label: {
-    fontSize: 16,
-    fontWeight: '400',
-    marginBottom: 6,
-  },
-  errorContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginTop: 5,
-  },
-  errorText: {
-    color: 'red',
-    fontSize: 12,
-    marginLeft: 5,
-  },
-  rowContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    width: '100%',
-  },
-  halfInputGroup: {
-    flex: 1,
-    marginRight: 10,
-  },
-  picker: {
-    width: '100%',
-    marginTop: 10,
+    marginVertical: 5,
   },
   selectedText: {
     flex: 1,
@@ -636,7 +615,7 @@ const styles = StyleSheet.create({
     color: '#000',
   },
   transmissionContainer: {
-    marginBottom: 40, // Add margin to fix spacing
+    marginBottom: 20,
   },
   transmissionButton: {
     flex: 1,
@@ -678,7 +657,7 @@ const styles = StyleSheet.create({
     width: '100%',
     height: 1,
     backgroundColor: '#ccc',
-    marginVertical: 10,
+    marginVertical: 20,
   },
   additionalInfoTitle: {
     fontSize: 18,
@@ -691,6 +670,7 @@ const styles = StyleSheet.create({
     borderRadius: 5,
     alignItems: 'center',
     justifyContent: 'center',
+    marginVertical: 10,
   },
   pickImageButtonText: {
     color: 'white',
@@ -725,32 +705,38 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: 'bold',
   },
-  modalContainer: {
-    flex: 1,
-    justifyContent: 'center',
+  errorContainer: {
+    flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    marginTop: 5,
   },
-  modalContent: {
-    width: '80%',
-    backgroundColor: 'white',
-    borderRadius: 10,
-    padding: 20,
-    alignItems: 'center',
+  errorText: {
+    color: 'red',
+    fontSize: 12,
+    marginLeft: 5,
   },
-  modalPicker: {
+  rowContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginVertical: 10,
     width: '100%',
   },
-  modalButton: {
-    marginTop: 20,
-    backgroundColor: '#03a9f4',
-    padding: 10,
-    borderRadius: 5,
+  halfInputGroup: {
+    flex: 1,
+    marginRight: 10,
   },
-  modalButtonText: {
-    color: 'white',
+  inputGroup: {
+    marginBottom: 20,
+  },
+  fuelLabel: {
     fontSize: 16,
-    fontWeight: 'bold',
+    fontWeight: '400',
+  },
+  label: {
+    fontSize: 16,
+    fontWeight: '400',
+    marginBottom: 5,
+    marginTop: 10,
   },
 });
 

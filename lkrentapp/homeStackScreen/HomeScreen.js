@@ -2,11 +2,9 @@ import React, { useState, useRef, useEffect } from "react";
 import {
   ScrollView,
   View,
-  Image,
   StyleSheet,
   Text,
   Pressable,
-  Alert,
   FlatList,
   Dimensions,
   Platform
@@ -18,6 +16,7 @@ import ImageCard from "../components/ImageCard";
 import BenefitsCard from "../components/BenefitsCard";
 import SearchBox from "../components/SearchBox";
 import {  useSelector } from "react-redux";
+import { Image } from "expo-image";
 
 
 
@@ -441,18 +440,24 @@ const benefitsData = [
 export default function HomeScreen({ navigation }) {
   const [currentIndex, setCurrentIndex] = useState(0);
   const isLoggedIn = useSelector((state) => state.loggedIn.isLoggedIn);
+  const user = useSelector(state => state.loggedIn.user);
+  const blurhash =
+  '|rF?hV%2WCj[ayj[a|j[az_NaeWBj@ayfRayfQfQM{M|azj[azf6fQfQfQIpWXofj[ayj[j[fQayWCoeoeaya}j[ayfQa{oLj?j[WVj[ayayj[fQoff7azayj[ayj[j[ayofayayayj[fQj[ayayj[ayfjj[j[ayjuayj[';
+  const imageUri = user?.avatarUrl || 'https://cdn.idntimes.com/content-images/community/2022/03/1714382190-93512ef73cc9128141b72669a922c6ee-f48b234e3eecffd2d897cd799c3043de.jpg';
+
+
 
   return (
     <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
       <View style={styles.headerHome}>
         <Image
-          source={{
-            uri: "https://cdn.idntimes.com/content-images/community/2022/03/1714382190-93512ef73cc9128141b72669a922c6ee-f48b234e3eecffd2d897cd799c3043de.jpg",
-          }}
-          style={styles.headerImage}
-          resizeMode="auto"
-        />
-        {isLoggedIn ? <Text style={styles.headerText}>Welcome,{"\n"}Phan Phi Long</Text> :<Text style={styles.headerText}>Xin chào </Text> }
+            source={{ uri: imageUri }}
+            style={styles.headerImage}
+            contentFit='cover'
+            cachePolicy="disk"
+            placeholder={blurhash}
+          />  
+        {isLoggedIn ? <Text style={styles.headerText}>{user?.fullName}</Text> :<Text style={styles.headerText}>Xin chào </Text> }
         <View style={styles.iconContainer}>
           
           {isLoggedIn ? <HeartIcon navigation={navigation} /> : null }

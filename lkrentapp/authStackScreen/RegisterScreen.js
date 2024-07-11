@@ -12,7 +12,11 @@ import {
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { CheckBox } from "@rneui/themed";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
+import { useDispatch } from "react-redux";
 import api from "../api"; // Import the Axios instance
+import { loginSuccess } from "../store/loginSlice";
+import { useNavigation ,CommonActions} from "@react-navigation/native";
+import { saveToken } from "../utils/tokenStorage";
 
 const RegisterScreen = () => {
   const [phoneNumber, setPhoneNumber] = useState("");
@@ -30,6 +34,12 @@ const RegisterScreen = () => {
     retypePasswordError: "",
   });
   const [agree, setAgree] = useState(false);
+
+  const dispatch = useDispatch();
+
+  
+ 
+  
 
   const toggleVisibility = (field) => {
     setVisibility({ ...visibility, [field]: !visibility[field] });
@@ -104,17 +114,61 @@ const RegisterScreen = () => {
     return valid;
   };
 
+
+  const navigation = useNavigation();
+
   const handleRegisterPress = async () => {
     if (validateInputs()) {
       try {
-        const response = await api.post("/auth/register", {
+        const registerResponse = await api.post("/auth/register", {
           phoneNumber: phoneNumber.trim(),
           fullName: fullName.trim(),
           password: password.trim(),
         });
 
-        console.log("Registration response:", response.data);
-        Alert.alert("Registration Successful", "You can now log in.");
+        console.log("Registration response:", registerResponse.data);
+
+        // Automatically log in the user after successful registration
+        const loginResponse = await api.post("/auth/login", {
+          phoneNumber: phoneNumber.trim(),
+          password: password.trim(),
+        });
+
+        const { token } = loginResponse.data;
+
+        await saveToken(token);
+
+        // Use the token to fetch user info
+        const userInfoResponse = await api.get("/auth/info", {
+          headers: {
+            Authorization:token,
+          },
+        });
+
+       
+
+        const user = userInfoResponse.data;
+        dispatch(loginSuccess({ user}));
+        Alert.alert(
+          "Registration Successful",
+          "You have been registered and logged in successfully.",
+          [
+            {
+              text: "OK",
+              onPress: () => {
+                setTimeout(() => {
+                  navigation.dispatch(
+                    CommonActions.reset({
+                      index: 0,
+                      routes: [{ name: "Main" }],
+                    })
+                  );
+                  navigation.navigate("Main");
+                }, 500); // Navigate to the main screen after 500ms
+              },
+            },
+          ]
+        );
       } catch (error) {
         console.error("Registration error:", error);
         Alert.alert(

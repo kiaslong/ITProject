@@ -9,7 +9,7 @@ export class CreateUserDto {
 
   @ApiProperty()
   @IsNotEmpty()
-  @IsPhoneNumber(null)
+  @IsPhoneNumber('VN')
   phoneNumber: string;
 
   @ApiProperty()
@@ -32,8 +32,4 @@ export class CreateUserDto {
   @IsString()
   avatarUrl?: string;
 
-  @ApiProperty({ required: false })
-  @IsOptional()
-  @IsString()
-  role?: string;
 }
