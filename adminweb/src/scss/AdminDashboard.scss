@@ -1,0 +1,84 @@
+.admin-container {
+    padding: 20px;
+    background-color: #f8f9fa;
+    min-height: 100vh;
+  }
+  
+  .nav-column {
+    background-color: #ffffff; /* Original color */
+    color: black;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 10px;
+  }
+  
+  .logo-container {
+    display: flex;
+    align-items: center;
+    margin-bottom: 20px;
+  }
+  
+  .logo2 {
+    width: 50px;
+    height: 50px;
+    margin-right: 10px;
+  }
+  
+  .logo-text {
+    font-size: 1.2rem;
+    font-weight: bold;
+    color: #000000; 
+  }
+  
+  .custom-nav-pills .nav-link {
+    color: #007bff; 
+    margin-bottom: 10px;
+  }
+  
+  .custom-nav-pills .nav-link.active {
+    background-color: #007bff; 
+    color: white;
+  }
+  
+  .logout-container {
+    margin-top: auto;
+  }
+  
+  .logout-button {
+    width: 100%;
+    background-color: #dc3545; /* Red color for logout */
+    border: none;
+    margin-top: 20px;
+  }
+  
+  .tab-content-container {
+    background-color: #e9f7ff; /* Light blue background for tab content */
+    padding: 20px;
+    border-radius: 10px;
+  }
+  
+  .stat-card {
+    margin-bottom: 20px;
+    border: 1px solid #e3e3e3;
+    border-radius: 10px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease-in-out;
+  
+    &:hover {
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+    }
+  
+    .card-title {
+      font-size: 1.25rem;
+      font-weight: 600;
+      margin-bottom: 15px;
+    }
+  
+    .card-text {
+      font-size: 1rem;
+      color: #666;
+    }
+  }
+  

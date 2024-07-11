@@ -1,5 +1,6 @@
 {
   "expo": {
+    "scheme": "mycoolredirect",
     "name": "lkrental",
     "slug": "lkrental",
     "version": "1.0.0",
@@ -18,6 +19,7 @@
     "android": {
       "package": "com.kiaslong.lkrental"
     },
+    
     "extra": {
       "eas": {
         "projectId": "5d06b491-426d-4f62-9ff6-ad9da43a4018"

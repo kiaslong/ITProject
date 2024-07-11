@@ -487,6 +487,11 @@ const CarDetailScreen = ({ route, navigation }) => {
         <View style={styles.separator} />
         <AdditionalFees />
         <CancellationPolicy />
+        <View style={styles.separator} />
+      <TouchableOpacity style={styles.reportButton}>
+        <Ionicons name="flag-outline" size={20} color="#03A9F4" />
+        <Text style={styles.reportText}>Báo cáo xe này</Text>
+      </TouchableOpacity>
       </Animated.ScrollView>
       <ConfirmRental carInfo={carInfo} navigation={navigation} />
     </>
@@ -862,6 +867,18 @@ const styles = StyleSheet.create({
     marginLeft: 16,
     alignSelf: "center",
     color: "#333",
+  },
+  reportButton: {
+    marginTop: 10,
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  reportText: {
+    fontSize: 18,
+    fontWeight: "bold",
+    textDecorationLine: "underline",
+    marginLeft: 8,
+    color: "#03A9F4",
   },
 });
 

@@ -13,56 +13,70 @@ import {
 } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
-import { useDispatch } from 'react-redux';
-import { loginRequest, loginSuccess, loginFailure } from '../store/loginSlice';
-import api from '../api';
+import { useDispatch } from "react-redux";
+import { loginRequest, loginSuccess, loginFailure } from "../store/loginSlice";
+import api from "../api";
+import { saveToken } from "../utils/tokenStorage";
 
-const googleLogo = require("../assets/gglogo.png");
 
 const deviceHeight = Dimensions.get("window").height;
 
-const TextInputField = React.memo(({ label, valueRef, error, placeholder, onChange, secureTextEntry, refInput, onSubmitEditing, toggleVisibility }) => (
-  <View>
-    <Text style={styles.label}>{label}</Text>
-    <View style={[styles.inputContainer, error ? styles.inputError : null]}>
-      <TextInput
-        style={styles.input}
-        placeholder={placeholder}
-        defaultValue={valueRef.current}
-        onChange={onChange}
-        autoCorrect={false}
-        autoCapitalize="none"
-        secureTextEntry={secureTextEntry}
-        returnKeyType="next"
-        ref={refInput}
-        onSubmitEditing={onSubmitEditing}
-      />
-      {toggleVisibility && (
-        <Pressable onPress={toggleVisibility} style={styles.eyeIcon}>
-          <MaterialCommunityIcons
-            name={secureTextEntry ? "eye-off" : "eye"}
-            size={24}
-            color="gray"
-          />
-        </Pressable>
-      )}
-    </View>
-    {error ? (
-      <View style={styles.errorContainer}>
-        <MaterialCommunityIcons name="alert-circle" size={16} color="red" />
-        <Text style={styles.errorText}>{error}</Text>
+const TextInputField = React.memo(
+  ({
+    label,
+    valueRef,
+    error,
+    placeholder,
+    onChange,
+    secureTextEntry,
+    refInput,
+    onSubmitEditing,
+    toggleVisibility,
+  }) => (
+    <View>
+      <Text style={styles.label}>{label}</Text>
+      <View style={[styles.inputContainer, error ? styles.inputError : null]}>
+        <TextInput
+          style={styles.input}
+          placeholder={placeholder}
+          defaultValue={valueRef.current}
+          onChange={onChange}
+          autoCorrect={false}
+          autoCapitalize="none"
+          secureTextEntry={secureTextEntry}
+          returnKeyType="next"
+          ref={refInput}
+          onSubmitEditing={onSubmitEditing}
+        />
+        {toggleVisibility && (
+          <Pressable onPress={toggleVisibility} style={styles.eyeIcon}>
+            <MaterialCommunityIcons
+              name={secureTextEntry ? "eye-off" : "eye"}
+              size={24}
+              color="gray"
+            />
+          </Pressable>
+        )}
       </View>
-    ) : null}
-  </View>
-));
+      {error ? (
+        <View style={styles.errorContainer}>
+          <MaterialCommunityIcons name="alert-circle" size={16} color="red" />
+          <Text style={styles.errorText}>{error}</Text>
+        </View>
+      ) : null}
+    </View>
+  )
+);
+
+
 
 export default function LoginScreen() {
-  const usernameRef = useRef("");
+  const phoneNumberRef = useRef("");
   const passwordRef = useRef("");
 
   const [passwordVisible, setPasswordVisible] = useState(false);
   const [errors, setErrors] = useState({
-    usernameError: "",
+    phoneNumberError: "",
     passwordError: "",
   });
 
@@ -72,8 +86,8 @@ export default function LoginScreen() {
   const dispatch = useDispatch();
 
   const handleInputChange = useCallback((name, text) => {
-    if (name === "username") {
-      usernameRef.current = text;
+    if (name === "phoneNumber") {
+      phoneNumberRef.current = text;
     } else if (name === "password") {
       passwordRef.current = text;
     }
@@ -85,29 +99,28 @@ export default function LoginScreen() {
 
   const clearErrorMessages = useCallback(() => {
     setErrors({
-      usernameError: "",
+      phoneNumberError: "",
       passwordError: "",
     });
   }, []);
 
   const validateInputs = useCallback(() => {
     let valid = true;
-    const username = usernameRef.current.trim();
+    const phoneNumber = phoneNumberRef.current.trim();
     const password = passwordRef.current.trim();
 
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     const phoneRegex = /^\d{10,15}$/;
 
     const newErrors = {
-      usernameError: "",
+      phoneNumberError: "",
       passwordError: "",
     };
 
-    if (username === "") {
-      newErrors.usernameError = "Email or phone number is required.";
+    if (phoneNumber === "") {
+      newErrors.phoneNumberError = "Phone number is required.";
       valid = false;
-    } else if (!emailRegex.test(username) && !phoneRegex.test(username)) {
-      newErrors.usernameError = "Username must be a valid email or phone number.";
+    } else if (!phoneRegex.test(phoneNumber)) {
+      newErrors.phoneNumberError = "Phone number is not valid.";
       valid = false;
     }
 
@@ -128,29 +141,51 @@ export default function LoginScreen() {
     return valid;
   }, [clearErrorMessages]);
 
+
+
+
   const handleLoginPress = useCallback(async () => {
     if (validateInputs()) {
       dispatch(loginRequest());
 
       try {
-        const response = await api.post('/auth/login', {
-          email: usernameRef.current.trim(),
+        const response = await api.post("/auth/login", {
+          phoneNumber: phoneNumberRef.current.trim(),
           password: passwordRef.current.trim(),
         });
 
-        const { access_token } = response.data;
+        const { token } = response.data;
 
-        dispatch(loginSuccess({ token: access_token }));
+        await saveToken(token); // Save the token
+
+        const userInfoResponse = await api.get("/auth/info", {
+          headers: {
+            Authorization:token,
+          },
+        });
+
+        const user = userInfoResponse.data;
+        dispatch(loginSuccess({ user}));
         navigation.navigate("Cá nhân");
       } catch (error) {
         dispatch(loginFailure());
-        Alert.alert('Login Failed', error.response?.data?.message || 'Something went wrong');
+        Alert.alert(
+          "Login Failed",
+          error.response?.data?.message || "Something went wrong"
+        );
       }
     }
   }, [validateInputs, dispatch, navigation]);
 
   const handleRegisterPress = useCallback(() => {
-    navigation.navigate("RegisterScreen", { screenTitle:"Đăng ký" ,showTitle:true , showHeader:true, showBackButton: true , showCloseButton:true, animationType:"slide_from_bottom"});
+    navigation.navigate("RegisterScreen", {
+      screenTitle: "Đăng ký",
+      showTitle: true,
+      showHeader: true,
+      showBackButton: true,
+      showCloseButton: true,
+      animationType: "slide_from_bottom",
+    });
   }, [navigation]);
 
   return (
@@ -159,11 +194,13 @@ export default function LoginScreen() {
         <View style={styles.container}>
           <View style={styles.inputView}>
             <TextInputField
-              label="Email/Số điện thoại"
-              valueRef={usernameRef}
-              error={errors.usernameError}
-              placeholder="Email hoặc số điện thoại"
-              onChange={(e) => handleInputChange("username", e.nativeEvent.text)}
+              label="Số điện thoại"
+              valueRef={phoneNumberRef}
+              error={errors.phoneNumberError}
+              placeholder="Số điện thoại"
+              onChange={(e) =>
+                handleInputChange("phoneNumber", e.nativeEvent.text)
+              }
               refInput={null}
               onSubmitEditing={() => passwordInputRef.current.focus()}
             />
@@ -172,7 +209,9 @@ export default function LoginScreen() {
               valueRef={passwordRef}
               error={errors.passwordError}
               placeholder="Mật khẩu"
-              onChange={(e) => handleInputChange("password", e.nativeEvent.text)}
+              onChange={(e) =>
+                handleInputChange("password", e.nativeEvent.text)
+              }
               secureTextEntry={!passwordVisible}
               refInput={passwordInputRef}
               onSubmitEditing={handleLoginPress}
@@ -187,18 +226,12 @@ export default function LoginScreen() {
           </View>
 
           <View style={styles.buttonView}>
-            <Pressable
-              style={styles.button}
-              onPress={handleLoginPress}
-            >
+            <Pressable style={styles.button} onPress={handleLoginPress}>
               <Text style={styles.buttonText}>Đăng nhập</Text>
             </Pressable>
-            <Text style={styles.optionsText}>Hoặc Đăng nhập với</Text>
           </View>
 
-          <View style={styles.mediaIcons}>
-            <Image source={googleLogo} style={styles.icons} />
-          </View>
+
 
           <Text style={styles.footerText}>
             Chưa có tài khoản?
@@ -308,7 +341,7 @@ const styles = StyleSheet.create({
   },
   signup: {
     color: "#ffd31a",
-    paddingTop: 1,
+    paddingTop: 30,
     fontSize: 13,
   },
   eyeIcon: {

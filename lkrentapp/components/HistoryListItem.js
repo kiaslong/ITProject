@@ -1,10 +1,10 @@
 import React from 'react';
-import { View, Text, Image, StyleSheet } from 'react-native';
+import { View, Text, Image, StyleSheet, TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 
-const HistoryListItem = ({ history }) => {
+const HistoryListItem = ({ history, onPress }) => {
   return (
-    <View style={styles.outerContainer}>
+    <TouchableOpacity style={styles.outerContainer} onPress={() => onPress(history.id)}>
       <Text style={styles.maThue}>Mã thuê: {history.id}</Text>
       <View style={styles.container}>
         <Image 
@@ -28,7 +28,7 @@ const HistoryListItem = ({ history }) => {
           </View>
         </View>
       </View>
-    </View>
+    </TouchableOpacity>
   );
 };
 

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, Image, TouchableOpacity, TextInput, Alert, FlatList, ScrollView, Dimensions, Platform } from 'react-native';
+import { View, Text, StyleSheet, Image, TouchableOpacity, TextInput, Alert, FlatList, ScrollView, Dimensions, Platform, Button, Modal } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import * as ImagePicker from 'expo-image-picker';
 import DateTimePicker from '@react-native-community/datetimepicker';
@@ -50,10 +50,11 @@ const DrivingLicenseScreen = () => {
   const onDateChange = (event, selectedDate) => {
     if (selectedDate) {
       setBirthDate(selectedDate);
-      setTimeout(() => {
-        setShowDatePicker(false);
-      }, 3000); // Close the picker after 3 seconds
     }
+  };
+
+  const handleConfirm = () => {
+    setShowDatePicker(false);
   };
 
   return (
@@ -94,13 +95,27 @@ const DrivingLicenseScreen = () => {
         <Text style={styles.dateText}>{birthDate.toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit', year: 'numeric' })}</Text>
       </TouchableOpacity>
       {showDatePicker && (
-        <DateTimePicker
-          value={birthDate}
-          mode="date"
-          display="spinner"
-          onChange={onDateChange}
-          style={Platform.OS === 'ios' ? styles.datePickerIOS : undefined}
-        />
+        <Modal
+          transparent={true}
+          animationType="slide"
+          visible={showDatePicker}
+          onRequestClose={() => setShowDatePicker(false)}
+        >
+          <View style={styles.modalBackground}>
+            <View style={styles.datePickerContainer}>
+              <DateTimePicker
+                value={birthDate}
+                mode="date"
+                display="spinner"
+                onChange={onDateChange}
+                style={Platform.OS === 'ios' ? styles.datePickerIOS : undefined}
+              />
+              <View style={styles.confirmButtonContainer}>
+                <Button title="Xác nhận" onPress={handleConfirm} />
+              </View>
+            </View>
+          </View>
+        </Modal>
       )}
       <TouchableOpacity style={styles.button} onPress={handleUpdate}>
         <Text style={styles.buttonText}>Thay đổi</Text>
@@ -205,5 +220,20 @@ const styles = StyleSheet.create({
     color: 'white',
     fontSize: 16,
     fontWeight: 'bold',
+  },
+  modalBackground: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+  },
+  datePickerContainer: {
+    backgroundColor: '#fff',
+    borderRadius: 10,
+    padding: 20,
+    alignItems: 'center',
+  },
+  confirmButtonContainer: {
+    marginTop: 10,
   },
 });

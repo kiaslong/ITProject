@@ -3,22 +3,20 @@ import { View, Text, StyleSheet, Animated, TouchableOpacity } from 'react-native
 import Icon from 'react-native-vector-icons/Ionicons';
 import { CommonActions } from "@react-navigation/native";
 
-const HeaderOrder = ({ scale, translateY, navigation }) => {
-
-
+const HeaderOrder = ({ navigation, imageScale }) => {
   const handleBackPress = () => {
-       navigation.dispatch(
+    navigation.dispatch(
       CommonActions.reset({
         index: 0,
-        routes: [{ name: "Main" }], // Ensure this is the correct screen name
+        routes: [{ name: "Main" }],
       })
     );
     navigation.navigate("Chuyến");
   }
 
   return (
-    <Animated.View style={[styles.header, { transform: [{ translateY }] }]}>
-      <Animated.View style={[styles.imageContainer, { transform: [{ scale }] }]}>
+    <View style={styles.header}>
+      <Animated.View style={[styles.imageContainer, { transform: [{ scale: imageScale }] }]}>
         <Animated.Image
           source={{ uri: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQtnh7pgJUtpZWWtHn-eVA3n1DY6D6WpnGOdA&s' }}
           style={styles.carImage}
@@ -29,7 +27,7 @@ const HeaderOrder = ({ scale, translateY, navigation }) => {
       <View style={styles.content}>
         <View style={styles.headerBottom}>
           <View style={styles.titleContainer}>
-            <TouchableOpacity style={styles.backButton} onPress={handleBackPress} >
+            <TouchableOpacity style={styles.backButton} onPress={handleBackPress}>
               <Icon name="close-outline" size={28} color="#fff" />
             </TouchableOpacity>
             <View>
@@ -48,19 +46,13 @@ const HeaderOrder = ({ scale, translateY, navigation }) => {
           </View>
         </View>
       </View>
-    </Animated.View>
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
   header: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    height: 130,
-    zIndex: 1,
-    backgroundColor: '#000', // Ensure background color for better visibility
+    flex: 1,
   },
   imageContainer: {
     ...StyleSheet.absoluteFillObject,
@@ -99,7 +91,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   backButton: {
-    padding:5,
+    padding: 5,
     marginRight: 16,
     backgroundColor: "rgba(0, 0, 0, 0.6)",
     borderRadius: 30,

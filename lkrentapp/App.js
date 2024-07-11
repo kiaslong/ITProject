@@ -1,4 +1,4 @@
-import React, { useEffect, useCallback, useMemo } from "react";
+import React, { useEffect, useCallback, useMemo,useState } from "react";
 import { NavigationContainer } from "@react-navigation/native";
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
@@ -40,7 +40,12 @@ import ChangeLocationTimeScreen from "./homeStackScreen/ChangeLocationTimeScreen
 import CarDetailScreen from './homeStackScreen/CarDetailScreen';
 import ConfirmationScreen from "./homeStackScreen/CarOrderComponent/PlaceHolderComponent";
 import FullscreenMapComponent from "./homeStackScreen/CarConfirmComponent/FullScreenLocationComponent";
+import PaymentMethodScreen from "./homeStackScreen/PaymentMethodScreen";
 import { fetchInitialLocation } from './store/locationSlice';
+import { getToken } from './utils/tokenStorage';
+import { loginSuccess, logout } from './store/loginSlice'; 
+import api from "./api";
+
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -48,6 +53,36 @@ const Tab = createBottomTabNavigator();
 enableScreens();
 
 const App = () => {
+
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const checkToken = async () => {
+      const token = await getToken();
+      if (token) {
+        try {
+          const response = await api.get('/auth/info', {
+            headers: {
+              Authorization: token,
+            },
+          });
+            store.dispatch(loginSuccess({ user: response.data }));
+        } catch (error) {
+          console.error('Token validation failed:', error);
+          store.dispatch(logout()); // Dispatch logout if there's an error in validation
+        }
+      }
+      setLoading(false);
+    };
+
+    checkToken();
+  }, []);
+
+  if (loading) {
+    return null; // You can replace this with a loading spinner if you want
+  }
+
+
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <Provider store={store}>
@@ -78,6 +113,10 @@ const RootStack = () => {
         iconName={route.params?.iconName}
         screenTitle={route.params?.screenTitle}
         functionName={route.params?.functionName}
+        customGoBackRoute={route.params?.customGoBackRoute}
+        customData1={route.params?.customData1}
+        customData2={route.params?.customData2}
+        customData3={route.params?.customData3}
       />
     ),
     
@@ -89,18 +128,21 @@ const RootStack = () => {
       open: { animation: "timing", config: { duration: 100 } },
       close: { animation: "timing", config: { duration: 100 } },
     },
+
   }), []);
 
   return (
-    <Stack.Navigator initialRouteName="Main" screenOptions={commonScreenOptions}>
-      <Stack.Screen name="Main" component={HomeTabs} />
+    <Stack.Navigator initialRouteName="Main" screenOptions={commonScreenOptions }>
+      <Stack.Screen name="Main" component={HomeTabs}  />
       <Stack.Screen name="Searching" component={SearchScreen} />
       <Stack.Screen name="CarDetail" component={CarDetailScreen} options={{gestureEnabled:false}} />
       <Stack.Screen name="CarRentalOrder" component={CarRentalOrderScreen} options={{gestureEnabled:false}}/>
       <Stack.Screen name="ConfirmationScreen" component={ConfirmationScreen} options={{gestureEnabled:false}} />
+      <Stack.Screen name="Payment" component={PaymentMethodScreen} options={{gestureEnabled:false}} />
+
 
       <Stack.Screen name="ChangeTimeLocation" component={ChangeLocationTimeScreen} options={{gestureEnabled:false}} />
-      <Stack.Screen name="RegisterScreen" component={RegisterScreen} />
+      <Stack.Screen name="RegisterScreen" component={RegisterScreen}  />
       <Stack.Screen name="RegisterCarScreen" component={RegisterCarScreen} options={{gestureEnabled:false}} />
       <Stack.Screen name="UserRegisterCarScreen" component={UserRegisterCarScreen} />
 
@@ -126,6 +168,10 @@ const HomeStack = () => {
         iconName={route.params?.iconName}
         screenTitle={route.params?.screenTitle}
         functionName={route.params?.functionName}
+        customGoBackRoute={route.params?.customGoBackRoute}
+        customData1={route.params?.customData1}
+        customData2={route.params?.customData2}
+        customData3={route.params?.customData3}
       />
     ),
     headerStyle: { backgroundColor: "#fff" },
@@ -159,6 +205,10 @@ const NotiStack = () => {
         iconName={route.params?.iconName}
         screenTitle={route.params?.screenTitle}
         functionName={route.params?.functionName}
+        customGoBackRoute={route.params?.customGoBackRoute}
+        customData1={route.params?.customData1}
+        customData2={route.params?.customData2}
+        customData3={route.params?.customData3}
       />
     ),
     headerStyle: { backgroundColor: "#fff" },
@@ -190,6 +240,10 @@ const HistoryStack = () => {
         iconName={route.params?.iconName}
         screenTitle={route.params?.screenTitle}
         functionName={route.params?.functionName}
+        customGoBackRoute={route.params?.customGoBackRoute}
+        customData1={route.params?.customData1}
+        customData2={route.params?.customData2}
+        customData3={route.params?.customData3}
       />
     ),
     headerStyle: { backgroundColor: "#fff" },
@@ -221,6 +275,10 @@ const SupportStack = () => {
         iconName={route.params?.iconName}
         screenTitle={route.params?.screenTitle}
         functionName={route.params?.functionName}
+        customGoBackRoute={route.params?.customGoBackRoute}
+        customData1={route.params?.customData1}
+        customData2={route.params?.customData2}
+        customData3={route.params?.customData3}
       />
     ),
     headerStyle: { backgroundColor: "#fff" },
@@ -255,6 +313,10 @@ const SettingStack = () => {
         iconName={route.params?.iconName}
         screenTitle={route.params?.screenTitle}
         functionName={route.params?.functionName}
+        customGoBackRoute={route.params?.customGoBackRoute}
+        customData1={route.params?.customData1}
+        customData2={route.params?.customData2}
+        customData3={route.params?.customData3}
       />
     ),
     headerStyle: { backgroundColor: "#fff" },
@@ -295,6 +357,10 @@ const AuthStack = () => {
         iconName={route.params?.iconName}
         screenTitle={route.params?.screenTitle}
         functionName={route.params?.functionName}
+        customGoBackRoute={route.params?.customGoBackRoute}
+        customData1={route.params?.customData1}
+        customData2={route.params?.customData2}
+        customData3={route.params?.customData3}
       />
     ),
     headerStyle: { backgroundColor: "#fff" },
@@ -356,12 +422,12 @@ const HomeTabs = () => {
   );
 
   return (
-    <Tab.Navigator screenOptions={screenOptions}>
-      <Tab.Screen name="Khám phá" component={HomeStack} />
-      <Tab.Screen name="Thông báo" component={NotiStack} />
-      <Tab.Screen name="Chuyến" component={HistoryStack} />
-      <Tab.Screen name="Hỗ trợ" component={SupportStack} />
-      <Tab.Screen name={isLoggedIn ? "Cá nhân" : "Đăng nhập"} component={isLoggedIn ? SettingStack : AuthStack} />
+    <Tab.Navigator screenOptions={screenOptions} >
+      <Tab.Screen name="Khám phá" component={HomeStack} options={{detachInactiveScreens:true}}/>
+      <Tab.Screen name="Thông báo" component={NotiStack} options={{detachInactiveScreens:true}}/>
+      <Tab.Screen name="Chuyến" component={HistoryStack} options={{detachInactiveScreens:true}}/>
+      <Tab.Screen name="Hỗ trợ" component={SupportStack} options={{detachInactiveScreens:true}}/>
+      <Tab.Screen name={isLoggedIn ? "Cá nhân" : "Đăng nhập"} component={isLoggedIn ? SettingStack : AuthStack} options={{detachInactiveScreens:true}} />
     </Tab.Navigator>
   );
 };

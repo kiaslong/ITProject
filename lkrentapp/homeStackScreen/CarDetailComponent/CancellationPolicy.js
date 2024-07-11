@@ -26,18 +26,14 @@ const CancellationPolicy = () => {
         <Text style={styles.header}>Chính sách hủy chuyến</Text>
         <Text style={styles.description}>
           An tâm thuê xe, không lo bị hủy chuyến với chính sách hủy chuyến của
-          Mioto!
+          LKRental
         </Text>
         <TouchableOpacity style={styles.moreButton} onPress={openModal}>
           <Text style={styles.moreText}>Xem thêm</Text>
           <Ionicons name="chevron-forward-outline" size={16} color="#03A9F4" />
         </TouchableOpacity>
       </View>
-      <View style={styles.separator} />
-      <TouchableOpacity style={styles.reportButton}>
-        <Ionicons name="flag-outline" size={20} color="#03A9F4" />
-        <Text style={styles.reportText}>Báo cáo xe này</Text>
-      </TouchableOpacity>
+     
 
       <Modal
         visible={modalVisible}

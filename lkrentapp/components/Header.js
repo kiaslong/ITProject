@@ -20,16 +20,26 @@ const Header = ({
   showIcon,
   iconName,
   functionName,
+  customGoBackRoute,
+  customData1,customData2,customData3 
 }) => {
   const navigation = useNavigation();
   const onPress = getFunction(functionName);
  
 
+  const handleBackPress = () => {
+    if (customGoBackRoute) {
+      navigation.navigate(customGoBackRoute,{carInfo:customData1,time:customData2});
+    } else {
+      navigation.goBack();
+    }
+  };
+
   return (
     <View style={styles.headerContainer}>
       {showBackButton && (
         <TouchableOpacity
-          onPress={() => navigation.goBack()}
+          onPress={handleBackPress}
           style={styles.backButton}
         >
           <Ionicons
@@ -68,7 +78,6 @@ const Header = ({
 
 const deviceHeight = Dimensions.get("window").height;
 const deviceWidth = Dimensions.get("window").width;
-
 
 const styles = StyleSheet.create({
   headerContainer: {
@@ -112,7 +121,7 @@ const styles = StyleSheet.create({
     right: 10, // Position the icon to the far right within the titleContainer
   },
   iconWithBackButton: {
-    right: - (deviceWidth * 0.06 + 8), // Adjust position to account for back button
+    right: -(deviceWidth * 0.06 + 8), // Adjust position to account for back button
   },
 });
 
