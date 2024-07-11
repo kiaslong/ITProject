@@ -37,3 +37,35 @@ $link-color: #61dafb;
     transform: rotate(360deg);
   }
 }
+/* Add your styles here or incorporate styles from the uploaded App.scss file */
+.login-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  background-color: #f0f0f0;
+}
+
+.login-container input {
+  margin: 10px 0;
+  padding: 10px;
+  width: 200px;
+}
+
+.login-container button {
+  padding: 10px 20px;
+  background-color: #03a9f4;
+  color: white;
+  border: none;
+  cursor: pointer;
+}
+
+.admin-container {
+  padding: 20px;
+  background-color: #fff;
+}
+
+.admin-container h2 {
+  margin-bottom: 20px;
+}
