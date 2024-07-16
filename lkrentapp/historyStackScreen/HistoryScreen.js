@@ -55,7 +55,7 @@ export default function HistoryScreen() {
         initialNumToRender={3}
         data={history}
         style={styles.list}
-        renderItem={({ item }) => <HistoryListItem history={item} onPress={handlePress} />}
+        renderItem={({ item }) => <HistoryListItem history={item} onPress={ () => { console.log("Chao cac ban") }} />}
         keyExtractor={(item) => item.id}
       />
     </View>

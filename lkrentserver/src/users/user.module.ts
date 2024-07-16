@@ -4,11 +4,13 @@ import { UserController } from './user.controller';
 import { PrismaModule } from '../prisma/prisma.module';
 import { JwtModule } from '@nestjs/jwt';
 import { ConfigModule } from '@nestjs/config';
-import { CloudinaryModule } from 'src/cloudinary/cloudinary.module';
+import { MailerModule } from '../mailer/mailer.module';
+import { CloudinaryModule } from '../cloudinary/cloudinary.module';
 
 @Module({
   imports: [
     PrismaModule,
+    MailerModule,
     JwtModule.register({
       secret: process.env.JWT_SECRET,
       signOptions: { expiresIn: '1d' },

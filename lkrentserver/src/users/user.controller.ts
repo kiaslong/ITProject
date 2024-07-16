@@ -8,6 +8,8 @@ import { UpdateUserProfileDto } from './dto/update-user.dto';
 import { JwtService } from '@nestjs/jwt';
 import { ApiTags, ApiOperation, ApiResponse, ApiBody, ApiConsumes  } from '@nestjs/swagger';
 import { Prisma } from '@prisma/client';
+import { RequestOtpDto } from './dto/request-otp.dto';
+import { VerifyOtpDto } from './dto/verify-otp.dto';
 
 @ApiTags('auth')
 @Controller('auth')
@@ -107,5 +109,37 @@ async register(@Body() createUserDto: CreateUserDto) {
       createdAt:user.createdAt
     };
   }
+
+
+
+  @Post('request-otp')
+  @ApiOperation({ summary: 'Request OTP for email verification' })
+  @ApiResponse({ status: 201, description: 'OTP successfully sent.' })
+  @ApiResponse({ status: 400, description: 'Bad Request.' })
+  @ApiBody({ type: RequestOtpDto })
+  async requestOtp(@Body() requestOtpDto: RequestOtpDto) {
+    try {
+      return await this.userService.requestOtp(requestOtpDto);
+    } catch (error) {
+      throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
+    }
+  }
+
+  @Post('verify-otp')
+  @ApiOperation({ summary: 'Verify OTP for email' })
+  @ApiResponse({ status: 200, description: 'OTP successfully verified.' })
+  @ApiResponse({ status: 400, description: 'Invalid OTP.' })
+  @ApiBody({ type: VerifyOtpDto })
+  async verifyOtp(@Body() verifyOtpDto: VerifyOtpDto) {
+    try {
+      return await this.userService.verifyOtp(verifyOtpDto);
+    } catch (error) {
+      throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
+    }
+  }
+
+
+  
+  
 
 }

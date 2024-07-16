@@ -1,4 +1,5 @@
 import React, { useEffect, useCallback, useMemo,useState } from "react";
+import { ActivityIndicator, View } from 'react-native';
 import { NavigationContainer } from "@react-navigation/native";
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
@@ -42,7 +43,7 @@ import ConfirmationScreen from "./homeStackScreen/CarOrderComponent/PlaceHolderC
 import FullscreenMapComponent from "./homeStackScreen/CarConfirmComponent/FullScreenLocationComponent";
 import PaymentMethodScreen from "./homeStackScreen/PaymentMethodScreen";
 import { fetchInitialLocation } from './store/locationSlice';
-import { getToken } from './utils/tokenStorage';
+import { getToken, removeToken } from './utils/tokenStorage';
 import { loginSuccess, logout } from './store/loginSlice'; 
 import api from "./api";
 
@@ -56,32 +57,48 @@ const App = () => {
 
   const [loading, setLoading] = useState(true);
 
+ 
   useEffect(() => {
     const checkToken = async () => {
       const token = await getToken();
+      let timeoutId;
+
       if (token) {
         try {
+          timeoutId = setTimeout(async () => {
+            alert('Phiên đăng nhập đã hết hạn');
+            await removeToken();
+            setLoading(false);
+          }, 2000); // Set your desired timeout duration in milliseconds
+
           const response = await api.get('/auth/info', {
             headers: {
               Authorization: token,
             },
           });
-            store.dispatch(loginSuccess({ user: response.data }));
+
+          clearTimeout(timeoutId); // Clear the timeout if the request completes within the time limit
+          store.dispatch(loginSuccess({ user: response.data }));
         } catch (error) {
+          clearTimeout(timeoutId);
           console.error('Token validation failed:', error);
           store.dispatch(logout()); // Dispatch logout if there's an error in validation
         }
       }
+
       setLoading(false);
     };
 
     checkToken();
-  }, []);
+  }, [store.dispatch]);
 
   if (loading) {
-    return null; // You can replace this with a loading spinner if you want
+    return (
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+        <ActivityIndicator size="large" color="#03a9f4" />
+      </View>
+    ); // Show loading spinner while checking token
   }
-
 
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
