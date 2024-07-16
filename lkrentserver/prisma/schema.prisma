@@ -1,0 +1,107 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum PaymentState {
+  PENDING
+  COMPLETED
+  FAILED
+  REFUNDED
+}
+
+enum OrderState {
+  PENDING
+  CONFIRMED
+  CANCELED
+  COMPLETED
+}
+
+model User {
+  id                        Int       @id @default(autoincrement())
+  email                     String?   @unique
+  phoneNumber               String    @unique
+  gender                    String    @default("Nam")
+  password                  String
+  fullName                  String    @default("FullName")
+  dateOfBirth               DateTime  @default(now())
+  avatarUrl                 String?   // Optional field
+  createdAt                 DateTime  @default(now())
+  updatedAt                 DateTime  @updatedAt
+  drivingLicenseUrl         String?   // URL of the driving license, default is null
+  numberOfSuccessRentals    Int       @default(0) // Number of successful rentals, default is 0
+  rewardPoints              Int       @default(0) // Reward points, default is 0
+  drivingLicenseVerified    Boolean   @default(false) // Driving license verified status
+  emailVerified             Boolean   @default(false) // Email verified status
+  phoneNumberVerified       Boolean   @default(false) // Phone number verified status
+  favouriteCars             Car[]     @relation("UserFavouriteCars")
+  carsOwned                 Car[]     @relation("UserCars")
+  ownerRating               Float?    // Owner rating, default is null
+  ownerTrips                String?   // Owner trips, default is null
+  ownerBadgeText            String?   // Owner badge text, default is null
+  ownerResponseRate         String?   // Owner response rate, default is null
+  ownerApprovalRate         String?   // Owner approval rate, default is null
+  ownerResponseTime         String?   // Owner response time, default is null
+  orders                    Order[]   // One-to-Many relationship with Order
+}
+
+model Promotion {
+  id       Int    @id @default(autoincrement())
+  discount String // Discount on the car
+  carId    Int    // Foreign key to Car
+  car      Car    @relation(fields: [carId], references: [id])
+}
+
+model Car {
+  id                  Int       @id @default(autoincrement())
+  make                String
+  model               String
+  year                Int
+  isCarVerified       Boolean   @default(false) // Car verified status
+  carImages           String[]  // List of 5 car images
+  carPapers           String[]  // List of car paper images
+  thumbImage          String    // Thumbnail image of the car
+  transmission        String    // Transmission type
+  delivery            String    // Delivery option
+  title               String    // Title of the car
+  location            String    // Location of the car
+  rating              Float     // Rating of the car
+  trips               String    // Number of trips
+  oldPrice            String    // Old price of the car
+  newPrice            String    // New price of the car
+  supportsDelivery    Boolean   // Supports delivery
+  specs               Json      // Specifications of the car
+  description         String    // Description of the car
+  features            Json      // Features of the car
+  promotions          Promotion[] // One-to-Many relationship with Promotion
+  ownerId             Int?
+  owner               User?     @relation(fields: [ownerId], references: [id], name: "UserCars")
+  favouriteByUsers    User[]    @relation("UserFavouriteCars")
+  orders              Order[]   // One-to-Many relationship with Order
+}
+
+model Order {
+  id           Int         @id @default(autoincrement())
+  userId       Int         // Foreign key to User
+  user         User        @relation(fields: [userId], references: [id])
+  carId        Int         // Foreign key to Car
+  car          Car         @relation(fields: [carId], references: [id])
+  paymentState PaymentState @default(PENDING) // Enum for payment state
+  orderState   OrderState   @default(PENDING) // Enum for order state
+  totalPrice   Float       // Total price of the order
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
+}
+
+model Otp {
+  id           Int      @id @default(autoincrement())
+  phoneNumber  String
+  otpCode      String   @unique
+  expiryTime   DateTime
+  createdTime  DateTime
+  isVerified   Boolean  @default(false)
+}

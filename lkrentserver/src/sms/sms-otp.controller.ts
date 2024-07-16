@@ -1,6 +1,5 @@
-import { Controller, Post, Body, HttpException, HttpStatus } from '@nestjs/common';
+import { Controller, Post, Body, HttpException, HttpStatus, InternalServerErrorException, BadRequestException } from '@nestjs/common';
 import { SmsService } from './sms.service';
-import { RequestSmsOtpDto } from './dto/request-sms-otp.dto';
 import { VerifySmsOtpDto } from './dto/verify-sms-otp.dto';
 import { ApiTags, ApiOperation, ApiResponse, ApiBody } from '@nestjs/swagger';
 
@@ -10,18 +9,26 @@ export class SmsOtpController {
   constructor(private readonly smsService: SmsService) {}
 
   @Post('request')
-  @ApiOperation({ summary: 'Request OTP for SMS verification' })
-  @ApiResponse({ status: 201, description: 'OTP successfully sent.' })
-  @ApiResponse({ status: 400, description: 'Bad Request.' })
-  @ApiBody({ type: RequestSmsOtpDto })
-  async requestOtp(@Body() requestSmsOtpDto: RequestSmsOtpDto) {
+  async requestOtp(@Body('phoneNumber') phoneNumber: string) {
     try {
-      const pinId = await this.smsService.sendOtp(requestSmsOtpDto.phoneNumber);
-      return { message: 'OTP sent', pinId };
+      const result = await this.smsService.fetchOrCreateOtp(phoneNumber);
+      return {
+        success: true,
+        pinId: result.pinId,
+        createdTime: result.createdTime,
+      };
     } catch (error) {
-      throw new HttpException('Failed to send OTP', HttpStatus.INTERNAL_SERVER_ERROR);
+      if (error instanceof BadRequestException) {
+        return {
+          success: false,
+          message: error.message,
+        };
+      }
+      throw new InternalServerErrorException('Failed to request OTP');
     }
   }
+  
+  
 
   @Post('verify')
   @ApiOperation({ summary: 'Verify OTP for SMS' })

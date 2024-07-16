@@ -106,8 +106,22 @@ async register(@Body() createUserDto: CreateUserDto) {
       avatarUrl: user.avatarUrl,
       email: user.email,
       phoneNumber: user.phoneNumber,
-      createdAt:user.createdAt
+      createdAt: user.createdAt,
+      updatedAt: user.updatedAt,
+      drivingLicenseUrl: user.drivingLicenseUrl,
+      numberOfSuccessRentals: user.numberOfSuccessRentals,
+      rewardPoints: user.rewardPoints,
+      drivingLicenseVerified: user.drivingLicenseVerified,
+      emailVerified: user.emailVerified,
+      phoneNumberVerified: user.phoneNumberVerified,
+      ownerRating: user.ownerRating,
+      ownerTrips: user.ownerTrips,
+      ownerBadgeText: user.ownerBadgeText,
+      ownerResponseRate: user.ownerResponseRate,
+      ownerApprovalRate: user.ownerApprovalRate,
+      ownerResponseTime: user.ownerResponseTime,
     };
+  
   }
 
 
