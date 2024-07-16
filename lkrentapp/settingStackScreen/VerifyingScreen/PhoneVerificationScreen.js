@@ -1,21 +1,64 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, SafeAreaView, Alert, Keyboard, TouchableWithoutFeedback } from 'react-native';
-import axios from 'axios';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, SafeAreaView, Alert, Keyboard, TouchableWithoutFeedback, ActivityIndicator } from 'react-native';
+import api from '../../api';
 
-const PhoneVerificationScreen = ({ navigation }) => {
-  const [phoneNumber, setPhoneNumber] = useState('');
+const PhoneVerificationScreen = ({ navigation ,route}) => {
+  const { initPhoneNumber } = route.params;
+  const [phoneNumber, setPhoneNumber] = useState(initPhoneNumber);
+  const [loading, setLoading] = useState(false);
+
+  const validatePhoneNumber = (number) => {
+    const phoneRegex = /^\d{10}$/; // Adjust this regex to match your phone number format
+    return phoneRegex.test(number);
+  };
 
   const handleContinue = async () => {
     const formattedPhoneNumber = phoneNumber.startsWith('+84') ? phoneNumber : `+84${phoneNumber}`;
+    
+    if (!validatePhoneNumber(phoneNumber)) {
+      Alert.alert('Error', 'Please enter a valid phone number.');
+      return;
+    }
+
+    setLoading(true);
     try {
-    //   const response = await axios.post('http://localhost:3000/sms-otp/request', { phoneNumber: formattedPhoneNumber });
-    //   console.log('Response:', response.data);
-      Alert.alert('Success', 'OTP sent successfully!', [
-        { text: 'OK', onPress: () => navigation.navigate('OtpEntry', { phoneNumber: formattedPhoneNumber }) }
-      ]);
+      const response = await api.post('sms-otp/request', { phoneNumber: formattedPhoneNumber });
+      if (response.data.success) {
+        const { pinId, createdTime } = response.data;
+        Alert.alert('Success', 'OTP sent successfully!', [
+          {
+            text: 'OK', onPress: () => {
+              setTimeout(() => {
+                navigation.navigate('OtpEntry', { 
+                  phoneNumber: formattedPhoneNumber, 
+                  pinId, 
+                  createdTime, 
+                  showBackButton: true,
+                  showCloseButton: true,
+                  showHeader: true,
+                  showTitle: true,
+                  screenTitle: "Nhập OTP"
+                });
+              }, 1000);
+            }
+          }
+        ]);
+      } else {
+        Alert.alert('Error', response.data.message, [
+          {
+            text: 'OK', onPress: () => {
+              setTimeout(() => {
+                navigation.goBack();
+              }, 1000);
+            }
+          }
+        ]);
+      }
     } catch (error) {
       console.error('Error:', error);
       Alert.alert('Error', 'Failed to send OTP.');
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -37,9 +80,13 @@ const PhoneVerificationScreen = ({ navigation }) => {
             />
           </View>
           
-          <TouchableOpacity style={styles.button} onPress={handleContinue}>
-            <Text style={styles.buttonText}>Tiếp theo</Text>
-          </TouchableOpacity>
+          {loading ? (
+            <ActivityIndicator size="large" color="#03a9f4" />
+          ) : (
+            <TouchableOpacity style={styles.button} onPress={handleContinue}>
+              <Text style={styles.buttonText}>Tiếp theo</Text>
+            </TouchableOpacity>
+          )}
         </View>
       </SafeAreaView>
     </TouchableWithoutFeedback>

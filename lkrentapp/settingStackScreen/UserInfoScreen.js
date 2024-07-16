@@ -39,7 +39,7 @@ const UserInfoScreen = () => {
 
   const handlePhonePress = () => {
     // Navigate to phone number edit screen
-    navigation.navigate('PhoneVerificationScreen',{showBackButton:true,showCloseButton:true,showHeader:true,showTitle:true,screenTitle:"Xác thực SĐT"});
+    navigation.navigate('PhoneVerificationScreen',{showBackButton:true,showCloseButton:true,showHeader:true,showTitle:true,screenTitle:"Xác thực SĐT",initPhoneNumber:user?.phoneNumber});
   };
 
   const handleEmailPress = () => {
@@ -62,20 +62,31 @@ const UserInfoScreen = () => {
         <View style={styles.infoContainer}>
           <View style={styles.infoBox}>
             <FontAwesome5 name="suitcase-rolling" size={24} color="#03a9f4" />
-            <Text style={styles.infoText}>0 chuyến</Text>
+            <Text style={styles.infoText}>{user?.numberOfSuccessRentals} chuyến</Text>
           </View>
           <View style={styles.infoBox}>
             <FontAwesome5 name="award" size={24} color="yellow" />
-            <Text style={styles.infoText}>0 điểm</Text>
+            <Text style={styles.infoText}>{user?.rewardPoints} điểm</Text>
           </View>
         </View>
 
         <TouchableOpacity style={styles.extraInfoContainer} onPress={handleLicensePress}>
           <Text style={styles.extraInfoTextLeft}>Giấy phép lái xe</Text>
           <View style={styles.extraInfoBoxContainer}>
-            <View style={[styles.extraInfoBox, styles.extraInfoBoxBackground, styles.extraInfoBoxOrange]}>
-              <FontAwesome5 name="exclamation-circle" size={20} color="orange" style={styles.extraInfoIcon} />
-              <Text style={styles.extraInfoText}>Chưa xác thực</Text>
+            <View style={[
+              styles.extraInfoBox, 
+              styles.extraInfoBoxBackground, 
+              user?.drivingLicenseVerified ? styles.extraInfoBoxGreen : styles.extraInfoBoxOrange
+            ]}>
+              <FontAwesome5 
+                name={user?.drivingLicenseVerified ? "check-circle" : "exclamation-circle"} 
+                size={20} 
+                color={user?.drivingLicenseVerified ? "green" : "orange"} 
+                style={styles.extraInfoIcon} 
+              />
+              <Text style={styles.extraInfoText}>
+                {user?.drivingLicenseVerified ? "Đã xác thực" : "Chưa xác thực"}
+              </Text>
             </View>
           </View>
           <Text style={styles.extraInfoTextRight}>Xác thực ngay</Text>
@@ -87,9 +98,20 @@ const UserInfoScreen = () => {
         <TouchableOpacity style={styles.extraInfoContainer} onPress={handlePhonePress}>
           <Text style={styles.extraInfoTextLeft}>Số điện thoại</Text>
           <View style={styles.extraInfoBoxContainer}>
-            <View style={[styles.extraInfoBox, styles.extraInfoBoxBackground, styles.extraInfoBoxGreen]}>
-              <FontAwesome5 name="check-circle" size={20} color="green" style={styles.extraInfoIcon} />
-              <Text style={styles.extraInfoText}>Đã xác thực</Text>
+            <View style={[
+              styles.extraInfoBox, 
+              styles.extraInfoBoxBackground, 
+              user?.phoneNumberVerified ? styles.extraInfoBoxGreen : styles.extraInfoBoxOrange
+            ]}>
+              <FontAwesome5 
+                name={user?.phoneNumberVerified ? "check-circle" : "exclamation-circle"} 
+                size={20} 
+                color={user?.phoneNumberVerified ? "green" : "orange"} 
+                style={styles.extraInfoIcon} 
+              />
+              <Text style={styles.extraInfoText}>
+                {user?.phoneNumberVerified ? "Đã xác thực" : "Chưa xác thực"}
+              </Text>
             </View>
           </View>
           <Text style={styles.extraInfoTextRight}>{user?.phoneNumber || '+0123456789'}</Text>
@@ -101,9 +123,20 @@ const UserInfoScreen = () => {
         <TouchableOpacity style={styles.extraInfoContainer} onPress={handleEmailPress}>
           <Text style={styles.extraInfoTextLeft}>Email</Text>
           <View style={styles.extraInfoBoxContainer}>
-            <View style={[styles.extraInfoBox, styles.extraInfoBoxBackground, styles.extraInfoBoxOrange]}>
-              <FontAwesome5 name="exclamation-circle" size={20} color="orange" style={styles.extraInfoIcon} />
-              <Text style={styles.extraInfoText}>Chưa xác thực</Text>
+            <View style={[
+              styles.extraInfoBox, 
+              styles.extraInfoBoxBackground, 
+              user?.emailVerified ? styles.extraInfoBoxGreen : styles.extraInfoBoxOrange
+            ]}>
+              <FontAwesome5 
+                name={user?.emailVerified ? "check-circle" : "exclamation-circle"} 
+                size={20} 
+                color={user?.emailVerified ? "green" : "orange"} 
+                style={styles.extraInfoIcon} 
+              />
+              <Text style={styles.extraInfoText}>
+                {user?.emailVerified ? "Đã xác thực" : "Chưa xác thực"}
+              </Text>
             </View>
           </View>
           <Text style={styles.extraInfoTextRight}>{user?.email || 'Xác thực ngay'}</Text>
@@ -115,7 +148,6 @@ const UserInfoScreen = () => {
     </View>
   );
 };
-
 
 const deviceHeight = Dimensions.get('window').height;
 const deviceWidth = Dimensions.get('window').width;
