@@ -42,10 +42,12 @@ import CarDetailScreen from './homeStackScreen/CarDetailScreen';
 import ConfirmationScreen from "./homeStackScreen/CarOrderComponent/PlaceHolderComponent";
 import FullscreenMapComponent from "./homeStackScreen/CarConfirmComponent/FullScreenLocationComponent";
 import PaymentMethodScreen from "./homeStackScreen/PaymentMethodScreen";
+import PhoneVerificationScreen from "./settingStackScreen/VerifyingScreen/PhoneVerificationScreen";
 import { fetchInitialLocation } from './store/locationSlice';
 import { getToken, removeToken } from './utils/tokenStorage';
 import { loginSuccess, logout } from './store/loginSlice'; 
 import api from "./api";
+import OtpEntryScreen from "./settingStackScreen/VerifyingScreen/OtpEntryScreen";
 
 
 const Stack = createNativeStackNavigator();
@@ -162,7 +164,8 @@ const RootStack = () => {
       <Stack.Screen name="RegisterScreen" component={RegisterScreen}  />
       <Stack.Screen name="RegisterCarScreen" component={RegisterCarScreen} options={{gestureEnabled:false}} />
       <Stack.Screen name="UserRegisterCarScreen" component={UserRegisterCarScreen} />
-
+      <Stack.Screen name="PhoneVerificationScreen" component={PhoneVerificationScreen}  options={{gestureEnabled:false}} />
+      <Stack.Screen name="OtpEntry" component={OtpEntryScreen}  options={{gestureEnabled:false}} />
       
       <Stack.Screen name="TimePicker" component={TimePickerScreen} />
       <Stack.Screen name="LocationPicker" component={LocationPickerScreen} />
