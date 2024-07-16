@@ -1,0 +1,106 @@
+//// ------------------------------------------------------
+//// THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
+//// ------------------------------------------------------
+
+Table User {
+  id Int [pk, increment]
+  email String [unique]
+  phoneNumber String [unique, not null]
+  gender String [not null, default: 'Nam']
+  password String [not null]
+  fullName String [not null, default: 'FullName']
+  dateOfBirth DateTime [default: `now()`, not null]
+  avatarUrl String
+  createdAt DateTime [default: `now()`, not null]
+  updatedAt DateTime [not null]
+  drivingLicenseUrl String
+  numberOfSuccessRentals Int [not null, default: 0]
+  rewardPoints Int [not null, default: 0]
+  drivingLicenseVerified Boolean [not null, default: false]
+  emailVerified Boolean [not null, default: false]
+  phoneNumberVerified Boolean [not null, default: false]
+  favouriteCars Car [not null]
+  carsOwned Car [not null]
+  ownerRating Float
+  ownerTrips String
+  ownerBadgeText String
+  ownerResponseRate String
+  ownerApprovalRate String
+  ownerResponseTime String
+  orders Order [not null]
+}
+
+Table Promotion {
+  id Int [pk, increment]
+  discount String [not null]
+  carId Int [not null]
+  car Car [not null]
+}
+
+Table Car {
+  id Int [pk, increment]
+  make String [not null]
+  model String [not null]
+  year Int [not null]
+  isCarVerified Boolean [not null, default: false]
+  carImages String[] [not null]
+  carPapers String[] [not null]
+  thumbImage String [not null]
+  transmission String [not null]
+  delivery String [not null]
+  title String [not null]
+  location String [not null]
+  rating Float [not null]
+  trips String [not null]
+  oldPrice String [not null]
+  newPrice String [not null]
+  supportsDelivery Boolean [not null]
+  specs Json [not null]
+  description String [not null]
+  features Json [not null]
+  promotions Promotion [not null]
+  ownerId Int
+  owner User
+  favouriteByUsers User [not null]
+  orders Order [not null]
+}
+
+Table Order {
+  id Int [pk, increment]
+  userId Int [not null]
+  user User [not null]
+  carId Int [not null]
+  car Car [not null]
+  paymentState PaymentState [not null, default: 'PENDING']
+  orderState OrderState [not null, default: 'PENDING']
+  totalPrice Float [not null]
+  createdAt DateTime [default: `now()`, not null]
+  updatedAt DateTime [not null]
+}
+
+Table UserFavouriteCars {
+  favouritecarsId Int [ref: > Car.id]
+  favouritebyusersId Int [ref: > User.id]
+}
+
+Enum PaymentState {
+  PENDING
+  COMPLETED
+  FAILED
+  REFUNDED
+}
+
+Enum OrderState {
+  PENDING
+  CONFIRMED
+  CANCELED
+  COMPLETED
+}
+
+Ref: Promotion.carId > Car.id
+
+Ref: Car.ownerId > User.id
+
+Ref: Order.userId > User.id
+
+Ref: Order.carId > Car.id

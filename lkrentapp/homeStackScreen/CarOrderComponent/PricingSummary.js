@@ -122,15 +122,6 @@ const PricingSummary = () => {
         <Text style={styles.amount}>803 600 đ/ngày</Text>
       </View>
       <View style={styles.row}>
-        <View style={styles.labelContainer}>
-          <Text style={styles.label}>Bảo hiểm thuê xe</Text>
-          <TouchableOpacity onPress={openPaymentModal}>
-            <Icon name="help-circle-outline" size={16} color="#000" style={styles.icon} />
-          </TouchableOpacity>
-        </View>
-        <Text style={styles.amount}>72 100 đ/ngày</Text>
-      </View>
-      <View style={styles.row}>
         <Text style={styles.label}>Tổng cộng</Text>
         <Text style={styles.amount}>875 700 đ x 1 ngày</Text>
       </View>
