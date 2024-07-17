@@ -70,7 +70,20 @@ export class UserService {
     file?: Express.Multer.File,
   ) {
     let avatarUrl: string | undefined;
+
+    // Fetch the current user data
+    const currentUser = await this.prisma.user.findUnique({
+      where: { id: userId },
+      select: { avatarUrl: true },
+    });
+
     if (file) {
+      // If there's an existing avatar, delete it
+      if (currentUser?.avatarUrl) {
+        await this.cloudinaryService.deleteAvatar(currentUser.avatarUrl);
+      }
+      
+      // Upload the new avatar
       avatarUrl = await this.cloudinaryService.uploadAvatar(file);
     }
 
