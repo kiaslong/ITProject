@@ -44,7 +44,12 @@ export class SmsService {
       const response = await firstValueFrom(
         this.httpService.post(url, payload, { headers: this.getHeaders() }),
       );
+
       if (response.status === 200) {
+        if (response.data.smsStatus === 'MESSAGE_NOT_SENT') {
+          throw new InternalServerErrorException('Failed to send SMS: MESSAGE_NOT_SENT');
+        }
+
         const createdTime = new Date();
         await this.prisma.otp.create({
           data: {
@@ -69,7 +74,7 @@ export class SmsService {
     const phoneNumberWithoutPrefix = phoneNumber.replace(/^\+84/, '');
     const userWithPhoneNumber = await this.prisma.user.findFirst({
       where: {
-        phoneNumber:phoneNumberWithoutPrefix,
+        phoneNumber: phoneNumberWithoutPrefix,
         phoneNumberVerified: true,
       },
     });

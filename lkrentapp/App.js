@@ -48,6 +48,7 @@ import { getToken, removeToken } from './utils/tokenStorage';
 import { loginSuccess, logout } from './store/loginSlice'; 
 import api from "./api";
 import OtpEntryScreen from "./settingStackScreen/VerifyingScreen/OtpEntryScreen";
+import EmailVerificationScreen from "./settingStackScreen/VerifyingScreen/EmailVerificationScreen";
 
 
 const Stack = createNativeStackNavigator();
@@ -166,7 +167,8 @@ const RootStack = () => {
       <Stack.Screen name="UserRegisterCarScreen" component={UserRegisterCarScreen} />
       <Stack.Screen name="PhoneVerificationScreen" component={PhoneVerificationScreen}  options={{gestureEnabled:false}} />
       <Stack.Screen name="OtpEntry" component={OtpEntryScreen}  options={{gestureEnabled:false}} />
-      
+      <Stack.Screen name="EmailVerificationScreen" component={EmailVerificationScreen}  options={{gestureEnabled:false}} />
+
       <Stack.Screen name="TimePicker" component={TimePickerScreen} />
       <Stack.Screen name="LocationPicker" component={LocationPickerScreen} />
       <Stack.Screen name="DrivingLicenseScreen" component={DrivingLicenseScreen}  />

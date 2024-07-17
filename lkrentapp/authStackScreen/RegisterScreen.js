@@ -126,7 +126,7 @@ const RegisterScreen = () => {
           password: password.trim(),
         });
 
-        console.log("Registration response:", registerResponse.data);
+        
 
         // Automatically log in the user after successful registration
         const loginResponse = await api.post("/auth/login", {

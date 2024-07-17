@@ -85,7 +85,8 @@ CREATE TABLE "Order" (
 -- CreateTable
 CREATE TABLE "Otp" (
     "id" SERIAL NOT NULL,
-    "phoneNumber" TEXT NOT NULL,
+    "phoneNumber" TEXT,
+    "email" TEXT,
     "otpCode" TEXT NOT NULL,
     "expiryTime" TIMESTAMP(3) NOT NULL,
     "createdTime" TIMESTAMP(3) NOT NULL,
@@ -105,6 +106,9 @@ CREATE UNIQUE INDEX "User_email_key" ON "User"("email");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "User_phoneNumber_key" ON "User"("phoneNumber");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "Otp_otpCode_key" ON "Otp"("otpCode");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "_UserFavouriteCars_AB_unique" ON "_UserFavouriteCars"("A", "B");

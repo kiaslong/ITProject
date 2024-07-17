@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, SafeAreaView, Alert, Keyboard, TouchableWithoutFeedback, ActivityIndicator } from 'react-native';
 import api from '../../api';
 
-const PhoneVerificationScreen = ({ navigation ,route}) => {
+const PhoneVerificationScreen = ({ navigation, route }) => {
   const { initPhoneNumber } = route.params;
   const [phoneNumber, setPhoneNumber] = useState(initPhoneNumber);
   const [loading, setLoading] = useState(false);
@@ -13,8 +13,7 @@ const PhoneVerificationScreen = ({ navigation ,route}) => {
   };
 
   const handleContinue = async () => {
-    const formattedPhoneNumber = phoneNumber.startsWith('+84') ? phoneNumber : `+84${phoneNumber}`;
-    
+    let formattedPhoneNumber = phoneNumber.startsWith('+84') ? phoneNumber : `+84${phoneNumber.replace(/^0/, '')}`;
     if (!validatePhoneNumber(phoneNumber)) {
       Alert.alert('Error', 'Please enter a valid phone number.');
       return;
@@ -55,8 +54,7 @@ const PhoneVerificationScreen = ({ navigation ,route}) => {
         ]);
       }
     } catch (error) {
-      console.error('Error:', error);
-      Alert.alert('Error', 'Failed to send OTP.');
+      Alert.alert('Error', 'Failed to send OTP (not supported network).');
     } finally {
       setLoading(false);
     }

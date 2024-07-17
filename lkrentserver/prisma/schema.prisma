@@ -99,7 +99,8 @@ model Order {
 
 model Otp {
   id           Int      @id @default(autoincrement())
-  phoneNumber  String
+  phoneNumber  String?  // Make phoneNumber optional
+  email        String?  // Add email as an optional field
   otpCode      String   @unique
   expiryTime   DateTime
   createdTime  DateTime
