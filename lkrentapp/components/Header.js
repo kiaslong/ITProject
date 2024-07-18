@@ -21,6 +21,7 @@ const Header = ({
   iconName,
   functionName,
   customGoBackRoute,
+  backFunctionName,
   customData1,
   customData2,
   customData3,
@@ -28,10 +29,14 @@ const Header = ({
 }) => {
   const navigation = useNavigation();
   const onPress = getFunction(functionName);
+  const backFunc = getFunction(backFunctionName);
 
   const handleBackPress = () => {
     if (customGoBackRoute) {
       navigation.navigate(customGoBackRoute, { carInfo: customData1, time: customData2 });
+    }
+      else if(backFunctionName){
+        backFunc()
     } else {
       navigation.goBack();
     }

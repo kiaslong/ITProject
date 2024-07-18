@@ -1,4 +1,4 @@
-import React, { useState,useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -9,29 +9,29 @@ import {
 } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 import { useNavigation } from '@react-navigation/native';
-import {  unregisterFunction } from '../store/functionRegistry';
+import { useDispatch, useSelector } from 'react-redux';
+import { setDocuments } from '../store/registrationSlice';
+import { unregisterFunction } from '../store/functionRegistry';
 
-const DocumentUploadScreen = ({route}) => {
-
-
-  const [documents, setDocuments] = useState({ registration: null });
-
-
+const DocumentUploadScreen = ({ route }) => {
+  const [documents, setLocalDocuments] = useState({ registration: null });
   
   const navigation = useNavigation();
-  const {functionName}=route.params
-  const key = functionName
+  const { functionName } = route.params;
+  const key = functionName;
+
+  const dispatch = useDispatch();
+  const registrationDocuments = useSelector((state) => state.registration.documents);
 
   useEffect(() => {
-   
+    if (registrationDocuments) {
+      setLocalDocuments(registrationDocuments);
+    }
 
     return () => {
       unregisterFunction(key);
     };
-    
-  }, [navigation]);
-
-
+  }, [navigation, registrationDocuments]);
 
   const handlePickDocument = async (position, source) => {
     let result;
@@ -50,7 +50,9 @@ const DocumentUploadScreen = ({route}) => {
     }
 
     if (!result.canceled) {
-      setDocuments({ ...documents, [position]: result.assets[0] });
+      const newDocument = { [position]: result.assets[0].uri };
+      setLocalDocuments({ ...documents, ...newDocument });
+      dispatch(setDocuments(newDocument));
     }
   };
 
@@ -77,7 +79,9 @@ const DocumentUploadScreen = ({route}) => {
   };
 
   const handleDeleteDocument = (position) => {
-    setDocuments({ ...documents, [position]: null });
+    const updatedDocuments = { ...documents, [position]: null };
+    setLocalDocuments(updatedDocuments);
+    dispatch(setDocuments({ [position]: null }));
   };
 
   const handleContinue = () => {
@@ -85,14 +89,23 @@ const DocumentUploadScreen = ({route}) => {
       Alert.alert('Vui lòng chọn giấy tờ xe.');
       return;
     }
-    navigation.navigate('SomeNextScreen'); // Navigate to the next appropriate screen
+    navigation.navigate('RentalPriceScreen', {
+      showHeader: true,
+      showTitle: true,
+      showBackButton: true,
+      screenTitle: "Hình ảnh giấy tờ",
+      showIcon: true,
+      iconName: "close-circle-outline",
+      iconType: "ionicons",
+      functionName: "closeRegister"
+    });
   };
 
   const renderDocumentBox = (label, position) => (
     <Pressable style={styles.documentBox} onPress={() => handleSelectDocumentSource(position)}>
       {documents[position] ? (
         <>
-          <Image source={{ uri: documents[position].uri }} style={styles.image} />
+          <Image source={{ uri: documents[position] }} style={styles.image} resizeMode="contain" />
           <Pressable style={styles.deleteButton} onPress={() => handleDeleteDocument(position)}>
             <Text style={styles.deleteButtonText}>X</Text>
           </Pressable>
@@ -115,7 +128,16 @@ const DocumentUploadScreen = ({route}) => {
       <Pressable style={styles.continueButton} onPress={handleContinue}>
         <Text style={styles.continueButtonText}>Tiếp tục</Text>
       </Pressable>
-      <Pressable style={styles.skipButton} onPress={() => navigation.navigate('RentalPriceScreen',{showHeader:true,showTitle:true,showBackButton:true,screenTitle:"Hình ảnh giấy tờ",showIcon:true,iconName:"close-circle-outline",iconType:"ionicons",functionName:"closeRegister"})}>
+      <Pressable style={styles.skipButton} onPress={() => navigation.navigate('RentalPriceScreen', {
+        showHeader: true,
+        showTitle: true,
+        showBackButton: true,
+        screenTitle: "Hình ảnh giấy tờ",
+        showIcon: true,
+        iconName: "close-circle-outline",
+        iconType: "ionicons",
+        functionName: "closeRegister"
+      })}>
         <Text style={styles.skipButtonText}>Bỏ qua</Text>
       </Pressable>
     </View>

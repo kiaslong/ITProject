@@ -17,6 +17,8 @@ import { useNavigation } from "@react-navigation/native";
 import Slider from "@react-native-community/slider";
 import { Ionicons } from "@expo/vector-icons";
 import { unregisterFunction } from "../store/functionRegistry";
+import { useDispatch, useSelector } from 'react-redux';
+import { setField ,resetRegistration} from '../store/registrationSlice';
 
 const { height } = Dimensions.get('window');
 
@@ -25,16 +27,19 @@ const RentalPriceScreen = ({ route }) => {
   const { functionName } = route.params;
   const key = functionName;
 
+  const dispatch = useDispatch();
+  const registrationData = useSelector((state) => state.registration);
+
   useEffect(() => {
     return () => {
       unregisterFunction(key);
     };
   }, [navigation]);
 
-  const [price, setPrice] = useState(500);
-  const [editingPrice, setEditingPrice] = useState('500');
-  const [discount, setDiscount] = useState(false);
-  const [discountPercentage, setDiscountPercentage] = useState(20);
+  const [price, setPrice] = useState(registrationData.price);
+  const [editingPrice, setEditingPrice] = useState(registrationData.price.toString());
+  const [discount, setDiscount] = useState(registrationData.discount);
+  const [discountPercentage, setDiscountPercentage] = useState(registrationData.discountPercentage);
   const [isEditing, setIsEditing] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
   const [helpModalVisible, setHelpModalVisible] = useState(false);
@@ -104,7 +109,7 @@ const RentalPriceScreen = ({ route }) => {
               ]}
             >
               <TouchableOpacity
-                style={[styles.button, styles.buttonClose]}
+                style={[styles.buttonClose]}
                 onPress={closeModal}
               >
                 <Text style={styles.textStyle}>X</Text>
@@ -134,6 +139,7 @@ const RentalPriceScreen = ({ route }) => {
     setPrice(numValue);
     setEditingPrice(numValue.toString());
     setIsEditing(false);
+    dispatch(setField({ field: 'price', value: numValue }));
   };
 
   const handleCancelEdit = () => {
@@ -144,6 +150,21 @@ const RentalPriceScreen = ({ route }) => {
   const handleSliderChange = (value) => {
     setPrice(value);
     setEditingPrice(value.toString());
+    dispatch(setField({ field: 'price', value }));
+  };
+
+  const handleDiscountChange = (value) => {
+    setDiscount(value);
+    dispatch(setField({ field: 'discount', value }));
+  };
+
+  const handleDiscountPercentageChange = (value) => {
+    setDiscountPercentage(value);
+    dispatch(setField({ field: 'discountPercentage', value }));
+  };
+
+  const handleContinue = () => {
+    console.log('Registration Data:', registrationData);
   };
 
   const helpModalContent = (
@@ -164,7 +185,7 @@ const RentalPriceScreen = ({ route }) => {
         maximumValue={100}
         step={1}
         value={discountPercentage}
-        onValueChange={setDiscountPercentage}
+        onValueChange={handleDiscountPercentageChange}
         minimumTrackTintColor="#03a9f4"
         maximumTrackTintColor="#d3d3d3"
         thumbTintColor="#03a9f4"
@@ -240,7 +261,7 @@ const RentalPriceScreen = ({ route }) => {
         </View>
         <Switch
           value={discount}
-          onValueChange={setDiscount}
+          onValueChange={handleDiscountChange}
           trackColor={{ false: '#767577', true: '#03a9f4' }}
           thumbColor={discount ? '#ffffff' : '#ffffff'}
         />
@@ -254,7 +275,7 @@ const RentalPriceScreen = ({ route }) => {
           </View>
         </TouchableOpacity>
       ) : null}
-      <Pressable style={styles.button} onPress={() => navigation.navigate('NextScreen')}>
+      <Pressable style={styles.button} onPress={handleContinue}>
         <Text style={styles.buttonText}>Hoàn Tất Đăng Ký</Text>
       </Pressable>
 
@@ -326,6 +347,9 @@ const styles = StyleSheet.create({
     width: '50%',
   },
   button: {
+    position:"absolute",
+    bottom:50,
+    alignSelf:"center",
     backgroundColor: "#03a9f4",
     padding: 15,
     borderRadius: 10,
@@ -382,15 +406,15 @@ const styles = StyleSheet.create({
     padding: 16,
     borderTopLeftRadius: 16,
     borderTopRightRadius: 16,
-    maxHeight: height * 0.8,
+    maxHeight: height * 0.9,
   },
   buttonClose: {
+    alignSelf: 'flex-start',
     backgroundColor: "#03A9F4",
     borderRadius: 28,
     padding: 5,
     width: 28,
     height: 28,
-    alignSelf: "flex-start",
     marginBottom: 16,
     marginTop: 16,
   },
@@ -425,6 +449,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#03a9f4",
     padding: 15,
     borderRadius: 10,
+    alignSelf:"center",
     alignItems: "center",
     marginTop: 20,
   },

@@ -1,25 +1,19 @@
 import React, { useState, useEffect } from 'react';
-import {
-  Alert,
-  Pressable,
-  StyleSheet,
-  Text,
-  View,
-  KeyboardAvoidingView,
-  Platform,
-  ScrollView,
-} from 'react-native';
+import { Alert, Pressable, StyleSheet, Text, View, KeyboardAvoidingView, Platform } from 'react-native';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import * as ImagePicker from 'expo-image-picker';
 import InputField from './RegisterCarComponent/InputField';
 import ModalPicker from './RegisterCarComponent/ModalPicker';
+import FeatureSelectionModal from './RegisterCarComponent/FeatureSelectionModal';
+import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
+import { useDispatch, useSelector } from 'react-redux';
+import { setField } from '../store/registrationSlice';
 
 const RegisterCarScreen = () => {
   const navigation = useNavigation();
-
-  const [licensePlate, setLicensePlate] = useState('');
-  const [description, setDescription] = useState('');
+  const dispatch = useDispatch();
+  const registrationData = useSelector((state) => state.registration);
 
   const [errors, setErrors] = useState({
     licensePlateError: '',
@@ -27,17 +21,11 @@ const RegisterCarScreen = () => {
     modelError: '',
   });
 
-  const [selectedYear, setSelectedYear] = useState('');
-  const [selectedSeats, setSelectedSeats] = useState('');
+  const [modalVisible, setModalVisible] = useState(false);
   const [showYearPicker, setShowYearPicker] = useState(false);
   const [showSeatsPicker, setShowSeatsPicker] = useState(false);
   const [showMakePicker, setShowMakePicker] = useState(false);
   const [showModelPicker, setShowModelPicker] = useState(false);
-  const [transmission, setTransmission] = useState('Automatic');
-  const [fuel, setFuel] = useState('Gasoline');
-  const [promotion, setPromotion] = useState('Có');
-  const [selectedMake, setSelectedMake] = useState('');
-  const [selectedModel, setSelectedModel] = useState('');
 
   useEffect(() => {
     (async () => {
@@ -59,7 +47,7 @@ const RegisterCarScreen = () => {
   const validateInputs = () => {
     let valid = true;
 
-    if (!licensePlate.trim()) {
+    if (!registrationData.licensePlate.trim()) {
       setErrors((prevState) => ({
         ...prevState,
         licensePlateError: 'Biển số xe là bắt buộc.',
@@ -67,7 +55,7 @@ const RegisterCarScreen = () => {
       valid = false;
     }
 
-    if (!selectedMake) {
+    if (!registrationData.selectedMake) {
       setErrors((prevState) => ({
         ...prevState,
         companyError: 'Hãng xe là bắt buộc.',
@@ -75,7 +63,7 @@ const RegisterCarScreen = () => {
       valid = false;
     }
 
-    if (!selectedModel) {
+    if (!registrationData.selectedModel) {
       setErrors((prevState) => ({
         ...prevState,
         modelError: 'Mẫu xe là bắt buộc.',
@@ -83,22 +71,22 @@ const RegisterCarScreen = () => {
       valid = false;
     }
 
-    if (!selectedYear) {
+    if (!registrationData.selectedYear) {
       Alert.alert('Năm sản xuất là bắt buộc.');
       valid = false;
     }
 
-    if (!selectedSeats) {
+    if (!registrationData.selectedSeats) {
       Alert.alert('Số chỗ ngồi là bắt buộc.');
       valid = false;
     }
 
-    if (!transmission) {
+    if (!registrationData.transmission) {
       Alert.alert('Hộp số là bắt buộc.');
       valid = false;
     }
 
-    if (!fuel) {
+    if (!registrationData.fuel) {
       Alert.alert('Loại nhiên liệu là bắt buộc.');
       valid = false;
     }
@@ -111,31 +99,22 @@ const RegisterCarScreen = () => {
   };
 
   const handleRegister = () => {
-    if (validateInputs()===false) {
-      navigation.navigate('ImageUploadScreen',{showBackButton:true, showTitle:true,showHeader:true,screenTitle:"Chọn hình ảnh",showIcon:true,iconType:"ionicons",iconName:"close-circle-outline",functionName:"closeRegister"});
+    if (validateInputs()) {
+      navigation.navigate('ImageUploadScreen', {
+        showBackButton: true,
+        showTitle: true,
+        showHeader: true,
+        screenTitle: 'Chọn hình ảnh',
+        showIcon: true,
+        iconType: 'ionicons',
+        iconName: 'close-circle-outline',
+        functionName: 'closeRegister',
+      });
     }
   };
 
-
-  const handleYearSelect = (item) => {
-    setSelectedYear(item);
-    setShowYearPicker(false);
-  };
-
-  const handleSeatSelect = (item) => {
-    setSelectedSeats(item);
-    setShowSeatsPicker(false);
-  };
-
-  const handleMakeSelect = (make) => {
-    setSelectedMake(make);
-    setSelectedModel('');
-    setShowMakePicker(false);
-  };
-
-  const handleModelSelect = (model) => {
-    setSelectedModel(model);
-    setShowModelPicker(false);
+  const handleSelect = (field, value) => {
+    dispatch(setField({ field, value }));
   };
 
   const years = Array.from(new Array(10), (_, index) => new Date().getFullYear() - index);
@@ -191,10 +170,7 @@ const RegisterCarScreen = () => {
   };
 
   return (
-    <KeyboardAvoidingView
-      style={{ flex: 1 }}
-      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-    >
+    <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
       <KeyboardAwareScrollView
         contentContainerStyle={styles.scrollContainer}
         enableOnAndroid={true}
@@ -206,10 +182,11 @@ const RegisterCarScreen = () => {
             label="Biển số xe"
             error={errors.licensePlateError}
             placeholder="Biển số xe"
-            onChangeText={(text) => setLicensePlate(text)}
+            onChangeText={(text) => handleSelect('licensePlate', text)}
             autoCorrect={false}
             autoCapitalize="none"
             returnKeyType="next"
+            value={registrationData.licensePlate}
           />
 
           <Text style={styles.label}>Hãng xe</Text>
@@ -218,7 +195,7 @@ const RegisterCarScreen = () => {
             onPress={() => setShowMakePicker(true)}
           >
             <Text style={styles.selectedText}>
-              {selectedMake ? selectedMake : 'Chọn hãng xe'}
+              {registrationData.selectedMake ? registrationData.selectedMake : 'Chọn hãng xe'}
             </Text>
           </Pressable>
           {errors.companyError ? (
@@ -231,10 +208,10 @@ const RegisterCarScreen = () => {
           <Pressable
             style={[styles.inputContainer, errors.modelError ? styles.inputError : null]}
             onPress={() => setShowModelPicker(true)}
-            disabled={!selectedMake}
+            disabled={!registrationData.selectedMake}
           >
             <Text style={styles.selectedText}>
-              {selectedModel ? selectedModel : 'Chọn mẫu xe'}
+              {registrationData.selectedModel ? registrationData.selectedModel : 'Chọn mẫu xe'}
             </Text>
           </Pressable>
           {errors.modelError ? (
@@ -251,7 +228,7 @@ const RegisterCarScreen = () => {
                 onPress={() => setShowYearPicker(true)}
               >
                 <Text style={styles.selectedText}>
-                  {selectedYear ? selectedYear : 'Chọn năm'}
+                  {registrationData.selectedYear ? registrationData.selectedYear : 'Chọn năm'}
                 </Text>
               </Pressable>
             </View>
@@ -263,7 +240,7 @@ const RegisterCarScreen = () => {
                 onPress={() => setShowSeatsPicker(true)}
               >
                 <Text style={styles.selectedText}>
-                  {selectedSeats ? selectedSeats : 'Chọn số chỗ'}
+                  {registrationData.selectedSeats ? registrationData.selectedSeats : 'Chọn số chỗ'}
                 </Text>
               </Pressable>
             </View>
@@ -275,14 +252,14 @@ const RegisterCarScreen = () => {
               <Pressable
                 style={[
                   styles.transmissionButton,
-                  transmission === 'Automatic' ? styles.transmissionButtonSelected : null,
+                  registrationData.transmission === 'Automatic' ? styles.transmissionButtonSelected : null,
                 ]}
-                onPress={() => setTransmission('Automatic')}
+                onPress={() => handleSelect('transmission', 'Automatic')}
               >
                 <Text
                   style={[
                     styles.transmissionButtonText,
-                    transmission === 'Automatic' ? styles.transmissionButtonTextSelected : null,
+                    registrationData.transmission === 'Automatic' ? styles.transmissionButtonTextSelected : null,
                   ]}
                 >
                   Tự động
@@ -291,14 +268,14 @@ const RegisterCarScreen = () => {
               <Pressable
                 style={[
                   styles.transmissionButton,
-                  transmission === 'Manual' ? styles.transmissionButtonSelected : null,
+                  registrationData.transmission === 'Manual' ? styles.transmissionButtonSelected : null,
                 ]}
-                onPress={() => setTransmission('Manual')}
+                onPress={() => handleSelect('transmission', 'Manual')}
               >
                 <Text
                   style={[
                     styles.transmissionButtonText,
-                    transmission === 'Manual' ? styles.transmissionButtonTextSelected : null,
+                    registrationData.transmission === 'Manual' ? styles.transmissionButtonTextSelected : null,
                   ]}
                 >
                   Số sàn
@@ -313,14 +290,14 @@ const RegisterCarScreen = () => {
               <Pressable
                 style={[
                   styles.transmissionButton,
-                  fuel === 'Gasoline' ? styles.transmissionButtonSelected : null,
+                  registrationData.fuel === 'Gasoline' ? styles.transmissionButtonSelected : null,
                 ]}
-                onPress={() => setFuel('Gasoline')}
+                onPress={() => handleSelect('fuel', 'Gasoline')}
               >
                 <Text
                   style={[
                     styles.transmissionButtonText,
-                    fuel === 'Gasoline' ? styles.transmissionButtonTextSelected : null,
+                    registrationData.fuel === 'Gasoline' ? styles.transmissionButtonTextSelected : null,
                   ]}
                 >
                   Xăng
@@ -329,14 +306,14 @@ const RegisterCarScreen = () => {
               <Pressable
                 style={[
                   styles.transmissionButton,
-                  fuel === 'Diesel' ? styles.transmissionButtonSelected : null,
+                  registrationData.fuel === 'Diesel' ? styles.transmissionButtonSelected : null,
                 ]}
-                onPress={() => setFuel('Diesel')}
+                onPress={() => handleSelect('fuel', 'Diesel')}
               >
                 <Text
                   style={[
                     styles.transmissionButtonText,
-                    fuel === 'Diesel' ? styles.transmissionButtonTextSelected : null,
+                    registrationData.fuel === 'Diesel' ? styles.transmissionButtonTextSelected : null,
                   ]}
                 >
                   Dầu diesel
@@ -345,14 +322,14 @@ const RegisterCarScreen = () => {
               <Pressable
                 style={[
                   styles.transmissionButton,
-                  fuel === 'Electric' ? styles.transmissionButtonSelected : null,
+                  registrationData.fuel === 'Electric' ? styles.transmissionButtonSelected : null,
                 ]}
-                onPress={() => setFuel('Electric')}
+                onPress={() => handleSelect('fuel', 'Electric')}
               >
                 <Text
                   style={[
                     styles.transmissionButtonText,
-                    fuel === 'Electric' ? styles.transmissionButtonTextSelected : null,
+                    registrationData.fuel === 'Electric' ? styles.transmissionButtonTextSelected : null,
                   ]}
                 >
                   Điện
@@ -369,18 +346,38 @@ const RegisterCarScreen = () => {
             placeholder="Nhập địa chỉ xe"
             autoCorrect={false}
             autoCapitalize="none"
-            onChangeText={(text) => setDescription(text)}
+            onChangeText={(text) => handleSelect('description', text)}
+            value={registrationData.description}
           />
 
           <InputField
             label="Mô tả xe"
-            placeholder="Nhập mô tả xe"
             autoCorrect={false}
             autoCapitalize="none"
             multiline={true}
             numberOfLines={4}
-            onChangeText={(text) => setDescription(text)}
+            onChangeText={(text) => handleSelect('description', text)}
+            value={registrationData.description}
           />
+
+          <View style={styles.featureContainer}>
+            <Text style={styles.featureLabel}>Các tính năng trên xe</Text>
+            {registrationData.selectedFeatures.length > 0 && (
+              <View style={styles.selectedFeaturesContainer}>
+                {registrationData.selectedFeatures.map((feature) => (
+                  <View key={feature.id} style={styles.selectedFeature}>
+                    <Ionicons name={feature.icon} size={16} color="#03a9f4" />
+                    <Text style={styles.selectedFeatureText}>{feature.name}</Text>
+                  </View>
+                ))}
+              </View>
+            )}
+            <Pressable onPress={() => setModalVisible(true)}>
+              <Text style={styles.featureSelectText}>
+                Chọn tính năng <Ionicons name="chevron-forward" size={16} />
+              </Text>
+            </Pressable>
+          </View>
 
           <View style={styles.inputGroup}>
             <Text style={styles.label}>Áp dụng khuyến mãi</Text>
@@ -388,14 +385,14 @@ const RegisterCarScreen = () => {
               <Pressable
                 style={[
                   styles.transmissionButton,
-                  promotion === 'Có' ? styles.transmissionButtonSelected : null,
+                  registrationData.promotion === 'Có' ? styles.transmissionButtonSelected : null,
                 ]}
-                onPress={() => setPromotion('Có')}
+                onPress={() => handleSelect('promotion', 'Có')}
               >
                 <Text
                   style={[
                     styles.transmissionButtonText,
-                    promotion === 'Có' ? styles.transmissionButtonTextSelected : null,
+                    registrationData.promotion === 'Có' ? styles.transmissionButtonTextSelected : null,
                   ]}
                 >
                   Có
@@ -404,14 +401,14 @@ const RegisterCarScreen = () => {
               <Pressable
                 style={[
                   styles.transmissionButton,
-                  promotion === 'Không' ? styles.transmissionButtonSelected : null,
+                  registrationData.promotion === 'Không' ? styles.transmissionButtonSelected : null,
                 ]}
-                onPress={() => setPromotion('Không')}
+                onPress={() => handleSelect('promotion', 'Không')}
               >
                 <Text
                   style={[
                     styles.transmissionButtonText,
-                    promotion === 'Không' ? styles.transmissionButtonTextSelected : null,
+                    registrationData.promotion === 'Không' ? styles.transmissionButtonTextSelected : null,
                   ]}
                 >
                   Không
@@ -422,7 +419,7 @@ const RegisterCarScreen = () => {
         </View>
         <View style={styles.buttonContainer}>
           <Pressable style={styles.button} onPress={handleRegister}>
-            <Text style={styles.buttonText}>Đăng ký xe</Text>
+            <Text style={styles.buttonText}>Tiếp tục</Text>
           </Pressable>
         </View>
       </KeyboardAwareScrollView>
@@ -430,7 +427,10 @@ const RegisterCarScreen = () => {
       <ModalPicker
         visible={showYearPicker}
         items={years.map((year) => year.toString())}
-        onSelect={handleYearSelect}
+        onSelect={(item) => {
+          handleSelect('selectedYear', item);
+          setShowYearPicker(false);
+        }}
         label="Năm sản xuất"
         onClose={() => setShowYearPicker(false)}
       />
@@ -438,7 +438,10 @@ const RegisterCarScreen = () => {
       <ModalPicker
         visible={showSeatsPicker}
         items={seats}
-        onSelect={handleSeatSelect}
+        onSelect={(item) => {
+          handleSelect('selectedSeats', item);
+          setShowSeatsPicker(false);
+        }}
         label="Số chỗ"
         onClose={() => setShowSeatsPicker(false)}
       />
@@ -446,17 +449,30 @@ const RegisterCarScreen = () => {
       <ModalPicker
         visible={showMakePicker}
         items={Object.keys(carBrandsAndModels)}
-        onSelect={handleMakeSelect}
+        onSelect={(make) => {
+          handleSelect('selectedMake', make);
+          handleSelect('selectedModel', '');
+          setShowMakePicker(false);
+        }}
         label="Nhà sản xuất"
         onClose={() => setShowMakePicker(false)}
       />
 
       <ModalPicker
         visible={showModelPicker}
-        items={carBrandsAndModels[selectedMake] || []}
-        onSelect={handleModelSelect}
+        items={carBrandsAndModels[registrationData.selectedMake] || []}
+        onSelect={(model) => {
+          handleSelect('selectedModel', model);
+          setShowModelPicker(false);
+        }}
         label="Mẫu xe"
         onClose={() => setShowModelPicker(false)}
+      />
+
+      <FeatureSelectionModal
+        visible={modalVisible}
+        onClose={() => setModalVisible(false)}
+        onSelect={(features) => handleSelect('selectedFeatures', features)}
       />
     </KeyboardAvoidingView>
   );
@@ -590,6 +606,37 @@ const styles = StyleSheet.create({
     fontWeight: '400',
     marginBottom: 5,
     marginTop: 10,
+  },
+  featureContainer: {
+    marginVertical: 20,
+  },
+  featureLabel: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    marginBottom: 10,
+    color: '#666',
+  },
+  featureSelectText: {
+    fontSize: 16,
+    color: '#03a9f4',
+  },
+  selectedFeaturesContainer: {
+    marginVertical: 10,
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+  },
+  selectedFeature: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    margin: 4,
+    padding: 4,
+    borderWidth: 1,
+    borderColor: '#03a9f4',
+    borderRadius: 8,
+  },
+  selectedFeatureText: {
+    marginLeft: 4,
+    color: '#03a9f4',
   },
 });
 

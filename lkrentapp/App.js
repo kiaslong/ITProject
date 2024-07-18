@@ -136,6 +136,7 @@ const RootStack = () => {
         iconName={route.params?.iconName}
         screenTitle={route.params?.screenTitle}
         functionName={route.params?.functionName}
+        backFunctionName={route.params?.backFunctionName}
         customGoBackRoute={route.params?.customGoBackRoute}
         customData1={route.params?.customData1}
         customData2={route.params?.customData2}
@@ -199,6 +200,7 @@ const HomeStack = () => {
         iconName={route.params?.iconName}
         screenTitle={route.params?.screenTitle}
         functionName={route.params?.functionName}
+        backFunctionName={route.params?.backFunctionName}
         customGoBackRoute={route.params?.customGoBackRoute}
         customData1={route.params?.customData1}
         customData2={route.params?.customData2}
@@ -237,6 +239,7 @@ const NotiStack = () => {
         iconName={route.params?.iconName}
         screenTitle={route.params?.screenTitle}
         functionName={route.params?.functionName}
+        backFunctionName={route.params?.backFunctionName}
         customGoBackRoute={route.params?.customGoBackRoute}
         customData1={route.params?.customData1}
         customData2={route.params?.customData2}
@@ -273,6 +276,7 @@ const HistoryStack = () => {
         iconName={route.params?.iconName}
         screenTitle={route.params?.screenTitle}
         functionName={route.params?.functionName}
+        backFunctionName={route.params?.backFunctionName}
         customGoBackRoute={route.params?.customGoBackRoute}
         customData1={route.params?.customData1}
         customData2={route.params?.customData2}
@@ -309,6 +313,7 @@ const SupportStack = () => {
         iconName={route.params?.iconName}
         screenTitle={route.params?.screenTitle}
         functionName={route.params?.functionName}
+        backFunctionName={route.params?.backFunctionName}
         customGoBackRoute={route.params?.customGoBackRoute}
         customData1={route.params?.customData1}
         customData2={route.params?.customData2}
@@ -348,6 +353,7 @@ const SettingStack = () => {
         iconName={route.params?.iconName}
         screenTitle={route.params?.screenTitle}
         functionName={route.params?.functionName}
+        backFunctionName={route.params?.backFunctionName}
         customGoBackRoute={route.params?.customGoBackRoute}
         customData1={route.params?.customData1}
         customData2={route.params?.customData2}
@@ -393,6 +399,7 @@ const AuthStack = () => {
         iconName={route.params?.iconName}
         screenTitle={route.params?.screenTitle}
         functionName={route.params?.functionName}
+        backFunctionName={route.params?.backFunctionName}
         customGoBackRoute={route.params?.customGoBackRoute}
         customData1={route.params?.customData1}
         customData2={route.params?.customData2}

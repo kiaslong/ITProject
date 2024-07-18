@@ -1,9 +1,10 @@
 import React, { useEffect } from 'react';
 import { View, Text, FlatList, StyleSheet, TouchableOpacity, Alert } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { registerFunction, unregisterFunction } from '../store/functionRegistry';
 import CarCard from "../components/CarCard";
+import { resetRegistration } from '../store/registrationSlice';
 
 const carForYou = [
   {
@@ -120,7 +121,33 @@ const carForYou = [
 const UserRegisterCarScreen = () => {
   const navigation = useNavigation();
   const user = useSelector(state => state.loggedIn.user);
-  
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    const key = 'resetRegistration';
+    const onPress = () => {
+      Alert.alert(
+        "Thoát đăng ký",
+        "Bạn chắc chắn muốn thoát?",
+        [
+          { text: "Cancel", style: "cancel" },
+          {
+            text: "OK",
+            onPress: () => {
+              dispatch(resetRegistration());
+              navigation.goBack(); 
+            }
+          }
+        ]
+      );
+    };
+
+    registerFunction(key, onPress);
+
+    return () => {
+      unregisterFunction(key);
+    };
+  }, [navigation, dispatch]);
 
   useEffect(() => {
     const key = 'registerCar';
@@ -140,7 +167,8 @@ const UserRegisterCarScreen = () => {
         showBackButton: true,
         screenTitle: "Thông tin xe",
         showCloseButton: true,
-        animationType: "slide_from_bottom"
+        animationType: "slide_from_bottom",
+        backFunctionName:"resetRegistration"
       });
     };
 
@@ -183,7 +211,8 @@ const UserRegisterCarScreen = () => {
             showBackButton: true,
             screenTitle: "Thông tin xe",
             showCloseButton: true,
-            animationType: "slide_from_bottom"
+            animationType: "slide_from_bottom",
+            backFunctionName:"resetRegistration"
           });
         }}
       >

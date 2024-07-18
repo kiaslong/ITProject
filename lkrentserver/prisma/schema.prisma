@@ -61,7 +61,8 @@ model Car {
   make                String
   model               String
   year                Int
-  isCarVerified       Boolean   @default(false) // Car verified status
+  isCarVerified       Boolean   @default(false)
+  allowApplyPromo     Boolean   @default(false)
   carImages           String[]  // List of 5 car images
   carPapers           String[]  // List of car paper images
   thumbImage          String    // Thumbnail image of the car
@@ -73,7 +74,8 @@ model Car {
   trips               String    // Number of trips
   oldPrice            String    // Old price of the car
   newPrice            String    // New price of the car
-  supportsDelivery    Boolean   // Supports delivery
+  supportsDelivery    Boolean   @default(false)
+  fastAcceptBooking   Boolean   @default(false)
   specs               Json      // Specifications of the car
   description         String    // Description of the car
   features            Json      // Features of the car

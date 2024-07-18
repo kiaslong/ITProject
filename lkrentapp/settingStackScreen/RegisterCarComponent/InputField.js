@@ -1,16 +1,16 @@
 // RegisterCarComponent/InputField.js
-import React,{forwardRef} from 'react';
+import React, { forwardRef } from 'react';
 import { View, Text, TextInput, StyleSheet } from 'react-native';
 
-const InputField = forwardRef(({ label, error, placeholder, onChangeText, autoCorrect, autoCapitalize, returnKeyType, multiline, numberOfLines }, ref) => {
+const InputField = forwardRef(({ label, error, onChangeText, placeholder,autoCorrect, autoCapitalize, returnKeyType, multiline, numberOfLines, labelStyle }, ref) => {
   return (
     <View style={styles.inputGroup}>
-      <Text style={styles.label}>{label}</Text>
-      <View style={[styles.inputContainer, error ? styles.inputError : null]}>
+      <Text style={[styles.label, labelStyle]}>{label}</Text>
+      <View style={[styles.inputContainer, error ? styles.inputError : null, multiline ? styles.multilineContainer : null]}>
         <TextInput
           style={[styles.input, multiline ? styles.descriptionInput : null]}
-          placeholder={placeholder}
           onChangeText={onChangeText}
+          placeholder={placeholder}
           autoCorrect={autoCorrect}
           autoCapitalize={autoCapitalize}
           returnKeyType={returnKeyType}
@@ -43,9 +43,12 @@ const styles = StyleSheet.create({
     borderColor: '#03a9f4',
     borderWidth: 1,
     borderRadius: 7,
-    padding: 10,
+    padding: 14,
     width: '100%',
-    height: 40,
+    height: 55,
+  },
+  multilineContainer: {
+    height: 150,
   },
   input: {
     flex: 1,

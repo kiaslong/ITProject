@@ -1,54 +1,60 @@
-import React, { useState,useEffect } from 'react';
-import {
-  View,
-  Text,
-  Pressable,
-  Image,
-  StyleSheet,
-  Alert,
-  Platform
-} from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, Text, Pressable, Image, StyleSheet, Alert, Platform } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 import { useNavigation } from '@react-navigation/native';
-import { registerFunction, unregisterFunction } from '../store/functionRegistry';
+import { useDispatch, useSelector } from 'react-redux';
+import { resetRegistration, setImages } from '../store/registrationSlice';
+import { registerFunction} from '../store/functionRegistry';
 
 const ImageUploadScreen = () => {
-    const navigation = useNavigation(); 
+  const navigation = useNavigation();
+  const dispatch = useDispatch();
+  const images = useSelector((state) => state.registration.images);
 
 
-    useEffect(() => {
-        const key = 'closeRegister';
-        const onPress = () => {
-          Alert.alert(
-            "Thoát đăng ký",
-            "Bạn chắc chắn muốn thoát?",
-            [
-              { text: "Cancel", style: "cancel" },
-              { text: "OK", onPress: () => {
-                  navigation.navigate('UserRegisterCarScreen', {
-                    showHeader: true,
-                    showTitle: true,
-                    showBackButton: true,
-                    screenTitle: "Đăng ký xe",
-                    showCloseButton: true,
-                    animationType: "slide_from_bottom",
-                    functionName:"registerCar",
-                    showIcon:true,
-                    iconName:"car"
-                  });
-                } 
-              }
-            ]
-          );
-        };
+
+  useEffect(() => {
+    const key = 'closeRegister';
+    const onPress = () => {
+      Alert.alert(
+        "Thoát đăng ký",
+        "Bạn chắc chắn muốn thoát?",
+        [
+          { text: "Cancel", style: "cancel" },
+          { text: "OK", onPress: () => {
+              dispatch(resetRegistration())
+              navigation.navigate('UserRegisterCarScreen', {
+                showHeader: true,
+                showTitle: true,
+                showBackButton: true,
+                screenTitle: "Đăng ký xe",
+                showCloseButton: true,
+                animationType: "slide_from_bottom",
+                functionName:"registerCar",
+                showIcon:true,
+                iconName:"car"
+              });
+            } 
+          }
+        ]
+      );
+    };
+
+    registerFunction(key, onPress);
+
     
-        registerFunction(key, onPress);
-    
-        
-      }, [navigation]);
+  }, [navigation]);
 
-  const [images, setImages] = useState({ avatar: null, front: null, back: null, left: null, right: null });
-
+  useEffect(() => {
+    (async () => {
+      if (Platform.OS !== 'web') {
+        const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+        if (status !== 'granted') {
+          alert('Sorry, we need camera roll permissions to make this work!');
+        }
+      }
+    })();
+  }, []);
 
   const handlePickImage = async (position, source) => {
     let result;
@@ -67,7 +73,7 @@ const ImageUploadScreen = () => {
     }
 
     if (!result.canceled) {
-      setImages({ ...images, [position]: result.assets[0] });
+      dispatch(setImages({ [position]: result.assets[0].uri }));
     }
   };
 
@@ -94,25 +100,34 @@ const ImageUploadScreen = () => {
   };
 
   const handleDeleteImage = (position) => {
-    setImages({ ...images, [position]: null });
+    dispatch(setImages({ [position]: null }));
   };
 
   const handleContinue = () => {
     const requiredImages = ['avatar', 'front', 'back', 'left', 'right'];
     for (let image of requiredImages) {
-      if (images[image]) { // add ! after test
+      if (!images[image]) {
         Alert.alert('Vui lòng chọn tất cả các hình ảnh yêu cầu.');
         return;
       }
     }
-    navigation.navigate('DocumentUploadScreen',{showHeader:true,showTitle:true,showBackButton:true,screenTitle:"Hình ảnh giấy tờ",showIcon:true,iconName:"close-circle-outline",iconType:"ionicons",functionName:"closeRegister"});
+    navigation.navigate('DocumentUploadScreen', {
+      showHeader: true,
+      showTitle: true,
+      showBackButton: true,
+      screenTitle: 'Hình ảnh giấy tờ',
+      showIcon: true,
+      iconName: 'close-circle-outline',
+      iconType: 'ionicons',
+      functionName: 'closeRegister',
+    });
   };
 
   const renderImageBox = (label, position) => (
     <Pressable style={styles.imageBox} onPress={() => handleSelectImageSource(position)}>
       {images[position] ? (
         <>
-          <Image source={{ uri: images[position].uri }} style={styles.image} />
+          <Image source={{ uri: images[position] }} style={styles.image} />
           <Pressable style={styles.deleteButton} onPress={() => handleDeleteImage(position)}>
             <Text style={styles.deleteButtonText}>X</Text>
           </Pressable>
