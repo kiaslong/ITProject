@@ -38,7 +38,7 @@ import CarRentalOrderScreen from "./homeStackScreen/CarRentalOrderScreen";
 import Header from "./components/Header";
 import { StatusBar } from 'expo-status-bar';
 import ChangeLocationTimeScreen from "./homeStackScreen/ChangeLocationTimeScreen";
-import CarDetailScreen from './homeStackScreen/CarDetailScreen';
+import CarDetailScreen, { DocumentComponent } from './homeStackScreen/CarDetailScreen';
 import ConfirmationScreen from "./homeStackScreen/CarOrderComponent/PlaceHolderComponent";
 import FullscreenMapComponent from "./homeStackScreen/CarConfirmComponent/FullScreenLocationComponent";
 import PaymentMethodScreen from "./homeStackScreen/PaymentMethodScreen";
@@ -49,6 +49,9 @@ import { loginSuccess, logout } from './store/loginSlice';
 import api from "./api";
 import OtpEntryScreen from "./settingStackScreen/VerifyingScreen/OtpEntryScreen";
 import EmailVerificationScreen from "./settingStackScreen/VerifyingScreen/EmailVerificationScreen";
+import ImageUploadScreen from "./settingStackScreen/ImageUploadScreen";
+import DocumentUploadScreen from "./settingStackScreen/DocumentUploadScreen";
+import RentalPriceScreen from "./settingStackScreen/RentalPriceScreen";
 
 
 const Stack = createNativeStackNavigator();
@@ -137,6 +140,7 @@ const RootStack = () => {
         customData1={route.params?.customData1}
         customData2={route.params?.customData2}
         customData3={route.params?.customData3}
+        iconType={route.params?.iconType}
       />
     ),
     
@@ -164,7 +168,12 @@ const RootStack = () => {
       <Stack.Screen name="ChangeTimeLocation" component={ChangeLocationTimeScreen} options={{gestureEnabled:false}} />
       <Stack.Screen name="RegisterScreen" component={RegisterScreen}  />
       <Stack.Screen name="RegisterCarScreen" component={RegisterCarScreen} options={{gestureEnabled:false}} />
+      <Stack.Screen name="ImageUploadScreen" component={ImageUploadScreen} options={{gestureEnabled:false}} />
+      <Stack.Screen name="DocumentUploadScreen" component={DocumentUploadScreen} options={{gestureEnabled:false}} />
+      <Stack.Screen name="RentalPriceScreen" component={RentalPriceScreen} options={{gestureEnabled:false}} />
       <Stack.Screen name="UserRegisterCarScreen" component={UserRegisterCarScreen} />
+
+
       <Stack.Screen name="PhoneVerificationScreen" component={PhoneVerificationScreen}  options={{gestureEnabled:false}} />
       <Stack.Screen name="OtpEntry" component={OtpEntryScreen}  options={{gestureEnabled:false}} />
       <Stack.Screen name="EmailVerificationScreen" component={EmailVerificationScreen}  options={{gestureEnabled:false}} />
@@ -194,6 +203,7 @@ const HomeStack = () => {
         customData1={route.params?.customData1}
         customData2={route.params?.customData2}
         customData3={route.params?.customData3}
+        iconType={route.params?.iconType}
       />
     ),
     headerStyle: { backgroundColor: "#fff" },
@@ -231,6 +241,7 @@ const NotiStack = () => {
         customData1={route.params?.customData1}
         customData2={route.params?.customData2}
         customData3={route.params?.customData3}
+        iconType={route.params?.iconType}
       />
     ),
     headerStyle: { backgroundColor: "#fff" },
@@ -266,6 +277,7 @@ const HistoryStack = () => {
         customData1={route.params?.customData1}
         customData2={route.params?.customData2}
         customData3={route.params?.customData3}
+        iconType={route.params?.iconType}
       />
     ),
     headerStyle: { backgroundColor: "#fff" },
@@ -301,6 +313,7 @@ const SupportStack = () => {
         customData1={route.params?.customData1}
         customData2={route.params?.customData2}
         customData3={route.params?.customData3}
+        iconType={route.params?.iconType}
       />
     ),
     headerStyle: { backgroundColor: "#fff" },
@@ -339,6 +352,7 @@ const SettingStack = () => {
         customData1={route.params?.customData1}
         customData2={route.params?.customData2}
         customData3={route.params?.customData3}
+        iconType={route.params?.iconType}
       />
     ),
     headerStyle: { backgroundColor: "#fff" },
@@ -383,6 +397,7 @@ const AuthStack = () => {
         customData1={route.params?.customData1}
         customData2={route.params?.customData2}
         customData3={route.params?.customData3}
+        iconType={route.params?.iconType}
       />
     ),
     headerStyle: { backgroundColor: "#fff" },

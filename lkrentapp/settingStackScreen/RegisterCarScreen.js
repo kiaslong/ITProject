@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Alert,
   Pressable,
@@ -7,19 +7,19 @@ import {
   View,
   KeyboardAvoidingView,
   Platform,
-  Image,
   ScrollView,
-  TouchableOpacity,
 } from 'react-native';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import * as ImagePicker from 'expo-image-picker';
 import InputField from './RegisterCarComponent/InputField';
 import ModalPicker from './RegisterCarComponent/ModalPicker';
+import { useNavigation } from '@react-navigation/native';
 
 const RegisterCarScreen = () => {
-  const licensePlateRef = useRef(null);
-  const descriptionRef = useRef(null);
-  const priceRef = useRef(null);
+  const navigation = useNavigation();
+
+  const [licensePlate, setLicensePlate] = useState('');
+  const [description, setDescription] = useState('');
 
   const [errors, setErrors] = useState({
     licensePlateError: '',
@@ -35,8 +35,6 @@ const RegisterCarScreen = () => {
   const [showModelPicker, setShowModelPicker] = useState(false);
   const [transmission, setTransmission] = useState('Automatic');
   const [fuel, setFuel] = useState('Gasoline');
-  const [images, setImages] = useState([]);
-  const [documents, setDocuments] = useState([]);
   const [promotion, setPromotion] = useState('Có');
   const [selectedMake, setSelectedMake] = useState('');
   const [selectedModel, setSelectedModel] = useState('');
@@ -50,12 +48,6 @@ const RegisterCarScreen = () => {
     })();
   }, []);
 
-  const handleInputChange = (name, value) => {
-    if (name === 'licensePlate') {
-      licensePlateRef.current = value;
-    }
-  };
-
   const clearErrorMessages = () => {
     setErrors({
       licensePlateError: '',
@@ -66,9 +58,8 @@ const RegisterCarScreen = () => {
 
   const validateInputs = () => {
     let valid = true;
-    const licensePlate = licensePlateRef.current?.trim();
 
-    if (!licensePlate) {
+    if (!licensePlate.trim()) {
       setErrors((prevState) => ({
         ...prevState,
         licensePlateError: 'Biển số xe là bắt buộc.',
@@ -120,64 +111,21 @@ const RegisterCarScreen = () => {
   };
 
   const handleRegister = () => {
-    if (validateInputs()) {
-      const licensePlate = licensePlateRef.current?.trim();
-      Alert.alert('Thành công', 'Đăng ký xe thành công');
-      licensePlateRef.current = '';
-      setSelectedMake('');
-      setSelectedModel('');
-      setSelectedYear('');
-      setSelectedSeats('');
-      setTransmission('Automatic');
-      setFuel('Gasoline');
-      setImages([]);
-      setDocuments([]);
+    if (validateInputs()===false) {
+      navigation.navigate('ImageUploadScreen',{showBackButton:true, showTitle:true,showHeader:true,screenTitle:"Chọn hình ảnh",showIcon:true,iconType:"ionicons",iconName:"close-circle-outline",functionName:"closeRegister"});
     }
-  };
-
-  const handlePickImage = async () => {
-    const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.Images,
-      allowsMultipleSelection: true,
-      quality: 1,
-    });
-
-    if (!result.canceled) {
-      setImages([...images, ...result.assets]);
-    }
-  };
-
-  const handlePickDocument = async () => {
-    const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.Images,
-      allowsMultipleSelection: true,
-      quality: 1,
-    });
-
-    if (!result.canceled) {
-      setDocuments([...documents, ...result.assets]);
-    }
-  };
-
-  const handleDeleteImage = (uri) => {
-    setImages(images.filter((image) => image.uri !== uri));
-  };
-
-  const handleDeleteDocument = (uri) => {
-    setDocuments(documents.filter((document) => document.uri !== uri));
   };
 
 
   const handleYearSelect = (item) => {
-    setSelectedYear(item)
+    setSelectedYear(item);
     setShowYearPicker(false);
   };
 
   const handleSeatSelect = (item) => {
-      setSelectedSeats(item)
-      setShowSeatsPicker(false);
+    setSelectedSeats(item);
+    setShowSeatsPicker(false);
   };
-
 
   const handleMakeSelect = (make) => {
     setSelectedMake(make);
@@ -258,7 +206,7 @@ const RegisterCarScreen = () => {
             label="Biển số xe"
             error={errors.licensePlateError}
             placeholder="Biển số xe"
-            onChangeText={(text) => handleInputChange('licensePlate', text)}
+            onChangeText={(text) => setLicensePlate(text)}
             autoCorrect={false}
             autoCapitalize="none"
             returnKeyType="next"
@@ -421,71 +369,17 @@ const RegisterCarScreen = () => {
             placeholder="Nhập địa chỉ xe"
             autoCorrect={false}
             autoCapitalize="none"
+            onChangeText={(text) => setDescription(text)}
           />
-
-          <View style={styles.inputGroup}>
-            <Text style={styles.label}>Hình ảnh xe</Text>
-            <Pressable style={styles.pickImageButton} onPress={handlePickImage}>
-              <Text style={styles.pickImageButtonText}>Chọn hình ảnh</Text>
-            </Pressable>
-            <ScrollView horizontal style={styles.imagesContainer}>
-              {images.map((image, index) => (
-                <View key={index} style={styles.imageWrapper}>
-                  <Image
-                    source={{ uri: image.uri }}
-                    style={styles.image}
-                  />
-                  <TouchableOpacity
-                    style={styles.deleteButton}
-                    onPress={() => handleDeleteImage(image.uri)}
-                  >
-                    <Text style={styles.deleteButtonText}>X</Text>
-                  </TouchableOpacity>
-                </View>
-              ))}
-            </ScrollView>
-          </View>
-
-          <View style={styles.inputGroup}>
-            <Text style={styles.label}>Giấy tờ xe</Text>
-            <Pressable style={styles.pickImageButton} onPress={handlePickDocument}>
-              <Text style={styles.pickImageButtonText}>Chọn giấy tờ</Text>
-            </Pressable>
-            <ScrollView horizontal style={styles.imagesContainer}>
-              {documents.map((document, index) => (
-                <View key={index} style={styles.imageWrapper}>
-                  <Image
-                    source={{ uri: document.uri }}
-                    style={styles.image}
-                  />
-                  <TouchableOpacity
-                    style={styles.deleteButton}
-                    onPress={() => handleDeleteDocument(document.uri)}
-                  >
-                    <Text style={styles.deleteButtonText}>X</Text>
-                  </TouchableOpacity>
-                </View>
-              ))}
-            </ScrollView>
-          </View>
 
           <InputField
             label="Mô tả xe"
-            ref={descriptionRef}
             placeholder="Nhập mô tả xe"
             autoCorrect={false}
             autoCapitalize="none"
             multiline={true}
             numberOfLines={4}
-          />
-
-          <InputField
-            label="Giá cho thuê (VNĐ)"
-            ref={priceRef}
-            placeholder="Nhập giá cho thuê"
-            keyboardType="numeric"
-            autoCorrect={false}
-            autoCapitalize="none"
+            onChangeText={(text) => setDescription(text)}
           />
 
           <View style={styles.inputGroup}>
@@ -536,7 +430,7 @@ const RegisterCarScreen = () => {
       <ModalPicker
         visible={showYearPicker}
         items={years.map((year) => year.toString())}
-        onSelect={ (item)=> handleYearSelect(item)}
+        onSelect={handleYearSelect}
         label="Năm sản xuất"
         onClose={() => setShowYearPicker(false)}
       />
@@ -544,7 +438,7 @@ const RegisterCarScreen = () => {
       <ModalPicker
         visible={showSeatsPicker}
         items={seats}
-        onSelect={(item)=>handleSeatSelect(item)}
+        onSelect={handleSeatSelect}
         label="Số chỗ"
         onClose={() => setShowSeatsPicker(false)}
       />
@@ -663,47 +557,6 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: 'bold',
     marginBottom: 10,
-  },
-  pickImageButton: {
-    backgroundColor: '#03a9f4',
-    padding: 10,
-    borderRadius: 5,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginVertical: 10,
-  },
-  pickImageButtonText: {
-    color: 'white',
-    fontSize: 16,
-    fontWeight: 'bold',
-  },
-  imagesContainer: {
-    marginTop: 10,
-  },
-  imageWrapper: {
-    position: 'relative',
-    marginRight: 10,
-  },
-  image: {
-    width: 100,
-    height: 100,
-    borderRadius: 10,
-  },
-  deleteButton: {
-    position: 'absolute',
-    top: 5,
-    right: 5,
-    backgroundColor: 'rgba(255, 0, 0, 0.7)',
-    borderRadius: 15,
-    width: 30,
-    height: 30,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  deleteButtonText: {
-    color: 'white',
-    fontSize: 16,
-    fontWeight: 'bold',
   },
   errorContainer: {
     flexDirection: 'row',
