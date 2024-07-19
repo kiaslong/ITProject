@@ -18,7 +18,6 @@ export const getCoordinates = async (address, apiKey) => {
   }
 };
 
-
 export const autoComplete = async (input, apiKey, location) => {
   const url = `https://rsapi.goong.io/Place/AutoComplete?api_key=${apiKey}&location=${encodeURIComponent(location)}&more_compound=true&radius=50&input=${encodeURIComponent(input)}`;
 
@@ -42,8 +41,8 @@ export const autoComplete = async (input, apiKey, location) => {
   }
 };
 
-export const getGeocode = async (latitude, longitude,api_key) => {
-  const url = `https://rsapi.goong.io/Geocode?latlng=${latitude},${longitude}&api_key=${api_key}`;
+export const getGeocode = async (latitude, longitude, apiKey) => {
+  const url = `https://rsapi.goong.io/Geocode?latlng=${latitude},${longitude}&api_key=${apiKey}`;
   
   try {
     const response = await axios.get(url);
@@ -55,6 +54,24 @@ export const getGeocode = async (latitude, longitude,api_key) => {
     }
   } catch (error) {
     console.error('Error fetching geocode:', error);
+    return null;
+  }
+};
+
+export const getGeocodeByAddress = async (address, apiKey) => {
+  const url = `https://rsapi.goong.io/geocode?address=${encodeURIComponent(address)}&api_key=${apiKey}`;
+  
+  try {
+    const response = await axios.get(url);
+    if (response.data.results && response.data.results.length > 0) {
+      const { formatted_address, geometry } = response.data.results[0];
+      const { lat, lng } = geometry.location;
+      return { address: formatted_address, latitude: lat, longitude: lng };
+    } else {
+      throw new Error('No address found');
+    }
+  } catch (error) {
+    console.error('Error fetching geocode by address:', error);
     return null;
   }
 };

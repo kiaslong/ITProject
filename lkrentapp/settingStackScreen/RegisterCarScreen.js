@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import {
   Alert,
   Pressable,
@@ -8,16 +8,21 @@ import {
   KeyboardAvoidingView,
   Platform,
   Switch,
+  TextInput,
 } from "react-native";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 import * as ImagePicker from "expo-image-picker";
 import InputField from "./RegisterCarComponent/InputField";
 import ModalPicker from "./RegisterCarComponent/ModalPicker";
 import FeatureSelectionModal from "./RegisterCarComponent/FeatureSelectionModal";
+import AddressPickerModal from "./RegisterCarComponent/AddressPickerModal";
 import { Ionicons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
 import { useDispatch, useSelector } from "react-redux";
 import { setField } from "../store/registrationSlice";
+
+import addresses from './json/tree.json';
+import carBrandsAndModels from './json/carBrandsAndModels.json';
 
 const RegisterCarScreen = () => {
   const navigation = useNavigation();
@@ -39,6 +44,13 @@ const RegisterCarScreen = () => {
   const [fastBooking, setFastBooking] = useState(registrationData.fastAcceptBooking);
   const [showStartPicker, setShowStartPicker] = useState(false);
   const [showEndPicker, setShowEndPicker] = useState(false);
+  const [showAddressPicker, setShowAddressPicker] = useState(false);
+
+  const [selectedCity, setSelectedCity] = useState(null);
+  const [selectedDistrict, setSelectedDistrict] = useState(null);
+  const [selectedWard, setSelectedWard] = useState(null);
+
+  const inputRefs = useRef({});
 
   useEffect(() => {
     (async () => {
@@ -119,7 +131,7 @@ const RegisterCarScreen = () => {
 
   const handleRegister = () => {
     if (validateInputs()) {
-      handleSelect("ownerId",user.id)
+      handleSelect("ownerId", user.id);
       navigation.navigate("ImageUploadScreen", {
         showBackButton: true,
         showTitle: true,
@@ -137,60 +149,26 @@ const RegisterCarScreen = () => {
     dispatch(setField({ field, value }));
   };
 
+  const handleAddressSelect = (address) => {
+    setSelectedCity(address.city);
+    setSelectedDistrict(address.district);
+    setSelectedWard(address.ward);
+    handleSelect(
+      "location",
+      `${address.street}, ${address.ward.name_with_type}, ${address.district.name_with_type}, ${address.city.name_with_type}`
+    );
+    setShowAddressPicker(false);
+  };
+
+  const blurAllInputs = () => {
+    Object.values(inputRefs.current).forEach(input => input && input.blur());
+  };
+
   const years = Array.from(
     new Array(10),
     (_, index) => new Date().getFullYear() - index
   );
   const seats = Array.from({ length: 6 }, (_, i) => (i + 4).toString());
-
-  const carBrandsAndModels = {
-    Audi: ["A3", "A4", "A6", "Q3", "Q5", "Q7"],
-    Baic: ["X25", "X35", "X55", "D20"],
-    Bentley: ["Continental", "Bentayga", "Flying Spur"],
-    BMW: ["3 Series", "5 Series", "X3", "X5", "7 Series"],
-    Brilliance: ["V5", "H230", "H330", "H530"],
-    Buick: ["Encore", "Envision", "Enclave", "LaCrosse"],
-    Chevrolet: ["Spark", "Cruze", "Malibu", "Equinox", "Traverse"],
-    Daewoo: ["Matiz", "Gentra", "Nexia", "Lacetti"],
-    Daihatsu: ["Terios", "Sirion", "Xenia", "Ayla"],
-    Dongben: ["X30", "V29", "T30"],
-    Dongfeng: ["AX7", "S30", "H30 Cross"],
-    Fairy: ["F6", "SUP"],
-    Fiat: ["500", "Panda", "Tipo", "500X"],
-    Ford: ["Fiesta", "Focus", "Mustang", "Explorer", "F-150"],
-    Geely: ["Coolray", "Azkarra", "Okavango"],
-    Haima: ["S5", "M3", "M6"],
-    Honda: ["Civic", "Accord", "CR-V", "HR-V", "Pilot"],
-    Hyundai: ["Accent", "Elantra", "Sonata", "Tucson", "Santa Fe"],
-    Isuzu: ["D-Max", "MU-X", "NPR"],
-    Jaguar: ["XE", "XF", "F-PACE", "I-PACE"],
-    Kenbo: ["S2", "S3", "S7"],
-    Kia: ["Rio", "Cerato", "Sportage", "Sorento"],
-    "Land Rover": ["Range Rover", "Discovery", "Defender"],
-    Lexus: ["IS", "ES", "RX", "NX", "LX"],
-    Luxgen: ["U5", "U6", "S3", "S5"],
-    Mazda: ["Mazda3", "Mazda6", "CX-5", "CX-9"],
-    Mercedes: ["A-Class", "C-Class", "E-Class", "GLC", "S-Class"],
-    Mitsubishi: ["Mirage", "Outlander", "Pajero", "Xpander"],
-    "Morris Garages": ["ZS", "HS", "RX5"],
-    Nissan: ["Altima", "Sentra", "Rogue", "X-Trail", "Patrol"],
-    Peugeot: ["208", "308", "3008", "5008"],
-    Porsche: ["911", "Cayenne", "Panamera", "Macan"],
-    Renault: ["Clio", "Megane", "Captur", "Koleos"],
-    Riich: ["G5", "M1"],
-    Samsung: ["SM3", "SM5", "SM6", "QM6"],
-    SsangYong: ["Tivoli", "Korando", "Rexton"],
-    Subaru: ["Impreza", "Forester", "Outback", "XV"],
-    Suzuki: ["Swift", "Vitara", "Ertiga", "Jimny"],
-    Tobe: ["M'car", "W'car"],
-    Toyota: ["Corolla", "Camry", "RAV4", "Fortuner", "Land Cruiser"],
-    UAZ: ["Patriot", "Hunter", "Pickup"],
-    Vinfast: ["Fadil", "Lux A2.0", "Lux SA2.0"],
-    Volkswagen: ["Golf", "Passat", "Tiguan", "Atlas"],
-    Volvo: ["S60", "XC40", "XC60", "XC90"],
-    Wuling: ["Hongguang", "Confero", "Cortez", "Almaz"],
-    Zotye: ["T600", "Z300", "SR9"],
-  };
 
   return (
     <KeyboardAvoidingView
@@ -213,6 +191,7 @@ const RegisterCarScreen = () => {
             autoCapitalize="none"
             returnKeyType="next"
             value={registrationData.licensePlate}
+            ref={(input) => (inputRefs.current.licensePlate = input)}
           />
 
           <Text style={styles.label}>Hãng xe</Text>
@@ -221,7 +200,10 @@ const RegisterCarScreen = () => {
               styles.inputContainer,
               errors.companyError ? styles.inputError : null,
             ]}
-            onPress={() => setShowMakePicker(true)}
+            onPress={() => {
+              blurAllInputs();
+              setShowMakePicker(true);
+            }}
           >
             <Text style={styles.selectedText}>
               {registrationData.selectedMake
@@ -241,7 +223,10 @@ const RegisterCarScreen = () => {
               styles.inputContainer,
               errors.modelError ? styles.inputError : null,
             ]}
-            onPress={() => setShowModelPicker(true)}
+            onPress={() => {
+              blurAllInputs();
+              setShowModelPicker(true);
+            }}
             disabled={!registrationData.selectedMake}
           >
             <Text style={styles.selectedText}>
@@ -264,7 +249,10 @@ const RegisterCarScreen = () => {
                   styles.inputContainer,
                   errors.yearError ? styles.inputError : null,
                 ]}
-                onPress={() => setShowYearPicker(true)}
+                onPress={() => {
+                  blurAllInputs();
+                  setShowYearPicker(true);
+                }}
               >
                 <Text style={styles.selectedText}>
                   {registrationData.selectedYear
@@ -281,7 +269,10 @@ const RegisterCarScreen = () => {
                   styles.inputContainer,
                   errors.seatsError ? styles.inputError : null,
                 ]}
-                onPress={() => setShowSeatsPicker(true)}
+                onPress={() => {
+                  blurAllInputs();
+                  setShowSeatsPicker(true);
+                }}
               >
                 <Text style={styles.selectedText}>
                   {registrationData.selectedSeats
@@ -407,14 +398,18 @@ const RegisterCarScreen = () => {
           <View style={styles.middleLine}></View>
 
           <Text style={styles.additionalInfoTitle}>Thông tin bổ sung</Text>
-          <InputField
-            label="Địa chỉ xe"
-            placeholder="Nhập địa chỉ xe"
-            autoCorrect={false}
-            autoCapitalize="none"
-            onChangeText={(text) => handleSelect("location", text)}
-            value={registrationData.location}
-          />
+          <Text style={styles.label}>Địa chỉ xe</Text>
+          <Pressable
+            style={styles.inputContainer}
+            onPress={() => {
+              blurAllInputs();
+              setShowAddressPicker(true);
+            }}
+          >
+            <Text style={styles.selectedText} numberOfLines={1}>
+              {registrationData.location ? registrationData.location : "Nhập địa chỉ xe"}
+            </Text>
+          </Pressable>
 
           <InputField
             label="Mô tả xe"
@@ -424,6 +419,7 @@ const RegisterCarScreen = () => {
             numberOfLines={4}
             onChangeText={(text) => handleSelect("description", text)}
             value={registrationData.description}
+            ref={(input) => (inputRefs.current.description = input)}
           />
 
           <View style={styles.featureContainer}>
@@ -440,7 +436,12 @@ const RegisterCarScreen = () => {
                 ))}
               </View>
             )}
-            <Pressable onPress={() => setModalVisible(true)}>
+            <Pressable
+              onPress={() => {
+                blurAllInputs();
+                setModalVisible(true);
+              }}
+            >
               <Text style={styles.featureSelectText}>
                 Chọn tính năng <Ionicons name="chevron-forward" size={16} />
               </Text>
@@ -516,7 +517,10 @@ const RegisterCarScreen = () => {
                 </Text>
                 <Pressable
                   style={styles.inputContainer}
-                  onPress={() => setShowStartPicker(true)}
+                  onPress={() => {
+                    blurAllInputs();
+                    setShowStartPicker(true);
+                  }}
                 >
                   <Text style={styles.selectedText}>
                     {registrationData.startDateFastBooking
@@ -526,7 +530,10 @@ const RegisterCarScreen = () => {
                 </Pressable>
                 <Pressable
                   style={styles.inputContainer}
-                  onPress={() => setShowEndPicker(true)}
+                  onPress={() => {
+                    blurAllInputs();
+                    setShowEndPicker(true);
+                  }}
                 >
                   <Text style={styles.selectedText}>
                     {registrationData.endDateFastBooking
@@ -617,6 +624,14 @@ const RegisterCarScreen = () => {
         onClose={() => setModalVisible(false)}
         onSelect={(features) => handleSelect("selectedFeatures", features)}
       />
+
+      <AddressPickerModal
+        visible={showAddressPicker}
+        items={{ cities: Object.values(addresses) }}
+        title="Chọn địa chỉ"
+        onSelect={handleAddressSelect}
+        onClose={() => setShowAddressPicker(false)}
+      />
     </KeyboardAvoidingView>
   );
 };
@@ -664,7 +679,7 @@ const styles = StyleSheet.create({
     flex: 1,
     textAlign: "center",
     textAlignVertical: "center",
-    fontSize: 16,
+    fontSize: 15,
     color: "#000",
   },
   transmissionContainer: {

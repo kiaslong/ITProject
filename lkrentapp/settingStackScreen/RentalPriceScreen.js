@@ -12,13 +12,15 @@ import {
   Easing,
   Dimensions,
   TouchableWithoutFeedback,
+  ActivityIndicator,
+  Alert,
 } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import Slider from "@react-native-community/slider";
 import { Ionicons } from "@expo/vector-icons";
 import { unregisterFunction } from "../store/functionRegistry";
 import { useDispatch, useSelector } from 'react-redux';
-import { setField , resetRegistration } from '../store/registrationSlice';
+import { setField, resetRegistration } from '../store/registrationSlice';
 import api from "../api";
 import { getToken } from "../utils/tokenStorage";
 
@@ -47,6 +49,8 @@ const RentalPriceScreen = ({ route }) => {
   const [modalVisible, setModalVisible] = useState(false);
   const [helpModalVisible, setHelpModalVisible] = useState(false);
   const [discountModalVisible, setDiscountModalVisible] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [message, setMessage] = useState(null);
 
   const modalSlideAnim = useRef(new Animated.Value(height)).current;
   const helpModalSlideAnim = useRef(new Animated.Value(height)).current;
@@ -167,6 +171,7 @@ const RentalPriceScreen = ({ route }) => {
   };
 
   const handleContinue = async () => {
+    setLoading(true); // Show loading indicator
     try {
       const formData = new FormData();
       
@@ -226,18 +231,33 @@ const RentalPriceScreen = ({ route }) => {
           'Content-Type': 'multipart/form-data',
         },
       });
-  
-      console.log('API response:', response);
-      // If registration is successful, reset the registration form
-      dispatch(resetRegistration());
-  
+
+      if (response.status === 201) {
+        setMessage('Car registered successfully.');
+        setTimeout(() => {
+          dispatch(resetRegistration());
+          navigation.navigate('UserRegisterCarScreen', {
+            showHeader: true,
+            showTitle: true,
+            showBackButton: true,
+            screenTitle: "Đăng ký xe",
+            showCloseButton: true,
+            animationType: "slide_from_bottom",
+            functionName:"registerCar",
+            showIcon:true,
+            iconName:"car"
+          });
+        }, 2000); // Display the message for 2 seconds before navigating
+      }
+
       return response.data;
     } catch (error) {
       console.error('Error uploading images and data:', error);
       Alert.alert('Upload failed', 'Failed to upload images and data');
+    } finally {
+      setLoading(false); // Hide loading indicator
     }
   };
-  
 
   const helpModalContent = (
     <View style={styles.textContainer}>
@@ -321,7 +341,7 @@ const RentalPriceScreen = ({ route }) => {
         />
         <View style={styles.rangeContainer}>
           <Text style={styles.rangeText}>400K</Text>
-          <Text style={styles.rangeText}>1000K</Text>
+          <Text style={styles.rangeText}>2000K</Text>
         </View>
       </View>
       <View style={styles.discountContainer}>
@@ -350,6 +370,18 @@ const RentalPriceScreen = ({ route }) => {
       <Pressable style={styles.button} onPress={handleContinue}>
         <Text style={styles.buttonText}>Hoàn Tất Đăng Ký</Text>
       </Pressable>
+
+      {loading && (
+        <View style={styles.loadingOverlay}>
+          <ActivityIndicator size="large" color="#03a9f4" />
+        </View>
+      )}
+
+      {message && (
+        <View style={styles.messageOverlay}>
+          <Text style={styles.messageText}>{message}</Text>
+        </View>
+      )}
 
       {renderModal(modalVisible, helpModalContent, closeModal, modalSlideAnim)}
       {renderModal(helpModalVisible, helpModalContent, closeHelpModal, helpModalSlideAnim)}
@@ -529,6 +561,35 @@ const styles = StyleSheet.create({
     color: "#fff",
     fontSize: 18,
     fontWeight: "bold",
+  },
+  loadingOverlay: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0,0,0,0.5)',
+  },
+  messageOverlay: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0,0,0,0.5)',
+  },
+  messageText: {
+    color: '#fff',
+    fontSize: 18,
+    fontWeight: 'bold',
+    textAlign: 'center',
+    padding: 20,
+    backgroundColor: '#03a9f4',
+    borderRadius: 10,
   },
 });
 

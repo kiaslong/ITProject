@@ -10,7 +10,7 @@ export class CarService {
   constructor(private prisma: PrismaService) {}
 
   async registerCar(createCarDto: CreateCarDto, avatarUrl: string, imageUrls: string[]) {
-    this.logger.log('Received createCarDto:', JSON.stringify(createCarDto));
+    
 
     const {
       ownerId,
@@ -68,8 +68,8 @@ export class CarService {
       },
     });
 
-    this.logger.log('Car created:', car);
 
-    return car;
+
+    return { code: 201, message: 'Car registered successfully' };
   }
 }
