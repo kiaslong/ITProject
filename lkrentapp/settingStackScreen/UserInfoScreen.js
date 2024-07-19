@@ -34,7 +34,7 @@ const UserInfoScreen = () => {
 
   const handleLicensePress = () => {
     // Navigate to license verification screen
-    navigation.navigate('LicenseVerificationScreen');
+    navigation.navigate('DrivingLicenseScreen',{showBackButton:true,showCloseButton:true,showHeader:true,showTitle:true,screenTitle:"Giấy tờ xe"});
   };
 
   const handlePhonePress = () => {
@@ -44,7 +44,7 @@ const UserInfoScreen = () => {
 
   const handleEmailPress = () => {
     // Navigate to email verification screen
-    navigation.navigate('EmailVerificationScreen');
+    navigation.navigate('EmailVerificationScreen',{showBackButton:true,showCloseButton:true,showHeader:true,showTitle:true,screenTitle:"Xác thực Email",initEmail:user?.email});
   };
 
   return (
@@ -85,7 +85,7 @@ const UserInfoScreen = () => {
                 style={styles.extraInfoIcon} 
               />
               <Text style={styles.extraInfoText}>
-                {user?.drivingLicenseVerified ? "Đã xác thực" : "Chưa xác thực"}
+                {user?.drivingLicenseVerified ? "Xác thực" : "Chưa xác thực"}
               </Text>
             </View>
           </View>
@@ -110,7 +110,7 @@ const UserInfoScreen = () => {
                 style={styles.extraInfoIcon} 
               />
               <Text style={styles.extraInfoText}>
-                {user?.phoneNumberVerified ? "Đã xác thực" : "Chưa xác thực"}
+                {user?.phoneNumberVerified ? "Xác thực" : "Chưa xác thực"}
               </Text>
             </View>
           </View>
@@ -135,7 +135,7 @@ const UserInfoScreen = () => {
                 style={styles.extraInfoIcon} 
               />
               <Text style={styles.extraInfoText}>
-                {user?.emailVerified ? "Đã xác thực" : "Chưa xác thực"}
+                {user?.emailVerified ? "Xác thực" : "Chưa xác thực"}
               </Text>
             </View>
           </View>
@@ -222,7 +222,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: deviceWidth * 0.014,
     borderRadius: 16,
     paddingVertical: deviceHeight * 0.004,
-    marginRight: deviceWidth * 0.052
+    marginRight: deviceWidth * 0.05
   },
   extraInfoBoxBackground: {
     flexDirection: 'row',
@@ -238,16 +238,17 @@ const styles = StyleSheet.create({
     marginRight: deviceWidth * 0.014,
   },
   extraInfoText: {
-    fontSize: deviceHeight * 0.014,
+    
+    fontSize: deviceHeight * 0.0135,
   },
   extraInfoTextLeft: {
-    flex: 1,
+    flex: 1.1,
     textAlign: 'left',
     color: '#666',
     fontSize: deviceHeight * 0.015,
   },
   extraInfoTextRight: {
-    flex: 1,
+    flex: 1.2,
     textAlign: 'right',
     color: '#666',
     fontSize: deviceHeight * 0.015,

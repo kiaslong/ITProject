@@ -21,7 +21,7 @@ export class MailerService {
   async sendMail(to: string, subject: string, text: string) {
     try {
       await this.transporter.sendMail({
-        from: `"Your App" <${process.env.SMTP_FROM}>`,
+        from: `"LKRENTAL" <${process.env.SMTP_FROM}>`,
         to,
         subject,
         text,

@@ -1,10 +1,14 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, SafeAreaView, Alert, Keyboard, TouchableWithoutFeedback } from 'react-native';
+import { useDispatch } from 'react-redux';
 import api from '../../api';
+import { getToken } from '../../utils/tokenStorage';
+import { updateUser } from '../../store/loginSlice'; // Import the updateUser action
 
 const OTP_VALIDITY_DURATION = 3 * 60 * 1000; // 3 minutes in milliseconds
 
 const OtpEntryScreen = ({ route, navigation }) => {
+  const dispatch = useDispatch();
   const { pinId, createdTime } = route.params;
   const [otp, setOtp] = useState(['', '', '', '', '', '']);
   const [timeLeft, setTimeLeft] = useState(() => {
@@ -43,18 +47,35 @@ const OtpEntryScreen = ({ route, navigation }) => {
 
   const handleVerify = async () => {
     const otpCode = otp.join('');
+    const token = await getToken();
+    if (!token) {
+      Alert.alert('Error', 'Authentication token is missing.');
+      return;
+    }
+
     try {
-      const response = await api.post('/sms-otp/verify', { pinId, code: otpCode });
+      await api.post('/sms-otp/verify', { pinId, code: otpCode }, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+
+      // Make a request to get the updated user info
+      const userInfoResponse = await api.get('/auth/info', {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      const userData = userInfoResponse.data;
+      dispatch(updateUser(userData)); // Dispatch the updateUser action to update the user data in the Redux store
+
       Alert.alert('Success', 'Your phone number has been verified successfully!', [
         {
           text: 'OK', onPress: () => {
             setTimeout(() => {
-              navigation.navigate('UserInfoScreen',{ showHeader: true,
+              navigation.navigate('UserInfoScreen', {
+                showHeader: true,
                 showTitle: true,
                 showBackButton: true,
                 screenTitle: "Tài khoản của tôi",
-                });
-            }, 1000);
+              });
+            }, 700);
           }
         }
       ]);

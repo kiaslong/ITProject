@@ -126,7 +126,7 @@ const RegisterScreen = () => {
           password: password.trim(),
         });
 
-        console.log("Registration response:", registerResponse.data);
+        
 
         // Automatically log in the user after successful registration
         const loginResponse = await api.post("/auth/login", {
@@ -135,13 +135,14 @@ const RegisterScreen = () => {
         });
 
         const { token } = loginResponse.data;
+        
 
-        await saveToken(token);
+        await saveToken(token.access_token);
 
         // Use the token to fetch user info
         const userInfoResponse = await api.get("/auth/info", {
           headers: {
-            Authorization:token,
+            Authorization:token.access_token,
           },
         });
 

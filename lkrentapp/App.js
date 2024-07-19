@@ -38,7 +38,7 @@ import CarRentalOrderScreen from "./homeStackScreen/CarRentalOrderScreen";
 import Header from "./components/Header";
 import { StatusBar } from 'expo-status-bar';
 import ChangeLocationTimeScreen from "./homeStackScreen/ChangeLocationTimeScreen";
-import CarDetailScreen from './homeStackScreen/CarDetailScreen';
+import CarDetailScreen, { DocumentComponent } from './homeStackScreen/CarDetailScreen';
 import ConfirmationScreen from "./homeStackScreen/CarOrderComponent/PlaceHolderComponent";
 import FullscreenMapComponent from "./homeStackScreen/CarConfirmComponent/FullScreenLocationComponent";
 import PaymentMethodScreen from "./homeStackScreen/PaymentMethodScreen";
@@ -48,6 +48,10 @@ import { getToken, removeToken } from './utils/tokenStorage';
 import { loginSuccess, logout } from './store/loginSlice'; 
 import api from "./api";
 import OtpEntryScreen from "./settingStackScreen/VerifyingScreen/OtpEntryScreen";
+import EmailVerificationScreen from "./settingStackScreen/VerifyingScreen/EmailVerificationScreen";
+import ImageUploadScreen from "./settingStackScreen/ImageUploadScreen";
+import DocumentUploadScreen from "./settingStackScreen/DocumentUploadScreen";
+import RentalPriceScreen from "./settingStackScreen/RentalPriceScreen";
 
 
 const Stack = createNativeStackNavigator();
@@ -132,10 +136,12 @@ const RootStack = () => {
         iconName={route.params?.iconName}
         screenTitle={route.params?.screenTitle}
         functionName={route.params?.functionName}
+        backFunctionName={route.params?.backFunctionName}
         customGoBackRoute={route.params?.customGoBackRoute}
         customData1={route.params?.customData1}
         customData2={route.params?.customData2}
         customData3={route.params?.customData3}
+        iconType={route.params?.iconType}
       />
     ),
     
@@ -163,10 +169,16 @@ const RootStack = () => {
       <Stack.Screen name="ChangeTimeLocation" component={ChangeLocationTimeScreen} options={{gestureEnabled:false}} />
       <Stack.Screen name="RegisterScreen" component={RegisterScreen}  />
       <Stack.Screen name="RegisterCarScreen" component={RegisterCarScreen} options={{gestureEnabled:false}} />
+      <Stack.Screen name="ImageUploadScreen" component={ImageUploadScreen} options={{gestureEnabled:false}} />
+      <Stack.Screen name="DocumentUploadScreen" component={DocumentUploadScreen} options={{gestureEnabled:false}} />
+      <Stack.Screen name="RentalPriceScreen" component={RentalPriceScreen} options={{gestureEnabled:false}} />
       <Stack.Screen name="UserRegisterCarScreen" component={UserRegisterCarScreen} />
+
+
       <Stack.Screen name="PhoneVerificationScreen" component={PhoneVerificationScreen}  options={{gestureEnabled:false}} />
       <Stack.Screen name="OtpEntry" component={OtpEntryScreen}  options={{gestureEnabled:false}} />
-      
+      <Stack.Screen name="EmailVerificationScreen" component={EmailVerificationScreen}  options={{gestureEnabled:false}} />
+
       <Stack.Screen name="TimePicker" component={TimePickerScreen} />
       <Stack.Screen name="LocationPicker" component={LocationPickerScreen} />
       <Stack.Screen name="DrivingLicenseScreen" component={DrivingLicenseScreen}  />
@@ -188,10 +200,12 @@ const HomeStack = () => {
         iconName={route.params?.iconName}
         screenTitle={route.params?.screenTitle}
         functionName={route.params?.functionName}
+        backFunctionName={route.params?.backFunctionName}
         customGoBackRoute={route.params?.customGoBackRoute}
         customData1={route.params?.customData1}
         customData2={route.params?.customData2}
         customData3={route.params?.customData3}
+        iconType={route.params?.iconType}
       />
     ),
     headerStyle: { backgroundColor: "#fff" },
@@ -225,10 +239,12 @@ const NotiStack = () => {
         iconName={route.params?.iconName}
         screenTitle={route.params?.screenTitle}
         functionName={route.params?.functionName}
+        backFunctionName={route.params?.backFunctionName}
         customGoBackRoute={route.params?.customGoBackRoute}
         customData1={route.params?.customData1}
         customData2={route.params?.customData2}
         customData3={route.params?.customData3}
+        iconType={route.params?.iconType}
       />
     ),
     headerStyle: { backgroundColor: "#fff" },
@@ -260,10 +276,12 @@ const HistoryStack = () => {
         iconName={route.params?.iconName}
         screenTitle={route.params?.screenTitle}
         functionName={route.params?.functionName}
+        backFunctionName={route.params?.backFunctionName}
         customGoBackRoute={route.params?.customGoBackRoute}
         customData1={route.params?.customData1}
         customData2={route.params?.customData2}
         customData3={route.params?.customData3}
+        iconType={route.params?.iconType}
       />
     ),
     headerStyle: { backgroundColor: "#fff" },
@@ -295,10 +313,12 @@ const SupportStack = () => {
         iconName={route.params?.iconName}
         screenTitle={route.params?.screenTitle}
         functionName={route.params?.functionName}
+        backFunctionName={route.params?.backFunctionName}
         customGoBackRoute={route.params?.customGoBackRoute}
         customData1={route.params?.customData1}
         customData2={route.params?.customData2}
         customData3={route.params?.customData3}
+        iconType={route.params?.iconType}
       />
     ),
     headerStyle: { backgroundColor: "#fff" },
@@ -333,10 +353,12 @@ const SettingStack = () => {
         iconName={route.params?.iconName}
         screenTitle={route.params?.screenTitle}
         functionName={route.params?.functionName}
+        backFunctionName={route.params?.backFunctionName}
         customGoBackRoute={route.params?.customGoBackRoute}
         customData1={route.params?.customData1}
         customData2={route.params?.customData2}
         customData3={route.params?.customData3}
+        iconType={route.params?.iconType}
       />
     ),
     headerStyle: { backgroundColor: "#fff" },
@@ -377,10 +399,12 @@ const AuthStack = () => {
         iconName={route.params?.iconName}
         screenTitle={route.params?.screenTitle}
         functionName={route.params?.functionName}
+        backFunctionName={route.params?.backFunctionName}
         customGoBackRoute={route.params?.customGoBackRoute}
         customData1={route.params?.customData1}
         customData2={route.params?.customData2}
         customData3={route.params?.customData3}
+        iconType={route.params?.iconType}
       />
     ),
     headerStyle: { backgroundColor: "#fff" },

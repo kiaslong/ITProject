@@ -21,17 +21,32 @@ const Header = ({
   iconName,
   functionName,
   customGoBackRoute,
-  customData1,customData2,customData3 
+  backFunctionName,
+  customData1,
+  customData2,
+  customData3,
+  iconType, 
 }) => {
   const navigation = useNavigation();
   const onPress = getFunction(functionName);
- 
+  const backFunc = getFunction(backFunctionName);
 
   const handleBackPress = () => {
     if (customGoBackRoute) {
-      navigation.navigate(customGoBackRoute,{carInfo:customData1,time:customData2});
+      navigation.navigate(customGoBackRoute, { carInfo: customData1, time: customData2 });
+    }
+      else if(backFunctionName){
+        backFunc()
     } else {
       navigation.goBack();
+    }
+  };
+
+  const renderIcon = () => {
+    if (iconType === 'ionicons') {
+      return <Ionicons name={iconName} size={40} color="#03a9f4" style={[styles.icon, showBackButton && styles.iconWithBackButton]} onPress={onPress} />;
+    } else {
+      return <FontAwesome5 name={iconName} size={30} color="#03a9f4" style={[styles.icon, showBackButton && styles.iconWithBackButton]} onPress={onPress} />;
     }
   };
 
@@ -43,28 +58,21 @@ const Header = ({
           style={styles.backButton}
         >
           <Ionicons
-            ios="arrow-back"
-            name={
-              showCloseButton
-                ? "close-circle-outline"
-                : "chevron-back-circle-outline"
-            }
+            name={showCloseButton ? "close-circle-outline" : "chevron-back-circle-outline"}
             size={40}
             color="#03a9f4"
           />
         </TouchableOpacity>
       )}
       {showTitle && (
-        <View 
+        <View
           style={[
             styles.titleContainer,
             showBackButton && styles.withBackButton,
           ]}
         >
           <Text style={styles.title}>{screenTitle}</Text>
-          {showIcon && (
-            <FontAwesome5 name={iconName} size={26} color="#666" style={[styles.icon, showBackButton && styles.iconWithBackButton]} onPress={onPress} />
-          )}
+          {showIcon && renderIcon()}
         </View>
       )}
       {showSearchBar && (
@@ -99,7 +107,7 @@ const styles = StyleSheet.create({
     marginTop: deviceHeight * 0.075,
     justifyContent: "center",
     alignItems: "center",
-    position: "relative", // Added for positioning the icon
+    position: "relative",
   },
   withBackButton: {
     marginRight: deviceWidth * 0.1,
@@ -118,10 +126,10 @@ const styles = StyleSheet.create({
   },
   icon: {
     position: "absolute",
-    right: 10, // Position the icon to the far right within the titleContainer
+    right: 10,
   },
   iconWithBackButton: {
-    right: -(deviceWidth * 0.06 + 8), // Adjust position to account for back button
+    right: -(deviceWidth * 0.06 + 8),
   },
 });
 

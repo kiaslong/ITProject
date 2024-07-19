@@ -8,3 +8,7 @@ npx prisma generate
 
 build .apk
 eas build --profile production --platform android
+
+
+fetch deleted branch 
+git fetch --prune

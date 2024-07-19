@@ -1,9 +1,10 @@
-import { Controller, Post, Body, HttpException, HttpStatus, InternalServerErrorException, BadRequestException } from '@nestjs/common';
+import { Controller, Post, Body, HttpException, HttpStatus, InternalServerErrorException, BadRequestException, UseGuards } from '@nestjs/common';
 import { SmsService } from './sms.service';
 import { VerifySmsOtpDto } from './dto/verify-sms-otp.dto';
 import { ApiTags, ApiOperation, ApiResponse, ApiBody } from '@nestjs/swagger';
-
+import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 @ApiTags('sms-otp')
+@UseGuards(JwtAuthGuard) 
 @Controller('sms-otp')
 export class SmsOtpController {
   constructor(private readonly smsService: SmsService) {}

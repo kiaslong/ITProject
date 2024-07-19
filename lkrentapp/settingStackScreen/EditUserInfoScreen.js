@@ -8,6 +8,7 @@ import { useDispatch } from "react-redux";
 import { updateUser } from "../store/loginSlice";
 import { useNavigation } from '@react-navigation/native';
 import { getToken } from '../utils/tokenStorage';
+import { useSelector } from 'react-redux';
 import { Image } from 'expo-image';
 
 const { width } = Dimensions.get('window');
@@ -15,17 +16,20 @@ const { width } = Dimensions.get('window');
 const EditUserInfoScreen = ({ route }) => {
   const navigation = useNavigation();
   const dispatch = useDispatch();
-  const { user } = route.params;
+  const user = useSelector(state => state.loggedIn.user);
   const userId = user.id;
   const [username, setUsername] = useState(user.fullName);
   const [birthDate, setBirthDate] = useState(new Date(user.dateOfBirth));
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [gender, setGender] = useState(user.gender);
+  const [imageUri, setImageUri] = useState(user?.avatarUrl || 'https://cdn.idntimes.com/content-images/community/2022/03/1714382190-93512ef73cc9128141b72669a922c6ee-f48b234e3eecffd2d897cd799c3043de.jpg');
+  const [loading, setLoading] = useState(false);
+  const [showImageSourceModal, setShowImageSourceModal] = useState(false);
   const blurhash =
-  '|rF?hV%2WCj[ayj[a|j[az_NaeWBj@ayfRayfQfQM{M|azj[azf6fQfQfQIpWXofj[ayj[j[fQayWCoeoeaya}j[ayfQa{oLj?j[WVj[ayayj[fQoff7azayj[ayj[j[ayofayayayj[fQj[ayayj[ayfjj[j[ayjuayj[';
-  const [imageUri,setImageUri] = useState(user?.avatarUrl || 'https://cdn.idntimes.com/content-images/community/2022/03/1714382190-93512ef73cc9128141b72669a922c6ee-f48b234e3eecffd2d897cd799c3043de.jpg');
+    '|rF?hV%2WCj[ayj[a|j[az_NaeWBj@ayfRayfQfQM{M|azj[azf6fQfQfQIpWXofj[ayj[j[fQayWCoeoeaya}j[ayfQa{oLj?j[WVj[ayayj[fQoff7azayj[ayj[j[ayofayayayj[fQj[ayayj[ayfjj[j[ayjuayj[';
 
   const handleSave = async () => {
+    setLoading(true);
     try {
       const formData = new FormData();
       formData.append('fullName', username);
@@ -38,22 +42,20 @@ const EditUserInfoScreen = ({ route }) => {
           name: 'avatar.jpg',
         });
       }
+      const token = await getToken();
 
       await api.put(`/auth/${userId}/profile`, formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
+          Authorization: token
         },
       });
-
-      const token = await getToken();
 
       const userInfoResponse = await api.get("/auth/info", {
         headers: {
           Authorization: token,
         },
       });
-
-
 
       dispatch(updateUser(userInfoResponse.data));
 
@@ -70,31 +72,53 @@ const EditUserInfoScreen = ({ route }) => {
     } catch (error) {
       console.error(error);
       Alert.alert('Lỗi khi lưu thông tin');
+    } finally {
+      setLoading(false);
     }
   };
 
-  const pickImage = async () => {
+  const openImageSourceModal = () => {
+    setShowImageSourceModal(true);
+  };
+
+  const pickImage = async (useCamera = false) => {
     try {
-      const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
+      let permissionResult;
+      if (useCamera) {
+        permissionResult = await ImagePicker.requestCameraPermissionsAsync();
+      } else {
+        permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
+      }
 
       if (permissionResult.granted === false) {
-        alert("You've refused to allow this app to access your photos!");
+        Alert.alert("Permission Denied", useCamera ? 
+          "You've refused to allow this app to access your camera!" :
+          "You've refused to allow this app to access your photos!");
         return;
       }
 
-      const result = await ImagePicker.launchImageLibraryAsync({
-        mediaTypes: ImagePicker.MediaTypeOptions.Images,
-        allowsEditing: true,
-        aspect: [4, 3],
-        quality: 1,
-      });
+      const result = await (useCamera ? 
+        ImagePicker.launchCameraAsync({
+          mediaTypes: ImagePicker.MediaTypeOptions.Images,
+          allowsEditing: true,
+          aspect: [4, 3],
+          quality: 1,
+        }) :
+        ImagePicker.launchImageLibraryAsync({
+          mediaTypes: ImagePicker.MediaTypeOptions.Images,
+          allowsEditing: true,
+          aspect: [4, 3],
+          quality: 1,
+        }));
 
       if (!result.canceled) {
-        setImageUri(result.assets[0].uri);  // Ensure the correct URI is used
+        setImageUri(result.assets[0].uri);
       }
     } catch (error) {
       console.error(error);
-      Alert.alert('Lỗi khi chọn ảnh');
+      Alert.alert('Error', useCamera ? 'Error capturing image' : 'Error picking image');
+    } finally {
+      setShowImageSourceModal(false);
     }
   };
 
@@ -110,11 +134,16 @@ const EditUserInfoScreen = ({ route }) => {
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
+      {loading && (
+        <View style={styles.loadingOverlay}>
+          <ActivityIndicator size="large" color="#03a9f4" />
+        </View>
+      )}
       <View style={styles.imageContainer}>
-        <TouchableOpacity style={styles.iconContainer} onPress={pickImage}>
+        <TouchableOpacity style={styles.iconContainer} onPress={openImageSourceModal}>
           <FontAwesome5 name="user-edit" size={24} color="#666" />
         </TouchableOpacity>
-        <TouchableOpacity onPress={pickImage}>
+        <TouchableOpacity onPress={openImageSourceModal}>
           <Image
             source={{ uri: imageUri }}
             style={styles.image}
@@ -157,16 +186,9 @@ const EditUserInfoScreen = ({ route }) => {
                 onChange={onDateChange}
                 style={Platform.OS === 'ios' ? styles.datePickerIOS : undefined}
               />
-              {Platform.OS === 'ios' && (
-                <View style={styles.confirmButtonContainer}>
-                  <Button title="Xác nhận" onPress={handleConfirm} />
-                </View>
-              )}
-              {Platform.OS === 'android' && (
-                <View style={styles.confirmButtonContainer}>
-                  <Button title="Xác nhận" onPress={handleConfirm} />
-                </View>
-              )}
+              <View style={styles.confirmButtonContainer}>
+                <Button title="Xác nhận" onPress={handleConfirm} />
+              </View>
             </View>
           </View>
         </Modal>
@@ -189,11 +211,32 @@ const EditUserInfoScreen = ({ route }) => {
       <TouchableOpacity style={styles.button} onPress={handleSave}>
         <Text style={styles.buttonText}>Lưu</Text>
       </TouchableOpacity>
+
+      <Modal
+        transparent={true}
+        animationType="slide"
+        visible={showImageSourceModal}
+        onRequestClose={() => setShowImageSourceModal(false)}
+      >
+        <View style={styles.modalBackground}>
+          <View style={styles.imageSourceContainer}>
+            <TouchableOpacity style={styles.imageSourceOption} onPress={() => pickImage(false)}>
+              <FontAwesome5 name="images" size={24} color="#03a9f4" />
+              <Text style={styles.imageSourceText}>Chọn từ thư viện</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.imageSourceOption} onPress={() => pickImage(true)}>
+              <FontAwesome5 name="camera" size={24} color="#03a9f4" />
+              <Text style={styles.imageSourceText}>Chụp ảnh mới</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.cancelButton} onPress={() => setShowImageSourceModal(false)}>
+              <Text style={styles.cancelButtonText}>Hủy</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
     </ScrollView>
   );
 };
-
-export default EditUserInfoScreen;
 
 const styles = StyleSheet.create({
   container: {
@@ -201,6 +244,13 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     padding: 20,
     backgroundColor: '#fff',
+  },
+  loadingOverlay: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    zIndex: 1000,
   },
   imageContainer: {
     alignItems: 'center',
@@ -300,4 +350,32 @@ const styles = StyleSheet.create({
   confirmButtonContainer: {
     marginTop: 10,
   },
+  imageSourceContainer: {
+    backgroundColor: '#fff',
+    borderRadius: 10,
+    padding: 20,
+    alignItems: 'center',
+    width: '80%',
+  },
+  imageSourceOption: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 15,
+    borderBottomWidth: 1,
+    borderBottomColor: '#eee',
+    width: '100%',
+  },
+  imageSourceText: {
+    marginLeft: 15,
+    fontSize: 16,
+  },
+  cancelButton: {
+    marginTop: 15,
+  },
+  cancelButtonText: {
+    color: '#03a9f4',
+    fontSize: 16,
+  },
 });
+
+export default EditUserInfoScreen;
