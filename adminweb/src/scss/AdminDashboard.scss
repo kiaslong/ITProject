@@ -1,84 +1,59 @@
 .admin-container {
-    padding: 20px;
-    background-color: #f8f9fa;
-    min-height: 100vh;
-  }
+    .nav-column {
+      background-color: #f8f9fa;
+      padding: 20px;
+      .logo-container {
+        text-align: center;
+        margin-bottom: 30px;
+        .logo2 {
+          width: 80px;
+        }
+        .logo-text {
+          font-size: 1.2em;
+          font-weight: bold;
+        }
+      }
+      .custom-nav-pills {
+        .nav-link {
+          font-size: 0.9em; /* Make the font size smaller */
+          padding: 10px 15px; /* Adjust padding */
+          display: flex;
+          align-items: center;
+          transition: background-color 0.3s ease, color 0.3s ease; /* Add transition for animation */
+          
+          i {
+            margin-right: 10px; /* Space between icon and text */
+          }
   
-  .nav-column {
-    background-color: #ffffff; /* Original color */
-    color: black;
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    padding: 10px;
-  }
-  
-  .logo-container {
-    display: flex;
-    align-items: center;
-    margin-bottom: 20px;
-  }
-  
-  .logo2 {
-    width: 50px;
-    height: 50px;
-    margin-right: 10px;
-  }
-  
-  .logo-text {
-    font-size: 1.2rem;
-    font-weight: bold;
-    color: #000000; 
-  }
-  
-  .custom-nav-pills .nav-link {
-    color: #007bff; 
-    margin-bottom: 10px;
-  }
-  
-  .custom-nav-pills .nav-link.active {
-    background-color: #007bff; 
-    color: white;
-  }
-  
-  .logout-container {
-    margin-top: auto;
-  }
-  
-  .logout-button {
-    width: 100%;
-    background-color: #dc3545; /* Red color for logout */
-    border: none;
-    margin-top: 20px;
-  }
-  
-  .tab-content-container {
-    background-color: #e9f7ff; /* Light blue background for tab content */
-    padding: 20px;
-    border-radius: 10px;
-  }
-  
-  .stat-card {
-    margin-bottom: 20px;
-    border: 1px solid #e3e3e3;
-    border-radius: 10px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    transition: all 0.3s ease-in-out;
-  
-    &:hover {
-      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+          &:hover {
+            background-color: #007bff;
+            color: #fff;
+          }
+          &.active {
+            background-color: #007bff;
+            color: #fff;
+          }
+        }
+      }
+      .logout-container {
+        margin-top: 30px;
+        text-align: center;
+        .logout-button {
+          width: 100%;
+        }
+      }
     }
-  
-    .card-title {
-      font-size: 1.25rem;
-      font-weight: 600;
-      margin-bottom: 15px;
-    }
-  
-    .card-text {
-      font-size: 1rem;
-      color: #666;
+    .tab-content-container {
+      padding: 20px;
+      .tab-pane {
+        transition: opacity 0.5s ease-in-out; /* Add transition for tab content animation */
+        &.fade {
+          opacity: 0;
+          &.show {
+            opacity: 1;
+          }
+        }
+      }
     }
   }
   

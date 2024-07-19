@@ -1,11 +1,11 @@
 import React from 'react';
 import { Container, Row, Col, Nav, Tab, Button } from 'react-bootstrap';
 import './scss/AdminDashboard.scss';
-import UploadedImages from './components/UploadedImages';
 import ApproveProfiles from './approveScreen/ApproveProfiles';
 import RentalCars from './approveScreen/RentalCars';
 import RevenueStatistics from './statisticsScreen/RevenueStatistics';
 import AdvertisementImages from './approveScreen/AdvertisementImages';
+import Users from './approveScreen/Users';
 import { useNavigate } from 'react-router-dom';
 import logo2 from './assets/lkrentlogo.png'; // Ensure the path to the logo is correct
 
@@ -28,19 +28,29 @@ const AdminDashboard = () => {
             </div>
             <Nav variant="pills" className="flex-column custom-nav-pills">
               <Nav.Item>
-                <Nav.Link eventKey="revenue-statistics">Thống kê doanh thu</Nav.Link>
+                <Nav.Link eventKey="revenue-statistics">
+                  <i className="bi bi-bar-chart-line"></i> Thống kê doanh thu
+                </Nav.Link>
               </Nav.Item>
               <Nav.Item>
-                <Nav.Link eventKey="uploaded-images">Hình ảnh đã upload</Nav.Link>
+                <Nav.Link eventKey="approve-profiles">
+                  <i className="bi bi-file-earmark-check"></i> Duyệt hồ sơ bằng lái xe
+                </Nav.Link>
               </Nav.Item>
               <Nav.Item>
-                <Nav.Link eventKey="approve-profiles">Duyệt hồ sơ bằng lái xe</Nav.Link>
+                <Nav.Link eventKey="rental-cars">
+                  <i className="bi bi-car-front"></i> Xe đăng ký cho thuê
+                </Nav.Link>
               </Nav.Item>
               <Nav.Item>
-                <Nav.Link eventKey="rental-cars">Xe đăng ký cho thuê</Nav.Link>
+                <Nav.Link eventKey="advertisement-images">
+                  <i className="bi bi-images"></i> Quảng cáo hình ảnh
+                </Nav.Link>
               </Nav.Item>
               <Nav.Item>
-                <Nav.Link eventKey="advertisement-images">Quảng cáo hình ảnh</Nav.Link>
+                <Nav.Link eventKey="users">
+                  <i className="bi bi-people"></i> Người dùng
+                </Nav.Link>
               </Nav.Item>
             </Nav>
             <div className="logout-container">
@@ -51,20 +61,20 @@ const AdminDashboard = () => {
           </Col>
           <Col sm={9} className="tab-content-container">
             <Tab.Content>
-              <Tab.Pane eventKey="revenue-statistics">
+              <Tab.Pane eventKey="revenue-statistics" className="fade">
                 <RevenueStatistics />
               </Tab.Pane>
-              <Tab.Pane eventKey="uploaded-images">
-                <UploadedImages />
-              </Tab.Pane>
-              <Tab.Pane eventKey="approve-profiles">
+              <Tab.Pane eventKey="approve-profiles" className="fade">
                 <ApproveProfiles />
               </Tab.Pane>
-              <Tab.Pane eventKey="rental-cars">
+              <Tab.Pane eventKey="rental-cars" className="fade">
                 <RentalCars />
               </Tab.Pane>
-              <Tab.Pane eventKey="advertisement-images">
+              <Tab.Pane eventKey="advertisement-images" className="fade">
                 <AdvertisementImages />
+              </Tab.Pane>
+              <Tab.Pane eventKey="users" className="fade">
+                <Users />
               </Tab.Pane>
             </Tab.Content>
           </Col>
