@@ -135,13 +135,14 @@ const RegisterScreen = () => {
         });
 
         const { token } = loginResponse.data;
+        
 
-        await saveToken(token);
+        await saveToken(token.access_token);
 
         // Use the token to fetch user info
         const userInfoResponse = await api.get("/auth/info", {
           headers: {
-            Authorization:token,
+            Authorization:token.access_token,
           },
         });
 

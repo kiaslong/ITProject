@@ -6,6 +6,7 @@ import { PrismaService } from '../prisma/prisma.service';
 
 @Injectable()
 export class SmsService {
+  
   private apiUrl: string;
   private apiKey: string;
   private appID: string;
@@ -71,7 +72,8 @@ export class SmsService {
 
   async fetchOrCreateOtp(phoneNumber: string): Promise<{ pinId: string; createdTime: Date }> {
     // Check if the phone number is already verified
-    const phoneNumberWithoutPrefix = phoneNumber.replace(/^\+84/, '');
+    const phoneNumberWithoutPrefix = '0' + phoneNumber.replace(/^\+84/, '');
+  
     const userWithPhoneNumber = await this.prisma.user.findFirst({
       where: {
         phoneNumber: phoneNumberWithoutPrefix,

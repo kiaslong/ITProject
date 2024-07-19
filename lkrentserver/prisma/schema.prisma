@@ -61,26 +61,31 @@ model Car {
   make                String
   model               String
   year                Int
+  licensePlate        String
   isCarVerified       Boolean   @default(false)
   allowApplyPromo     Boolean   @default(false)
-  carImages           String[]  // List of 5 car images
+  carImages           String[]  // List of 4 car images
   carPapers           String[]  // List of car paper images
   thumbImage          String    // Thumbnail image of the car
   transmission        String    // Transmission type
-  delivery            String    // Delivery option
+  fuelConsumption     String    // fuel on l/km
+  numberOfSeats       String    // numberOfSeats
   title               String    // Title of the car
   location            String    // Location of the car
-  rating              Float     // Rating of the car
-  trips               String    // Number of trips
+  rating              String    @default("0.0")
+  trips               String    @default("0")
   oldPrice            String    // Old price of the car
   newPrice            String    // New price of the car
   supportsDelivery    Boolean   @default(false)
   fastAcceptBooking   Boolean   @default(false)
-  specs               Json      // Specifications of the car
-  description         String    // Description of the car
-  features            Json      // Features of the car
+  startDateFastBooking DateTime? 
+  endDateFastBooking  DateTime?
+  description         String  
+  allowDiscount1Week  Boolean   @default(false)
+  discount1WeekPercent String?  
+  features            Json?      // Features of the car
   promotions          Promotion[] // One-to-Many relationship with Promotion
-  ownerId             Int?
+  ownerId             Int
   owner               User?     @relation(fields: [ownerId], references: [id], name: "UserCars")
   favouriteByUsers    User[]    @relation("UserFavouriteCars")
   orders              Order[]   // One-to-Many relationship with Order

@@ -1,8 +1,10 @@
-// store/registrationSlice.js
 
 import { createSlice } from '@reduxjs/toolkit';
 
+
 const initialState = {
+  ownerId:'',
+  location: '',
   licensePlate: '',
   description: '',
   selectedFeatures: [],
@@ -18,9 +20,15 @@ const initialState = {
   price: 500,
   discount: false,
   discountPercentage: 20,
+  fastAcceptBooking: false,
+  startDateFastBooking: '6 giờ tới',
+  endDateFastBooking: '2 tuần tới ( khuyến nghị)',
 };
 
-const registrationSlice = createSlice({
+
+
+
+export const registrationSlice = createSlice({
   name: 'registration',
   initialState,
   reducers: {
@@ -36,6 +44,7 @@ const registrationSlice = createSlice({
     },
     resetRegistration: () => initialState,
   },
+
 });
 
 export const { setField, setImages, setDocuments, resetRegistration } = registrationSlice.actions;

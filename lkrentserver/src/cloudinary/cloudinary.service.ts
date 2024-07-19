@@ -6,7 +6,6 @@ import { Readable } from 'stream';
 @Injectable()
 export class CloudinaryService {
   private readonly logger = new Logger(CloudinaryService.name);
-  private readonly uploadOptions = { folder: 'profileAvatar' };
 
   constructor(@Inject(ConfigService) private readonly configService: ConfigService) {
     this.initializeCloudinary();
@@ -21,13 +20,22 @@ export class CloudinaryService {
   }
 
   async uploadAvatar(file: Express.Multer.File): Promise<string> {
+    return this.uploadImageToCloudinary(file, 'profileAvatar');
+  }
+
+  async uploadCarImage(file: Express.Multer.File, folder: string): Promise<string> {
+    return this.uploadImageToCloudinary(file, folder);
+  }
+
+  private async uploadImageToCloudinary(file: Express.Multer.File, folder: string): Promise<string> {
     if (!file?.buffer) {
       throw new Error('Invalid file provided for upload');
     }
 
     return new Promise((resolve, reject) => {
+      const uploadOptions = { folder };
       const uploadStream = cloudinary.uploader.upload_stream(
-        this.uploadOptions,
+        uploadOptions,
         (error: any, result: UploadApiResponse) => {
           if (error) {
             this.logger.error('Error uploading file to Cloudinary', error);
@@ -43,27 +51,27 @@ export class CloudinaryService {
     });
   }
 
-  async deleteAvatar(avatarUrl: string): Promise<void> {
-    if (!avatarUrl) {
-      throw new Error('Invalid avatar URL provided for deletion');
+  async deleteImage(imageUrl: string): Promise<void> {
+    if (!imageUrl) {
+      throw new Error('Invalid image URL provided for deletion');
     }
 
-    const publicId = this.extractPublicIdFromUrl(avatarUrl);
+    const publicId = this.extractPublicIdFromUrl(imageUrl);
     if (!publicId) {
-      throw new Error('Failed to extract public_id from avatar URL');
+      throw new Error('Failed to extract public_id from image URL');
     }
 
     try {
       await cloudinary.uploader.destroy(publicId);
-      this.logger.log(`Avatar deleted successfully: ${avatarUrl}`);
+      this.logger.log(`Image deleted successfully: ${imageUrl}`);
     } catch (error) {
-      this.logger.error('Error deleting avatar from Cloudinary', error);
+      this.logger.error('Error deleting image from Cloudinary', error);
       throw error;
     }
   }
 
   private extractPublicIdFromUrl(url: string): string | null {
-    const match = url.match(/profileAvatar\/([^.]+)/);
-    return match ? match[0] : null;
+    const match = url.match(/\/([^\/]+)\.[^\/]+$/);
+    return match ? match[1] : null;
   }
 }

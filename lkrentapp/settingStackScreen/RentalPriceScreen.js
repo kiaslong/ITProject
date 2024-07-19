@@ -18,11 +18,14 @@ import Slider from "@react-native-community/slider";
 import { Ionicons } from "@expo/vector-icons";
 import { unregisterFunction } from "../store/functionRegistry";
 import { useDispatch, useSelector } from 'react-redux';
-import { setField ,resetRegistration} from '../store/registrationSlice';
+import { setField , resetRegistration } from '../store/registrationSlice';
+import api from "../api";
+import { getToken } from "../utils/tokenStorage";
 
 const { height } = Dimensions.get('window');
 
 const RentalPriceScreen = ({ route }) => {
+
   const navigation = useNavigation();
   const { functionName } = route.params;
   const key = functionName;
@@ -163,9 +166,78 @@ const RentalPriceScreen = ({ route }) => {
     dispatch(setField({ field: 'discountPercentage', value }));
   };
 
-  const handleContinue = () => {
-    console.log('Registration Data:', registrationData);
+  const handleContinue = async () => {
+    try {
+      const formData = new FormData();
+      
+      // Append registration data to formData
+      for (const key in registrationData) {
+        if (registrationData.hasOwnProperty(key) && key !== 'images' && key !== 'documents') {
+          const value = (key === 'selectedFeatures') ? JSON.stringify(registrationData[key]) : registrationData[key];
+          formData.append(key, value);
+          console.log(`${key}: ${value}`);
+        }
+      }
+  
+      // Helper function to determine the file type
+      const getFileType = (uri) => {
+        const extension = uri.split('.').pop();
+        switch (extension) {
+          case 'jpg':
+          case 'jpeg':
+            return 'image/jpeg';
+          case 'png':
+            return 'image/png';
+          default:
+            return 'application/octet-stream'; // Default to binary stream if type is unknown
+        }
+      };
+  
+      // Append images to formData
+      Object.keys(registrationData.images).forEach((key) => {
+        if (registrationData.images[key]) {
+          const file = {
+            uri: registrationData.images[key],
+            name: `${key}.${registrationData.images[key].split('.').pop()}`,
+            type: getFileType(registrationData.images[key]),
+          };
+          formData.append('files', file);
+          console.log(`files: ${JSON.stringify(file)}`);
+        }
+      });
+  
+      // Append documents to formData
+      Object.keys(registrationData.documents).forEach((key) => {
+        if (registrationData.documents[key]) {
+          const file = {
+            uri: registrationData.documents[key],
+            name: `${key}.${registrationData.documents[key].split('.').pop()}`,
+            type: getFileType(registrationData.documents[key]),
+          };
+          formData.append('files', file);
+          console.log(`files: ${JSON.stringify(file)}`);
+        }
+      });
+  
+      const token = await getToken(); 
+      const response = await api.post('/car/register', formData, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+  
+      console.log('API response:', response);
+      // If registration is successful, reset the registration form
+      dispatch(resetRegistration());
+  
+      return response.data;
+    } catch (error) {
+      console.error('Error uploading images and data:', error);
+      Alert.alert('Upload failed', 'Failed to upload images and data');
+    }
   };
+  
 
   const helpModalContent = (
     <View style={styles.textContainer}>

@@ -15,7 +15,6 @@ import { unregisterFunction } from '../store/functionRegistry';
 
 const DocumentUploadScreen = ({ route }) => {
   const [documents, setLocalDocuments] = useState({ registration: null });
-  
   const navigation = useNavigation();
   const { functionName } = route.params;
   const key = functionName;

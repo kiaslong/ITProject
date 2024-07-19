@@ -75,7 +75,7 @@ const OtpEntryScreen = ({ route, navigation }) => {
                 showBackButton: true,
                 screenTitle: "Tài khoản của tôi",
               });
-            }, 1000);
+            }, 700);
           }
         }
       ]);

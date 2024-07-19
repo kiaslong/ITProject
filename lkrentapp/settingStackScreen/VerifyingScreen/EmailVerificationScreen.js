@@ -54,7 +54,7 @@ const EmailVerificationScreen = ({ navigation, route }) => {
             text: 'OK', onPress: () => {
               setTimeout(() => {
                 navigation.goBack();
-              }, 1000);
+              }, 600);
             }
           }
         ]);
