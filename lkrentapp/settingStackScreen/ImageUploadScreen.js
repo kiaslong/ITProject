@@ -48,9 +48,10 @@ const ImageUploadScreen = () => {
   useEffect(() => {
     (async () => {
       if (Platform.OS !== 'web') {
-        const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
-        if (status !== 'granted') {
-          alert('Sorry, we need camera roll permissions to make this work!');
+        const { status: mediaStatus } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+        const { status: cameraStatus } = await ImagePicker.requestCameraPermissionsAsync();
+        if (mediaStatus !== 'granted' || cameraStatus !== 'granted') {
+          alert('Sorry, we need camera roll and camera permissions to make this work!');
         }
       }
     })();

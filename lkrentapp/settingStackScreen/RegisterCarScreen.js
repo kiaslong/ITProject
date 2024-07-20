@@ -20,8 +20,9 @@ import { Ionicons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
 import { useDispatch, useSelector } from "react-redux";
 import { setField } from "../store/registrationSlice";
+import Slider from '@react-native-community/slider';
 
-import addresses from './json/tree.json';
+import addresses from './json/treeminify.json';
 import carBrandsAndModels from './json/carBrandsAndModels.json';
 
 const RegisterCarScreen = () => {
@@ -45,10 +46,7 @@ const RegisterCarScreen = () => {
   const [showStartPicker, setShowStartPicker] = useState(false);
   const [showEndPicker, setShowEndPicker] = useState(false);
   const [showAddressPicker, setShowAddressPicker] = useState(false);
-
-  const [selectedCity, setSelectedCity] = useState(null);
-  const [selectedDistrict, setSelectedDistrict] = useState(null);
-  const [selectedWard, setSelectedWard] = useState(null);
+  const [initialAddress,setInitAddress]=useState(null);
 
   const inputRefs = useRef({});
 
@@ -117,7 +115,7 @@ const RegisterCarScreen = () => {
       valid = false;
     }
 
-    if (!registrationData.fuel) {
+    if (!registrationData.fuelType) {
       Alert.alert("Loại nhiên liệu là bắt buộc.");
       valid = false;
     }
@@ -150,12 +148,16 @@ const RegisterCarScreen = () => {
   };
 
   const handleAddressSelect = (address) => {
-    setSelectedCity(address.city);
-    setSelectedDistrict(address.district);
-    setSelectedWard(address.ward);
+    
+    setInitAddress({
+      street: address.street,
+      city: address.city.name_with_type,
+      district: address.district.name_with_type,
+      ward: address.ward.name_with_type,
+    });    
     handleSelect(
       "location",
-      `${address.street}, ${address.ward.name_with_type}, ${address.district.name_with_type}, ${address.city.name_with_type}`
+      `${address.street}`
     );
     setShowAddressPicker(false);
   };
@@ -335,16 +337,16 @@ const RegisterCarScreen = () => {
               <Pressable
                 style={[
                   styles.transmissionButton,
-                  registrationData.fuel === "Gasoline"
+                  registrationData.fuelType === "Gasoline"
                     ? styles.transmissionButtonSelected
                     : null,
                 ]}
-                onPress={() => handleSelect("fuel", "Gasoline")}
+                onPress={() => handleSelect("fuelType", "Gasoline")}
               >
                 <Text
                   style={[
                     styles.transmissionButtonText,
-                    registrationData.fuel === "Gasoline"
+                    registrationData.fuelType === "Gasoline"
                       ? styles.transmissionButtonTextSelected
                       : null,
                   ]}
@@ -355,16 +357,16 @@ const RegisterCarScreen = () => {
               <Pressable
                 style={[
                   styles.transmissionButton,
-                  registrationData.fuel === "Diesel"
+                  registrationData.fuelType === "Diesel"
                     ? styles.transmissionButtonSelected
                     : null,
                 ]}
-                onPress={() => handleSelect("fuel", "Diesel")}
+                onPress={() => handleSelect("fuelType", "Diesel")}
               >
                 <Text
                   style={[
                     styles.transmissionButtonText,
-                    registrationData.fuel === "Diesel"
+                    registrationData.fuelType === "Diesel"
                       ? styles.transmissionButtonTextSelected
                       : null,
                   ]}
@@ -375,16 +377,16 @@ const RegisterCarScreen = () => {
               <Pressable
                 style={[
                   styles.transmissionButton,
-                  registrationData.fuel === "Electric"
+                  registrationData.fuelType === "Electric"
                     ? styles.transmissionButtonSelected
                     : null,
                 ]}
-                onPress={() => handleSelect("fuel", "Electric")}
+                onPress={() => handleSelect("fuelType", "Electric")}
               >
                 <Text
                   style={[
                     styles.transmissionButtonText,
-                    registrationData.fuel === "Electric"
+                    registrationData.fuelType === "Electric"
                       ? styles.transmissionButtonTextSelected
                       : null,
                   ]}
@@ -393,6 +395,24 @@ const RegisterCarScreen = () => {
                 </Text>
               </Pressable>
             </View>
+          </View>
+
+          {/* Fuel Consumption Slider */}
+          <View style={styles.inputGroup}>
+            <Text style={styles.label}>Tiêu thụ nhiên liệu</Text>
+            <View style={styles.rowContainer}>
+              <Slider
+                style={{ width: '100%', height: 40 }}
+                minimumValue={5}
+                maximumValue={30}
+                step={1}
+                value={registrationData.fuelConsumption}
+                onValueChange={value => handleSelect("fuelConsumption", value)}
+                minimumTrackTintColor="#03a9f4"
+                maximumTrackTintColor="#000000"
+              />
+            </View>
+            <Text style={styles.selectedText}>{`${registrationData.fuelConsumption.toFixed(1)}l/100km`}</Text>
           </View>
 
           <View style={styles.middleLine}></View>
@@ -625,12 +645,13 @@ const RegisterCarScreen = () => {
         onSelect={(features) => handleSelect("selectedFeatures", features)}
       />
 
-      <AddressPickerModal
+    <AddressPickerModal
         visible={showAddressPicker}
         items={{ cities: Object.values(addresses) }}
         title="Chọn địa chỉ"
         onSelect={handleAddressSelect}
         onClose={() => setShowAddressPicker(false)}
+        initialAddress={initialAddress}
       />
     </KeyboardAvoidingView>
   );

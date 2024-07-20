@@ -35,7 +35,11 @@ export class CreateCarDto {
 
   @ApiProperty()
   @IsString()
-  fuel: string;
+  fuelConsumption: string;
+
+  @ApiProperty()
+  @IsString()
+  fuelType:string;
 
   @ApiProperty()
   @IsString()

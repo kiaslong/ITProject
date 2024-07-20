@@ -156,11 +156,11 @@ export default function LoginScreen() {
 
         const { token } = response.data;
 
-        await saveToken(token); // Save the token
+        await saveToken(token.access_token); // Save the token
 
         const userInfoResponse = await api.get("/auth/info", {
           headers: {
-            Authorization:token,
+            Authorization:token.access_token,
           },
         });
 

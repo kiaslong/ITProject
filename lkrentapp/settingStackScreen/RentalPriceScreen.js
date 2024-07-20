@@ -180,7 +180,7 @@ const RentalPriceScreen = ({ route }) => {
         if (registrationData.hasOwnProperty(key) && key !== 'images' && key !== 'documents') {
           const value = (key === 'selectedFeatures') ? JSON.stringify(registrationData[key]) : registrationData[key];
           formData.append(key, value);
-          console.log(`${key}: ${value}`);
+         
         }
       }
   
@@ -207,7 +207,7 @@ const RentalPriceScreen = ({ route }) => {
             type: getFileType(registrationData.images[key]),
           };
           formData.append('files', file);
-          console.log(`files: ${JSON.stringify(file)}`);
+          
         }
       });
   
@@ -220,7 +220,7 @@ const RentalPriceScreen = ({ route }) => {
             type: getFileType(registrationData.documents[key]),
           };
           formData.append('files', file);
-          console.log(`files: ${JSON.stringify(file)}`);
+          
         }
       });
   
