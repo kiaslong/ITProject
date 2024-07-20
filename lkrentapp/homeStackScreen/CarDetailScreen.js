@@ -53,7 +53,10 @@ const CarDetails = ({ carInfo, navigation }) => {
 
   const currentYear = moment().year();
   const [start, end] = useMemo(
-    () => time.split(" - ").map((t) => moment(t, "HH:mm, DD/MM")),
+    () =>
+      time
+        ? time.split(" - ").map((t) => moment(t, "HH:mm, DD/MM"))
+        : [null, null],
     [time]
   );
 
@@ -154,6 +157,19 @@ const CarDetails = ({ carInfo, navigation }) => {
   );
 };
 
+
+const translateFuelType = (fuelType) => {
+  switch (fuelType) {
+    case "Gasoline":
+      return "Xăng";
+    case "Diesel":
+      return "Dầu Diesel";
+    case "Electric":
+      return "Điện";
+    default:
+      return fuelType;
+  }
+};
 const CarSpecs = ({ carInfo }) => (
   <View>
     <Text style={styles.bigSectionTitle}>Đặc điểm</Text>
@@ -161,14 +177,22 @@ const CarSpecs = ({ carInfo }) => (
       <CarSpec
         icon="car-sport-outline"
         title="Truyền động"
-        value={carInfo.specs.transmission}
+        value={carInfo.transmission === "Số sàn" ? "Số sàn" : "Số tự động"}
       />
-      <CarSpec icon="people-outline" title="Số ghế" value={carInfo.specs.seats} />
-      <CarSpec icon="water-outline" title="Nhiên liệu" value={carInfo.specs.fuel} />
+      <CarSpec
+        icon="people-outline"
+        title="Số ghế"
+        value={carInfo.numberOfSeats}
+      />
+      <CarSpec
+        icon="water-outline"
+        title="Nhiên liệu"
+        value={translateFuelType(carInfo.fuelType)}
+      />
       <CarSpec
         icon="speedometer-outline"
         title="Tiêu hao"
-        value={carInfo.specs.fuelConsumption}
+        value={carInfo.fuelConsumption}
       />
     </View>
   </View>
@@ -192,67 +216,20 @@ const CarDescription = ({ carInfo }) => (
 );
 
 const CarFeature = ({ carInfo }) => {
-  const featureIcons = useMemo(
-    () => ({
-      map: { icon: "map-outline", label: "Bản đồ" },
-      bluetooth: { icon: "bluetooth-outline", label: "Bluetooth" },
-      sideCamera: { icon: "camera-outline", label: "Camera cặp lề" },
-      reverseCamera: { icon: "camera-reverse-outline", label: "Camera lùi" },
-      gps: { icon: "location-outline", label: "Định vị GPS" },
-      spareTire: { icon: "disc-outline", label: "Lốp dự phòng" },
-      dashCam: { icon: "camera-outline", label: "Camera hành trình" },
-      speedAlert: { icon: "speedometer-outline", label: "Cảnh báo tốc độ" },
-      collisensor: {
-        icon: "sensors",
-        label: "Cảm biến va chạm",
-        library: "MaterialIcons",
-      },
-      usbPort: {
-        icon: "usb",
-        label: "Khe cắm USB",
-        library: "MaterialCommunityIcons",
-      },
-      dvdScreen: { icon: "tv-outline", label: "Màn hình DVD" },
-      etc: { icon: "airplane-outline", label: "ETC" },
-      airbag: { icon: "shield-checkmark-outline", label: "Túi khí an toàn" },
-    }),
-    []
-  );
-
-  const features = useMemo(() => {
-    const featureList = Object.keys(featureIcons).filter(
-      (feature) => carInfo.features[feature]
-    );
-    if (featureList.length % 2 !== 0) {
-      featureList.push(null);
-    }
-    return featureList;
-  }, [carInfo.features, featureIcons]);
+  const features = carInfo.features || [];
 
   return (
     <View>
       <Text style={styles.bigSectionTitle}>Các tiện nghi trên xe</Text>
       <View style={styles.amenitiesContainer}>
         {features.map((feature, index) => {
-          if (feature) {
-            const IconComponent = getIconComponent(
-              featureIcons[feature].library
-            );
-            return (
-              <View style={styles.amenity} key={index}>
-                <IconComponent
-                  name={featureIcons[feature].icon}
-                  size={24}
-                  color="#03A9F4"
-                />
-                <Text style={styles.amenityTitle}>
-                  {featureIcons[feature].label}
-                </Text>
-              </View>
-            );
-          } else {
-            return <View style={styles.amenity} key={index}></View>;
-          }
+          const IconComponent = Ionicons; // Default to Ionicons if no library is provided
+          return (
+            <View style={styles.amenity} key={index}>
+              <IconComponent name={feature.icon} size={24} color="#03A9F4" />
+              <Text style={styles.amenityTitle}>{feature.name}</Text>
+            </View>
+          );
         })}
       </View>
     </View>
@@ -305,8 +282,10 @@ const ConfirmRental = ({ carInfo, navigation }) => {
   return (
     <View style={styles.bookContainer}>
       <View style={styles.priceInfo}>
-        <Text style={styles.newPrice}>{carInfo.newPrice}₫/ngày</Text>
-        <Text style={styles.totalPrice}>Giá tổng: 693K</Text>
+        <Text style={styles.newPrice}>{carInfo.oldPrice}K₫/ngày</Text>
+        <Text style={styles.totalPrice}>
+          Giá tổng: {carInfo.newPrice}K₫/ngày
+        </Text>
       </View>
       <TouchableOpacity style={styles.bookButton} onPress={handleConfirmPress}>
         <Text style={styles.bookButtonText}>Chọn thuê</Text>
@@ -341,13 +320,12 @@ const CarDetailScreen = ({ route, navigation }) => {
     [scrollY, imageHeight]
   );
 
-  
   const imageScale = useMemo(
     () =>
       scrollY.interpolate({
         inputRange: [-imageHeight, 0],
         outputRange: [2, 1],
-        extrapolate: 'clamp',
+        extrapolate: "clamp",
       }),
     [scrollY, imageHeight]
   );
@@ -357,11 +335,10 @@ const CarDetailScreen = ({ route, navigation }) => {
       scrollY.interpolate({
         inputRange: [-imageHeight, 0],
         outputRange: [-imageHeight / 2, 0],
-        extrapolate: 'clamp',
+        extrapolate: "clamp",
       }),
     [scrollY, imageHeight]
   );
-
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -416,26 +393,29 @@ const CarDetailScreen = ({ route, navigation }) => {
         onScroll={handleScroll}
         scrollEventThrottle={16}
       >
-         <Animated.View 
+        <Animated.View
           style={[
             styles.imageContainer,
             {
               transform: [
                 { scale: imageScale },
-                { translateY: imageTranslateY }
+                { translateY: imageTranslateY },
               ],
               zIndex: 1,
-            }
+            },
           ]}
         >
-          <ImageView carInfo={carInfo} style={styles.image} resizeMode="cover" />
+          <ImageView
+            carInfo={carInfo}
+            style={styles.image}
+            resizeMode="cover"
+          />
         </Animated.View>
         <Animated.View
           style={[
             styles.topIcons,
             {
               transform: [{ translateY: topIconsTranslateY }],
-              
             },
           ]}
         >
@@ -488,10 +468,10 @@ const CarDetailScreen = ({ route, navigation }) => {
         <AdditionalFees />
         <CancellationPolicy />
         <View style={styles.separator} />
-      <TouchableOpacity style={styles.reportButton}>
-        <Ionicons name="flag-outline" size={20} color="#03A9F4" />
-        <Text style={styles.reportText}>Báo cáo xe này</Text>
-      </TouchableOpacity>
+        <TouchableOpacity style={styles.reportButton}>
+          <Ionicons name="flag-outline" size={20} color="#03A9F4" />
+          <Text style={styles.reportText}>Báo cáo xe này</Text>
+        </TouchableOpacity>
       </Animated.ScrollView>
       <ConfirmRental carInfo={carInfo} navigation={navigation} />
     </>
@@ -508,7 +488,7 @@ const styles = StyleSheet.create({
   },
   imageContainer: {
     height: height * 0.338,
-    overflow: 'hidden',
+    overflow: "hidden",
   },
   topIcons: {
     position: "absolute",

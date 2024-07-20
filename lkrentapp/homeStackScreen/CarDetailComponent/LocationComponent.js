@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef, useCallback, useMemo } from "react"
 import { View, Text, StyleSheet, TouchableOpacity, Modal, ActivityIndicator, Platform } from "react-native";
 import MapView, { Circle } from "react-native-maps";
 import Ionicons from "react-native-vector-icons/Ionicons";
-import { getCoordinates } from "../../fetchData/Position";
+import { getCoordinates, getGeocodeByAddress } from "../../fetchData/Position";
 
 // Simple LRU cache implementation
 class LRUCache {
@@ -54,7 +54,8 @@ const LocationComponent = ({ address }) => {
         if (cachedCoords) {
           setLocation(cachedCoords);
         } else {
-          const coords = await getCoordinates(address,process.env.MAP_BOX_KEY);
+          const coords = await getGeocodeByAddress(address,process.env.GOONG_KEY_2);
+         
           if (coords?.latitude && coords?.longitude) {
             setLocation(coords);
             coordinateCache.set(address, coords);

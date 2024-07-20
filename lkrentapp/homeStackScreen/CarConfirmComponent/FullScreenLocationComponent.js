@@ -2,7 +2,7 @@ import React, { useEffect, useState, useRef, useCallback, useMemo } from "react"
 import { View, StyleSheet, ActivityIndicator, TouchableOpacity, Platform } from "react-native";
 import MapView, { Circle } from "react-native-maps";
 import Ionicons from "react-native-vector-icons/Ionicons";
-import { getCoordinates } from "../../fetchData/Position";
+import { getCoordinates, getGeocodeByAddress } from "../../fetchData/Position";
 
 const FullMapScreen = ({ route, navigation }) => {
   const { address } = route.params;
@@ -12,7 +12,7 @@ const FullMapScreen = ({ route, navigation }) => {
   useEffect(() => {
     const fetchCoordinates = async () => {
       try {
-        const coords = await getCoordinates(address, process.env.MAP_BOX_KEY);
+        const coords = await getGeocodeByAddress(address, process.env.GOONG_KEY_2);
         if (coords?.latitude && coords?.longitude) {
           setLocation(coords);
         }

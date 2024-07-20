@@ -117,7 +117,6 @@ export class UserController {
       phoneNumberVerified: user.phoneNumberVerified,
       ownerRating: user.ownerRating,
       ownerTrips: user.ownerTrips,
-      ownerBadgeText: user.ownerBadgeText,
       ownerResponseRate: user.ownerResponseRate,
       ownerApprovalRate: user.ownerApprovalRate,
       ownerResponseTime: user.ownerResponseTime,

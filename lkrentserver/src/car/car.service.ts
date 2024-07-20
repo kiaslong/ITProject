@@ -135,7 +135,6 @@ export class CarService {
           rating: car.owner.ownerRating?.toString() || '0',
           trips: car.owner.ownerTrips || '0',
           avatar: car.owner.avatarUrl,
-          badgeText: car.owner.ownerBadgeText,
           responseRate: car.owner.ownerResponseRate,
           approvalRate: car.owner.ownerApprovalRate,
           responseTime: car.owner.ownerResponseTime,
@@ -147,6 +146,7 @@ export class CarService {
         fuelConsumption: car.fuelConsumption,
         licensePlate: car.licensePlate,
         fuelType: car.fuelType,
+        numberOfSeats:car.numberOfSeats,
       };
     });
   }
@@ -194,7 +194,6 @@ export class CarService {
           rating: car.owner.ownerRating?.toString() || '0',
           trips: car.owner.ownerTrips || '0',
           avatar: car.owner.avatarUrl,
-          badgeText: car.owner.ownerBadgeText,
           responseRate: car.owner.ownerResponseRate,
           approvalRate: car.owner.ownerApprovalRate,
           responseTime: car.owner.ownerResponseTime,
@@ -206,6 +205,7 @@ export class CarService {
         fuelConsumption: car.fuelConsumption,
         licensePlate: car.licensePlate,
         fuelType: car.fuelType,
+        numberOfSeats:car.numberOfSeats
       };
     });
   }

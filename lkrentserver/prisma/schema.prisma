@@ -42,10 +42,9 @@ model User {
   carsOwned                 Car[]     @relation("UserCars")
   ownerRating               Float?    // Owner rating, default is null
   ownerTrips                String?   // Owner trips, default is null
-  ownerBadgeText            String?   // Owner badge text, default is null
-  ownerResponseRate         String?   // Owner response rate, default is null
-  ownerApprovalRate         String?   // Owner approval rate, default is null
-  ownerResponseTime         String?   // Owner response time, default is null
+  ownerResponseRate         String    @default("0%")
+  ownerApprovalRate         String    @default("0%")
+  ownerResponseTime         String    @default("0%")
   orders                    Order[]   // One-to-Many relationship with Order
 }
 
@@ -76,7 +75,7 @@ model Car {
   rating              String    @default("0.0")
   trips               String    @default("0")
   oldPrice            String    // Old price of the car
-  newPrice            String    // New price of the car
+  newPrice            String
   supportsDelivery    Boolean   @default(false)
   fastAcceptBooking   Boolean   @default(false)
   startDateFastBooking DateTime? 

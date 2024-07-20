@@ -4,6 +4,7 @@ import Icon from 'react-native-vector-icons/FontAwesome';
 
 const CarCard = ({ carsInfo, navigation }) => {
   const [isFavorite, setIsFavorite] = useState(false);
+ console.log(carsInfo)
 
   const toggleFavorite = () => {
     setIsFavorite(!isFavorite);
@@ -13,9 +14,11 @@ const CarCard = ({ carsInfo, navigation }) => {
     navigation.navigate('CarDetail', { carInfo: carsInfo });
   };
 
-  // Simplify the address
-  const addressParts = carsInfo.location.split(', ');
-  const simplifiedAddress = `${addressParts[0]}, ${addressParts.slice(-3).join(', ')}`;
+  const getTransmissionText = (transmission) => {
+    return transmission === 'automatic' ? 'Số tự động' : 'Số sàn';
+  };
+
+ 
 
   return (
     <TouchableOpacity onPress={handlePress}>
@@ -31,11 +34,11 @@ const CarCard = ({ carsInfo, navigation }) => {
         )}
         <View style={styles.details}>
           <View style={styles.info}>
-            <Text style={styles.transmission}>{carsInfo.transmission}</Text>
+            <Text style={styles.transmission}>{getTransmissionText(carsInfo.transmission)}</Text>
             <Text style={styles.delivery}>{carsInfo.supportsDelivery ? 'Giao xe tận nơi' : ''}</Text>
           </View>
           <Text style={styles.title}>{carsInfo.title}</Text>
-          <Text style={styles.location}>{simplifiedAddress}</Text>
+          <Text style={styles.location}>{carsInfo.location}</Text>
           <View style={styles.separator} />
           <View style={styles.rating}>
             <Text style={styles.ratingText}>{carsInfo.rating} ⭐</Text>
@@ -46,7 +49,7 @@ const CarCard = ({ carsInfo, navigation }) => {
               <Text style={styles.oldPrice}>{carsInfo.oldPrice}K₫</Text>
               <Text style={styles.newPrice}>{carsInfo.newPrice}K₫/ngày</Text>
             </View>
-            {carsInfo.discount && (
+            {carsInfo.allowApplyPromo && (
               <Text style={styles.discount}>Giảm {carsInfo.discount}</Text>
             )}
           </View>
