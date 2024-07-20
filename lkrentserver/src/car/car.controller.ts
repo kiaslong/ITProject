@@ -1,6 +1,24 @@
-import { Controller, Post, Body, UseGuards, UseInterceptors, UploadedFiles, HttpException, HttpStatus, Logger } from '@nestjs/common';
+import {
+  Controller,
+  Post,
+  Get,
+  Body,
+  UseGuards,
+  UseInterceptors,
+  UploadedFiles,
+  HttpException,
+  HttpStatus,
+  Logger,
+  Query,
+} from '@nestjs/common';
 import { FilesInterceptor } from '@nestjs/platform-express';
-import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags, ApiConsumes } from '@nestjs/swagger';
+import {
+  ApiBearerAuth,
+  ApiOperation,
+  ApiResponse,
+  ApiTags,
+  ApiConsumes,
+} from '@nestjs/swagger';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { CarService } from './car.service';
 import { CloudinaryService } from '../cloudinary/cloudinary.service';
@@ -17,7 +35,7 @@ export class CarController {
 
   constructor(
     private readonly carService: CarService,
-    private readonly cloudinaryService: CloudinaryService
+    private readonly cloudinaryService: CloudinaryService,
   ) {}
 
   @Post('register')
@@ -29,8 +47,8 @@ export class CarController {
   @UseInterceptors(FilesInterceptor('files', 10)) // Adjust the number of files as needed
   async registerCar(@UploadedFiles() files: Array<Express.Multer.File>, @Body() body: any) {
     try {
-      this.logger.log('Received body:', JSON.stringify(body));
-      this.logger.log('Received files:', files.map(file => file.originalname));
+      this.logger.log(`Received body: ${JSON.stringify(body)}`);
+      this.logger.log(`Received files: ${files.map((file) => file.originalname).join(', ')}`);
 
       // Parse the selectedFeatures from JSON string to array
       if (body.selectedFeatures) {
@@ -55,14 +73,37 @@ export class CarController {
       const carId = body.licensePlate; // Use licensePlate or generate a unique ID
       const folder = `car/${carId}`;
 
-      const avatarUrl = await this.cloudinaryService.uploadAvatar(files[0]);
-      const imageUrls = await Promise.all(files.slice(1).map(file => this.cloudinaryService.uploadCarImage(file, folder)));
+      // Map to keep track of the URLs
+      const imageUrls = new Map<string, string>();
 
-      this.logger.log(`Avatar uploaded: ${avatarUrl}`);
-      this.logger.log('Car images uploaded:', imageUrls);
+      // Define the expected file names
+      const expectedFileNames = ['avatar', 'front', 'left', 'right', 'back', 'registration'];
 
-      // Call the service method to register the car with parsed data
-      const car = await this.carService.registerCar(createCarDto, avatarUrl, imageUrls);
+      // Upload files to Cloudinary and store the URLs in the map
+      for (const file of files) {
+        const fileName = expectedFileNames.find((name) => file.originalname.includes(name));
+        if (fileName) {
+          const url = await this.cloudinaryService.uploadCarImage(file, folder);
+          imageUrls.set(fileName, url);
+          this.logger.log(`${fileName} uploaded: ${url}`);
+        }
+      }
+
+      // Validate that all expected files have been uploaded
+      for (const fileName of expectedFileNames) {
+        if (!imageUrls.has(fileName)) {
+          throw new HttpException(`Missing ${fileName} file`, HttpStatus.BAD_REQUEST);
+        }
+      }
+
+      // Call the service method to register the car with parsed data and URLs
+      const car = await this.carService.registerCar(createCarDto, imageUrls.get('avatar'), {
+        front: imageUrls.get('front'),
+        left: imageUrls.get('left'),
+        right: imageUrls.get('right'),
+        back: imageUrls.get('back'),
+        registration: imageUrls.get('registration'),
+      });
       this.logger.log('Car registered successfully:', car);
 
       return {
@@ -70,7 +111,37 @@ export class CarController {
         car,
       };
     } catch (error) {
-      this.logger.error('Error registering car:', error);
+      this.logger.error('Error registering car:', error.message);
+      throw new HttpException(error.message, error.status || HttpStatus.BAD_REQUEST);
+    }
+  }
+
+  @Get('info')
+  @ApiOperation({ summary: 'Get information about all cars' })
+  @ApiResponse({ status: 200, description: 'Successfully retrieved car information.' })
+  @ApiResponse({ status: 401, description: 'Unauthorized.' })
+  async getInfo() {
+    try {
+      const carInfo = await this.carService.getInfo();
+      this.logger.log('Successfully retrieved car information.');
+      return carInfo;
+    } catch (error) {
+      this.logger.error('Error retrieving car information:', error.message);
+      throw new HttpException(error.message, error.status || HttpStatus.BAD_REQUEST);
+    }
+  }
+
+  @Get('info-exclude-user')
+  @ApiOperation({ summary: 'Get information about all cars excluding those owned by a specific user' })
+  @ApiResponse({ status: 200, description: 'Successfully retrieved car information excluding specific user.' })
+  @ApiResponse({ status: 401, description: 'Unauthorized.' })
+  async getInfoExcludingUser(@Query('userId') userId: string) {
+    try {
+      const carInfo = await this.carService.getInfoExcludingUser(parseInt(userId, 10));
+      this.logger.log(`Successfully retrieved car information excluding user with ID: ${userId}`);
+      return carInfo;
+    } catch (error) {
+      this.logger.error('Error retrieving car information:', error.message);
       throw new HttpException(error.message, error.status || HttpStatus.BAD_REQUEST);
     }
   }

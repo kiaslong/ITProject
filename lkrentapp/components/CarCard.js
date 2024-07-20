@@ -13,6 +13,10 @@ const CarCard = ({ carsInfo, navigation }) => {
     navigation.navigate('CarDetail', { carInfo: carsInfo });
   };
 
+  // Simplify the address
+  const addressParts = carsInfo.location.split(', ');
+  const simplifiedAddress = `${addressParts[0]}, ${addressParts.slice(-3).join(', ')}`;
+
   return (
     <TouchableOpacity onPress={handlePress}>
       <View style={styles.card}>
@@ -20,16 +24,18 @@ const CarCard = ({ carsInfo, navigation }) => {
         <TouchableOpacity style={styles.heartIcon} onPress={toggleFavorite}>
           <Icon name={isFavorite ? 'heart' : 'heart-o'} size={24} color="#03a9f4" />
         </TouchableOpacity>
-        <View style={styles.status}>
-          <Text style={styles.fastBooking}>Đặt xe nhanh ⚡</Text>
-        </View>
+        {carsInfo.fastAcceptBooking && (
+          <View style={styles.status}>
+            <Text style={styles.fastBooking}>Đặt xe nhanh ⚡</Text>
+          </View>
+        )}
         <View style={styles.details}>
           <View style={styles.info}>
             <Text style={styles.transmission}>{carsInfo.transmission}</Text>
-            <Text style={styles.delivery}>{carsInfo.delivery}</Text>
+            <Text style={styles.delivery}>{carsInfo.supportsDelivery ? 'Giao xe tận nơi' : ''}</Text>
           </View>
           <Text style={styles.title}>{carsInfo.title}</Text>
-          <Text style={styles.location}>{carsInfo.location}</Text>
+          <Text style={styles.location}>{simplifiedAddress}</Text>
           <View style={styles.separator} />
           <View style={styles.rating}>
             <Text style={styles.ratingText}>{carsInfo.rating} ⭐</Text>
@@ -37,10 +43,12 @@ const CarCard = ({ carsInfo, navigation }) => {
           </View>
           <View style={styles.priceSection}>
             <View style={styles.price}>
-              <Text style={styles.oldPrice}>{carsInfo.oldPrice}₫</Text>
-              <Text style={styles.newPrice}>{carsInfo.newPrice}₫/ngày</Text>
+              <Text style={styles.oldPrice}>{carsInfo.oldPrice}K₫</Text>
+              <Text style={styles.newPrice}>{carsInfo.newPrice}K₫/ngày</Text>
             </View>
-            <Text style={styles.discount}>Giảm {carsInfo.discount}</Text>
+            {carsInfo.discount && (
+              <Text style={styles.discount}>Giảm {carsInfo.discount}</Text>
+            )}
           </View>
         </View>
       </View>

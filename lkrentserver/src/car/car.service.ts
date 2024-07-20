@@ -1,6 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateCarDto } from './dto/create-car.dto';
+import { CarInfoDto, OwnerDto, CarFeatureDto } from './dto/car-info.dto';
 import { parseRelativeTimeToDate } from './utils/utils.function';
 
 @Injectable()
@@ -9,15 +10,20 @@ export class CarService {
 
   constructor(private prisma: PrismaService) {}
 
-  async registerCar(createCarDto: CreateCarDto, avatarUrl: string, imageUrls: string[]) {
-    
-
+  async registerCar(createCarDto: CreateCarDto, avatarUrl: string, imageUrls: {
+    front: string;
+    left: string;
+    right: string;
+    back: string;
+    registration: string;
+  } ) {
     const {
       ownerId,
       description,
       discount,
       discountPercentage,
-      fuel,
+      fuelType,
+      fuelConsumption,
       licensePlate,
       price,
       promotion,
@@ -35,7 +41,7 @@ export class CarService {
     const startDate = startDateFastBooking ? parseRelativeTimeToDate(startDateFastBooking) : null;
     const endDate = endDateFastBooking ? parseRelativeTimeToDate(endDateFastBooking) : null;
 
-    const isAllowPromotion = promotion === "Có";
+    const isAllowPromotion = promotion === 'Có';
 
     const car = await this.prisma.car.create({
       data: {
@@ -51,10 +57,17 @@ export class CarService {
         description: description,
         oldPrice: `${price}`,
         newPrice: `${price}`, // Simply set the newPrice to the price for now
-        carImages: imageUrls,
-        carPapers: imageUrls,
+        carImages: [
+          imageUrls.front,
+          imageUrls.left,
+          imageUrls.right,
+          imageUrls.back,
+         
+        ],
+        carPapers:  [imageUrls.registration],
         thumbImage: avatarUrl,
-        fuelConsumption: fuel,
+        fuelType: fuelType,
+        fuelConsumption: fuelConsumption,
         numberOfSeats: selectedSeats,
         title: `${selectedMake} ${selectedModel}`,
         location: location,
@@ -68,8 +81,132 @@ export class CarService {
       },
     });
 
-
-
     return { code: 201, message: 'Car registered successfully' };
+  }
+
+  private isCarFeatureArray(value: unknown): value is CarFeatureDto[] {
+    return (
+      Array.isArray(value) &&
+      value.every(
+        (item) =>
+          typeof item === 'object' &&
+          'id' in item &&
+          'icon' in item &&
+          'name' in item
+      )
+    );
+  }
+
+  async getInfo(): Promise<CarInfoDto[]> {
+    const cars = await this.prisma.car.findMany({
+      include: {
+        owner: true,
+      },
+    });
+
+    return cars.map(car => {
+      const features: CarFeatureDto[] = this.isCarFeatureArray(car.features)
+        ? car.features
+        : [];
+
+      return {
+        id: car.id,
+        make: car.make,
+        model: car.model,
+        year: car.year,
+        isCarVerified: car.isCarVerified,
+        carImages: car.carImages,
+        carPapers: car.carPapers,
+        thumbImage: car.thumbImage,
+        transmission: car.transmission,
+        title: car.title,
+        location: car.location,
+        rating: car.rating,
+        trips: car.trips,
+        oldPrice: car.oldPrice,
+        newPrice: car.newPrice,
+        supportsDelivery: car.supportsDelivery,
+        description: car.description,
+        features: features,
+        ownerId: car.ownerId,
+        owner: {
+          id: car.owner.id,
+          name: car.owner.fullName,
+          rating: car.owner.ownerRating?.toString() || '0',
+          trips: car.owner.ownerTrips || '0',
+          avatar: car.owner.avatarUrl,
+          badgeText: car.owner.ownerBadgeText,
+          responseRate: car.owner.ownerResponseRate,
+          approvalRate: car.owner.ownerApprovalRate,
+          responseTime: car.owner.ownerResponseTime,
+        } as OwnerDto,
+        fastAcceptBooking: car.fastAcceptBooking,
+        allowApplyPromo: car.allowApplyPromo,
+        startDateFastBooking: car.startDateFastBooking,
+        endDateFastBooking: car.endDateFastBooking,
+        fuelConsumption: car.fuelConsumption,
+        licensePlate: car.licensePlate,
+        fuelType: car.fuelType,
+      };
+    });
+  }
+
+  async getInfoExcludingUser(userId: number): Promise<CarInfoDto[]> {
+    const cars = await this.prisma.car.findMany({
+      where: {
+        ownerId: {
+          not: userId,
+        },
+      },
+      include: {
+        owner: true,
+      },
+    });
+
+    return cars.map(car => {
+      const features: CarFeatureDto[] = this.isCarFeatureArray(car.features)
+        ? car.features
+        : [];
+
+      return {
+        id: car.id,
+        make: car.make,
+        model: car.model,
+        year: car.year,
+        isCarVerified: car.isCarVerified,
+        carImages: car.carImages,
+        carPapers: car.carPapers,
+        thumbImage: car.thumbImage,
+        transmission: car.transmission,
+        title: car.title,
+        location: car.location,
+        rating: car.rating,
+        trips: car.trips,
+        oldPrice: car.oldPrice,
+        newPrice: car.newPrice,
+        supportsDelivery: car.supportsDelivery,
+        description: car.description,
+        features: features,
+        ownerId: car.ownerId,
+        owner: {
+          id: car.owner.id,
+          name: car.owner.fullName,
+          rating: car.owner.ownerRating?.toString() || '0',
+          trips: car.owner.ownerTrips || '0',
+          avatar: car.owner.avatarUrl,
+          badgeText: car.owner.ownerBadgeText,
+          responseRate: car.owner.ownerResponseRate,
+          approvalRate: car.owner.ownerApprovalRate,
+          responseTime: car.owner.ownerResponseTime,
+        } as OwnerDto,
+        fastAcceptBooking: car.fastAcceptBooking,
+        allowApplyPromo: car.allowApplyPromo,
+        startDateFastBooking: car.startDateFastBooking,
+        endDateFastBooking: car.endDateFastBooking,
+        fuelConsumption: car.fuelConsumption,
+        licensePlate: car.licensePlate,
+        fuelType: car.fuelType,
+      };
+    });
   }
 }

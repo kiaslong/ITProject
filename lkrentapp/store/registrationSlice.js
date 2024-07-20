@@ -3,7 +3,7 @@ import { createSlice } from '@reduxjs/toolkit';
 
 
 const initialState = {
-  ownerId:'',
+  ownerId: '',
   location: '',
   licensePlate: '',
   description: '',
@@ -13,7 +13,8 @@ const initialState = {
   selectedMake: '',
   selectedModel: '',
   transmission: 'Automatic',
-  fuel: 'Gasoline',
+  fuelType: 'Gasoline',
+  fuelConsumption: 10, // Default value for fuel consumption
   promotion: 'Có',
   images: { avatar: null, front: null, back: null, left: null, right: null },
   documents: { registration: null },
@@ -22,7 +23,7 @@ const initialState = {
   discountPercentage: 20,
   fastAcceptBooking: false,
   startDateFastBooking: '6 giờ tới',
-  endDateFastBooking: '2 tuần tới ( khuyến nghị)',
+  endDateFastBooking: '2 tuần tới (khuyến nghị)',
 };
 
 

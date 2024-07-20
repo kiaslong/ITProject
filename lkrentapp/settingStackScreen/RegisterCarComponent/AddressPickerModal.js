@@ -16,7 +16,7 @@ import { Ionicons } from '@expo/vector-icons';
 import debounce from 'lodash.debounce';
 import { autoComplete, getGeocodeByAddress } from '../../fetchData/Position'; // Adjust the import path
 
-const AddressPickerModal = ({ visible, onClose, onSelect, items, title }) => {
+const AddressPickerModal = ({ visible, onClose, onSelect, items, title, initialAddress }) => {
   const [step, setStep] = useState(0);
   const [selectedCity, setSelectedCity] = useState(null);
   const [selectedDistrict, setSelectedDistrict] = useState(null);
@@ -24,41 +24,94 @@ const AddressPickerModal = ({ visible, onClose, onSelect, items, title }) => {
   const [search, setSearch] = useState('');
   const [loading, setLoading] = useState(false);
   const [suggestions, setSuggestions] = useState([]);
+
   const flatListRef = useRef(null);
   const apiKey = process.env.GOONG_KEY_3; // Replace with your actual API key
   const apiKey_2 = process.env.GOONG_KEY_2;
 
+  const findItemByNameWithType = (nameWithType, items) => {
+    return items.find(item => item.name_with_type === nameWithType);
+  };
+
+  useEffect(() => {
+    if (visible && initialAddress) {
+      const city = findItemByNameWithType(initialAddress.city, items.cities);
+      if (city) {
+        setSelectedCity(city);
+        if (initialAddress.district) {
+          const district = findItemByNameWithType(initialAddress.district, Object.values(city['quan-huyen']));
+          if (district) {
+            setSelectedDistrict(district);
+            if (initialAddress.ward) {
+              const ward = findItemByNameWithType(initialAddress.ward, Object.values(district['xa-phuong']));
+              if (ward) {
+                setSelectedWard(ward);
+                setStep(3);
+              } else {
+                setStep(2);
+              }
+            } else {
+              setStep(2);
+            }
+          } else {
+            setStep(1);
+          }
+        } else {
+          setStep(1);
+        }
+      } else {
+        setStep(0);
+      }
+      const street = initialAddress.street || '';
+      const firstPartOfStreet = street.split(',')[0].trim();
+      setSearch(firstPartOfStreet);
+    } else {
+      resetState();
+    }
+  }, [visible, initialAddress]);
+
+  const resetState = () => {
+    setStep(0);
+    setSelectedCity(null);
+    setSelectedDistrict(null);
+    setSelectedWard(null);
+    setSearch('');
+  };
+
   const handleCitySelect = (city) => {
     setSelectedCity(city);
+    setSelectedDistrict(null);
+    setSelectedWard(null);
+    setSearch('');
     setStep(1);
     flatListRef.current.scrollToOffset({ animated: false, offset: 0 });
   };
 
   const handleDistrictSelect = (district) => {
     setSelectedDistrict(district);
+    setSelectedWard(null);
+    setSearch('');
     setStep(2);
     flatListRef.current.scrollToOffset({ animated: false, offset: 0 });
   };
 
   const handleWardSelect = (ward) => {
     setSelectedWard(ward);
+    setSearch('');
     setStep(3);
     flatListRef.current.scrollToOffset({ animated: false, offset: 0 });
   };
 
   const handleStreetSelect = (suggestion) => {
-    const street = suggestion.structuredFormatting.main_text;
+    const street = suggestion.structured_formatting?.main_text || suggestion.description;
     onSelect({ street, city: selectedCity, district: selectedDistrict, ward: selectedWard });
     onClose();
-    setStep(0);
-    setSelectedCity(null);
-    setSelectedDistrict(null);
-    setSelectedWard(null);
+    resetState();
   };
-  
 
   const handleBack = () => {
     if (step > 0) {
+      setSearch('');
       setStep(step - 1);
       flatListRef.current.scrollToOffset({ animated: false, offset: 0 });
     }
@@ -70,23 +123,27 @@ const AddressPickerModal = ({ visible, onClose, onSelect, items, title }) => {
         if (input.length > 0) {
           setLoading(true);
           try {
-            const location = `${selectedWard.name_with_type}, ${selectedDistrict.name_with_type}, ${selectedCity.name_with_type}`;
+            const location = `${selectedWard?.name_with_type || ''}, ${selectedDistrict?.name_with_type || ''}, ${selectedCity?.name_with_type || ''}`;
             const geocodeResult = await getGeocodeByAddress(location, apiKey_2);
 
-            const suggestions = await autoComplete(input, apiKey, `${geocodeResult.latitude},${geocodeResult.longitude}`);
+            if (geocodeResult && geocodeResult.latitude && geocodeResult.longitude) {
+              const suggestions = await autoComplete(input, apiKey, `${geocodeResult.latitude},${geocodeResult.longitude}`);
 
-            const sortedSuggestions = suggestions.sort((a, b) => {
-              const aMatch = a.description.includes(location);
-              const bMatch = b.description.includes(location);
-              if (aMatch && !bMatch) return -1;
-              if (!aMatch && bMatch) return 1;
-              return 0;
-            });
+              const sortedSuggestions = suggestions.sort((a, b) => {
+                const aMatch = a.description.includes(location);
+                const bMatch = b.description.includes(location);
+                if (aMatch && !bMatch) return -1;
+                if (!aMatch && bMatch) return 1;
+                return 0;
+              });
 
-            setSuggestions(sortedSuggestions);
-
+              setSuggestions(sortedSuggestions);
+            } else {
+              setSuggestions([]);
+            }
           } catch (error) {
             console.error(error);
+            setSuggestions([]);
           } finally {
             setLoading(false);
           }
@@ -126,7 +183,7 @@ const AddressPickerModal = ({ visible, onClose, onSelect, items, title }) => {
         if (item.type === 'city') handleCitySelect(item);
         else if (item.type === 'district') handleDistrictSelect(item);
         else if (item.type === 'ward') handleWardSelect(item);
-        else if (item.type === 'street') handleStreetSelect(item.description);
+        else if (item.type === 'street') handleStreetSelect(item);
       }}
     >
       <Text style={styles.itemText}>{item.name_with_type || item.description}</Text>
@@ -147,10 +204,23 @@ const AddressPickerModal = ({ visible, onClose, onSelect, items, title }) => {
         <View style={styles.modalContainer}>
           <Text style={styles.modalTitle}>{title}</Text>
           {step > 0 && (
-            <TouchableOpacity onPress={handleBack} style={styles.backButton}>
-              <Ionicons name="arrow-back" size={20} color="#fff" />
-              <Text style={styles.backButtonText}>Back</Text>
-            </TouchableOpacity>
+            <View style={styles.navigationContainer}>
+              {step > 0 && (
+                <TouchableOpacity onPress={() => {setStep(0); setSearch('')}} style={styles.navigationButton}>
+                  <Text style={styles.navigationButtonText}>{selectedCity.name_with_type}</Text>
+                </TouchableOpacity>
+              )}
+              {step > 1 && (
+                <TouchableOpacity onPress={() => {setStep(1); setSearch('')}} style={styles.navigationButton}>
+                  <Text style={styles.navigationButtonText}>{selectedDistrict.name_with_type}</Text>
+                </TouchableOpacity>
+              )}
+              {step > 2 && (
+                <TouchableOpacity onPress={() => {setStep(2); setSearch('')}} style={styles.navigationButton}>
+                  <Text style={styles.navigationButtonText}>{selectedWard.name_with_type}</Text>
+                </TouchableOpacity>
+              )}
+            </View>
           )}
           {step === 3 ? (
             <View style={styles.searchContainer}>
@@ -192,8 +262,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   modalContainer: {
-    width: '85%',
-    maxHeight: '70%',
+    width: '90%',
+    maxHeight: '90%',
     backgroundColor: '#fff',
     borderRadius: 10,
     padding: 20,
@@ -221,8 +291,25 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     marginLeft: 5,
   },
+  navigationContainer: {
+    flexDirection: 'column',
+    justifyContent: 'space-evenly',
+    marginBottom: 10,
+  },
+  navigationButton: {
+    backgroundColor: '#03a9f4',
+    paddingVertical: 5,
+    marginBottom:10,
+    paddingHorizontal: 10,
+    borderRadius: 5,
+  },
+  navigationButtonText: {
+    color: '#fff',
+    fontSize: 14,
+    fontWeight: 'bold',
+  },
   list: {
-    maxHeight: '78%',
+    maxHeight: '76%',
   },
   touchableItem: {
     paddingVertical: 15,

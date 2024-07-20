@@ -90,6 +90,7 @@ const ApproveProfiles = () => {
       <Row className="mt-3">
         <Col>
           <InputGroup className="mb-3">
+          <InputGroup.Text id="search-icon"><i className="bi bi-search"></i></InputGroup.Text>
             <FormControl
               placeholder="Tìm kiếm theo tên hoặc số giấy phép"
               value={searchQuery}

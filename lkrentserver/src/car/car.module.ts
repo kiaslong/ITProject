@@ -4,16 +4,20 @@ import { MulterModule } from '@nestjs/platform-express';
 import { CarController } from './car.controller';
 import { PrismaService } from '../prisma/prisma.service';
 import { AuthModule } from '../auth/auth.module';
-import { CloudinaryService } from '../cloudinary/cloudinary.service';
+import { CloudinaryModule } from '../cloudinary/cloudinary.module';
 import { ConfigModule } from '@nestjs/config';
 import * as multer from 'multer';
 
-
 @Module({
-  imports: [ConfigModule.forRoot(),AuthModule,MulterModule.register({
-    storage: multer.memoryStorage(), // or any other multer storage configuration
-  }),], 
-  providers: [CarService, PrismaService,CloudinaryService],
+  imports: [
+    ConfigModule.forRoot(),
+    AuthModule,
+    CloudinaryModule,
+    MulterModule.register({
+      storage: multer.memoryStorage(),
+    }),
+  ],
+  providers: [CarService, PrismaService],
   controllers: [CarController],
 })
 export class CarModule {}
