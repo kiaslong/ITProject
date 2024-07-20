@@ -106,6 +106,7 @@ const RentalCars = () => {
       <Row className="mt-3">
         <Col>
           <InputGroup className="mb-3">
+          <InputGroup.Text id="search-icon"><i className="bi bi-search"></i></InputGroup.Text>
             <FormControl
               placeholder="Tìm kiếm theo tên công ty hoặc biển số xe"
               value={searchQuery}
