@@ -2,11 +2,11 @@ import React, { useState } from "react";
 import {
   View,
   Text,
-  Image,
   StyleSheet,
   ScrollView,
   Dimensions,
 } from "react-native";
+import { Image } from 'expo-image';
 
 const { width, height } = Dimensions.get("window");
 
@@ -30,7 +30,12 @@ const ImageView = ({ carInfo }) => {
       >
         {carInfo.carImages.map((image, index) => (
           <View key={index} style={styles.imageWrapper}>
-            <Image resizeMode="stretch" source={{ uri: image }} style={styles.image} />
+            <Image
+              source={{ uri: image }}
+              style={styles.image}
+              contentFit="cover"
+              cachePolicy="disk"
+            />
             <View style={styles.overlay} />
           </View>
         ))}

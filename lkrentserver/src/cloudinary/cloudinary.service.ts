@@ -11,7 +11,7 @@ export class CloudinaryService {
     this.initializeCloudinary();
   }
 
-  private initializeCloudinary() {
+  public async initializeCloudinary() {
     cloudinary.config({
       cloud_name: this.configService.get<string>('CLOUDINARY_CLOUD_NAME'),
       api_key: this.configService.get<string>('CLOUDINARY_API_KEY'),
@@ -20,20 +20,28 @@ export class CloudinaryService {
   }
 
   async uploadAvatar(file: Express.Multer.File): Promise<string> {
-    return this.uploadImageToCloudinary(file, 'profileAvatar');
+    return this.uploadImageToCloudinary(file, 'profileAvatar',{ width: 200, crop: 'scale' });
   }
 
   async uploadCarImage(file: Express.Multer.File, folder: string): Promise<string> {
-    return this.uploadImageToCloudinary(file, folder);
+    return this.uploadImageToCloudinary(file, folder, { width: 300, crop: 'scale' });
   }
 
-  private async uploadImageToCloudinary(file: Express.Multer.File, folder: string): Promise<string> {
+  private async uploadImageToCloudinary(
+    file: Express.Multer.File,
+    folder: string,
+    transformation?: { width: number; crop: string }
+  ): Promise<string> {
     if (!file?.buffer) {
       throw new Error('Invalid file provided for upload');
     }
 
     return new Promise((resolve, reject) => {
-      const uploadOptions = { folder };
+      const uploadOptions: any = { folder };
+      if (transformation) {
+        uploadOptions.transformation = transformation;
+      }
+
       const uploadStream = cloudinary.uploader.upload_stream(
         uploadOptions,
         (error: any, result: UploadApiResponse) => {

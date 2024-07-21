@@ -1,8 +1,11 @@
 import React from 'react';
-import { View, Text, StyleSheet, Image } from 'react-native';
+import { View, Text, StyleSheet } from 'react-native';
+import { Image } from 'expo-image';
 import { FontAwesome6 } from '@expo/vector-icons';
 
 const UserProfile = ({ carInfo, showStats }) => {
+
+  const placeholderImage = require("../../assets/placeholder.png")
   const { owner } = carInfo;
   const { name, rating, trips, avatar, responseRate, approvalRate, responseTime } = owner;
   const additionalInfoText = "Nhằm bảo mật thông tin cá nhân, LKRental sẽ gửi chi tiết liên hệ của chủ xe sau khi khách hàng hoàn tất bước thanh toán trên ứng dụng.";
@@ -50,7 +53,12 @@ const UserProfile = ({ carInfo, showStats }) => {
       </View>
       <View style={styles.profileContainer}>
         <View style={styles.profileHeader}>
-          <Image source={{ uri: avatar }} style={styles.profileImage} />
+        <Image
+            source={avatar ? avatar : placeholderImage}
+            style={styles.profileImage}
+            contentFit="cover"
+            transition={1000}
+          />
           <View style={styles.profileDetails}>
             <Text style={styles.userName}>{name}</Text>
             <View style={styles.ratingContainer}>

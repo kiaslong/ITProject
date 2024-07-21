@@ -38,6 +38,18 @@ export class CarController {
     private readonly cloudinaryService: CloudinaryService,
   ) {}
 
+
+  async onModuleInit() {
+    // Ensure database connection is established
+   
+
+    // Ensure Cloudinary is properly configured
+    await this.cloudinaryService.initializeCloudinary();
+
+    console.log('UserService initialized: Database and Cloudinary connections established.');
+  }
+
+
   @Post('register')
   @ApiOperation({ summary: 'Register a new car' })
   @ApiConsumes('multipart/form-data')
@@ -123,7 +135,7 @@ export class CarController {
   async getInfo() {
     try {
       const carInfo = await this.carService.getInfo();
-      this.logger.log('Successfully retrieved car information.');
+     
       return carInfo;
     } catch (error) {
       this.logger.error('Error retrieving car information:', error.message);
@@ -138,11 +150,25 @@ export class CarController {
   async getInfoExcludingUser(@Query('userId') userId: string) {
     try {
       const carInfo = await this.carService.getInfoExcludingUser(parseInt(userId, 10));
-      this.logger.log(`Successfully retrieved car information excluding user with ID: ${userId}`);
       return carInfo;
     } catch (error) {
       this.logger.error('Error retrieving car information:', error.message);
       throw new HttpException(error.message, error.status || HttpStatus.BAD_REQUEST);
     }
   }
+
+  @Get('info-include-user')
+@ApiOperation({ summary: 'Get information about all cars including those owned by a specific user' })
+@ApiResponse({ status: 200, description: 'Successfully retrieved car information including specific user.' })
+@ApiResponse({ status: 401, description: 'Unauthorized.' })
+async getInfoIncludingUser(@Query('userId') userId: string) {
+  try {
+    const carInfo = await this.carService.getInfoIncludingUser(parseInt(userId, 10));
+    return carInfo;
+  } catch (error) {
+    this.logger.error('Error retrieving car information:', error.message);
+    throw new HttpException(error.message, error.status || HttpStatus.BAD_REQUEST);
+  }
+}
+
 }

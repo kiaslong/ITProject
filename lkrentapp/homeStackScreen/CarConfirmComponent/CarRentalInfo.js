@@ -1,7 +1,8 @@
 import React, { useMemo } from "react";
-import { View, Text, StyleSheet, Image, TouchableOpacity, Dimensions } from "react-native";
+import { View, Text, StyleSheet,TouchableOpacity, Dimensions } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import moment from "moment";
+import { Image } from "expo-image";
 
 const { width, height } = Dimensions.get("window");
 const scaleWidth = width / 375; // 375 is the width of a standard iPhone screen
@@ -25,12 +26,11 @@ const CarRentalInfo = ({ carInfo, time, navigation, showCarDetail }) => {
       {showCarDetail && (
         <>
           <View style={styles.header}>
-            <Image
-              source={{
-                uri: carInfo.thumbImage,
-              }}
+          <Image
+              source={carInfo.thumbImage}
               style={styles.carImage}
-              resizeMode="contain"
+              contentFit="contain"
+              transition={1000}
             />
             <View style={styles.carInfo}>
               <Text style={styles.carName}>{carInfo.title}</Text>

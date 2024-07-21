@@ -16,13 +16,14 @@ const { width } = Dimensions.get('window');
 const EditUserInfoScreen = ({ route }) => {
   const navigation = useNavigation();
   const dispatch = useDispatch();
+  const placeholderImage = require("../assets/placeholder.png")
   const user = useSelector(state => state.loggedIn.user);
   const userId = user.id;
   const [username, setUsername] = useState(user.fullName);
   const [birthDate, setBirthDate] = useState(new Date(user.dateOfBirth));
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [gender, setGender] = useState(user.gender);
-  const [imageUri, setImageUri] = useState(user?.avatarUrl || 'https://cdn.idntimes.com/content-images/community/2022/03/1714382190-93512ef73cc9128141b72669a922c6ee-f48b234e3eecffd2d897cd799c3043de.jpg');
+  const [imageUri, setImageUri] = useState(user?.avatarUrl || placeholderImage);
   const [loading, setLoading] = useState(false);
   const [showImageSourceModal, setShowImageSourceModal] = useState(false);
   const blurhash =
@@ -145,7 +146,7 @@ const EditUserInfoScreen = ({ route }) => {
         </TouchableOpacity>
         <TouchableOpacity onPress={openImageSourceModal}>
           <Image
-            source={{ uri: imageUri }}
+            source={ imageUri }
             style={styles.image}
             contentFit='scale-down'
             cachePolicy="disk"

@@ -1,11 +1,11 @@
-import { Controller, Post, Get, Body, Put, Param, UploadedFile, UseInterceptors, UseGuards, UnauthorizedException, HttpException, HttpStatus, Headers } from '@nestjs/common';
+import { Controller, Post, Get, Body, Put,Delete ,Param, UploadedFile, UseInterceptors, UseGuards, UnauthorizedException, HttpException, HttpStatus, Headers, ParseIntPipe } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { UserService } from './user.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { LoginUserDto } from './dto/login-user.dto';
 import { UserInfoDto } from './dto/user-info.dto';
 import { UpdateUserProfileDto } from './dto/update-user.dto';
-import { ApiTags, ApiOperation, ApiResponse, ApiBody, ApiConsumes } from '@nestjs/swagger';
+import { ApiTags, ApiOperation, ApiResponse, ApiBody, ApiConsumes,ApiParam } from '@nestjs/swagger';
 import { RequestOtpDto } from './dto/request-otp.dto';
 import { VerifyOtpDto } from './dto/verify-otp.dto';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
@@ -184,5 +184,18 @@ export class UserController {
     } catch (error) {
       throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
     }
+  }
+
+
+  @UseGuards(JwtAuthGuard)
+  @Delete(':id')
+  @ApiOperation({ summary: 'Delete a user' })
+  @ApiParam({ name: 'id', type: 'number', description: 'User ID' })
+  @ApiResponse({ status: HttpStatus.OK, description: 'User successfully deleted.' })
+  @ApiResponse({ status: HttpStatus.NOT_FOUND, description: 'User not found.' })
+  @ApiResponse({ status: HttpStatus.UNAUTHORIZED, description: 'Unauthorized.' })
+  @ApiResponse({ status: HttpStatus.FORBIDDEN, description: 'Forbidden.' })
+  async deleteUser(@Param('id', ParseIntPipe) id: number) {
+    return this.userService.deleteUser(id);
   }
 }

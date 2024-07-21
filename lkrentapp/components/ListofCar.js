@@ -1,4 +1,4 @@
-import React, { useRef, useState } from "react";
+import React, { useRef, useState ,useEffect} from "react";
 import {
   Animated,
   FlatList,
@@ -11,94 +11,11 @@ import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 import Ionicon from "react-native-vector-icons/Ionicons";
 import CarCard from "../components/CarCard";
 import FilterBottomSheet from "./FilterModal";
+import { getToken } from "../utils/tokenStorage";
+import { useSelector } from "react-redux";
+import api from "../api";
 
-const carForYou = [
-  {
-    id: "1",
-    thumbImage: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ7Ow-jdSFfiCijZRPsQz6GQcoF61ahECtZMA&s",
-    images: [
-      "https://example.com/image1.jpg",
-      "https://example.com/image2.jpg",
-      "https://example.com/image3.jpg",
-      "https://example.com/image4.jpg",
-      "https://example.com/image5.jpg"
-    ],
-    transmission: "Số tự động",
-    delivery: "Giao xe tận nơi",
-    title: "KIA MORNING 2020",
-    location: "Quận Phú Nhuận, Thành Phố Hồ Chí Minh",
-    rating: "5.0",
-    trips: "97",
-    oldPrice: "574K",
-    newPrice: "474K",
-    discount: "30%",
-    supportsDelivery: true,
-    specs: {
-      transmission: "Số tự động",
-      seats: "8 chỗ",
-      fuel: "Xăng",
-      fuelConsumption: "10l/100km"
-    },
-    description: "Xe thơm tho, được bảo dưỡng định kỳ, bản đồ vietmap live, cảnh báo tốc độ, cảnh báo camera phạt nguội, có kích bình, bơm hơi, vá vỏ xe, đồ nghề thay vỏ, camera cập lề...",
-    features: {
-      map: true,
-      bluetooth: true,
-      sideCamera: true,
-      reverseCamera: true,
-      collisensor: true,
-      gps: true,
-      spareTire: true,
-      dashCam: true,
-      speedAlert: true,
-      usbPort: true,
-      dvdScreen: true,
-      etc: true,
-      airbag: true
-    }
-  },
-  {
-    id: "2",
-    thumbImage:"https://cdni.autocarindia.com/utils/imageresizer.ashx?n=https://cms.haymarketindia.net/model/uploads/modelimages/BMW-2-Series-Gran-Coupe-271220221147.jpg&w=872&h=578&q=75&c=1",
-    images: [
-      "https://example.com/thumbnail2.jpg",
-      "https://example.com/image2-2.jpg",
-      "https://example.com/image2-3.jpg",
-      "https://example.com/image2-4.jpg",
-      "https://example.com/image2-5.jpg"
-    ],
-    transmission: "Số sàn",
-    delivery: "Giao xe tận nơi",
-    title: "HYUNDAI I10 2019",
-    location: "Quận Đống Đa, Hà Nội",
-    rating: "4.8",
-    trips: "120",
-    oldPrice: "600K",
-    newPrice: "500K",
-    discount: "20%",
-    supportsDelivery: false,
-    specs: {
-      transmission: "Số sàn",
-      seats: "8 chỗ",
-      fuel: "Xăng",
-      fuelConsumption: "10l/100km"
-    },
-    description: "Xe thơm tho, được bảo dưỡng định kỳ, bản đồ vietmap live, cảnh báo tốc độ, cảnh báo camera phạt nguội, có kích bình, bơm hơi, vá vỏ xe, đồ nghề thay vỏ, camera cập lề...",
-    features: {
-      map: true,
-      bluetooth: false,
-      sideCamera: true,
-      reverseCamera: true,
-      gps: true,
-      spareTire: true,
-      dashCam: false,
-      speedAlert: true,
-      usbPort: false,
-      dvdScreen: true,
-      etc: false,
-      airbag: true
-    }
-  }
-];
+
 
 const iconData = [
   { id: "1", name: "repeat", label: "", iconType: "MaterialCommunityIcons" },
@@ -148,8 +65,38 @@ const iconData = [
 ];
 
 const ListOfCar = ({ navigation }) => {
+  const user = useSelector(state => state.loggedIn.user);
+  const [cars, setCars] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [visible, setVisible] = useState(false);
   const scrollY = useRef(new Animated.Value(0)).current;
+
+  const fetchCars = async () => {
+    const token = await getToken();
+    setLoading(true);
+    try {
+      const response = await api.get('/car/info-exclude-user', {
+        params: {
+          userId: user.id,
+        },
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      setCars(response.data);
+      setLoading(false);
+    } catch (error) {
+      console.error(error);
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchCars();
+  }, []);
+
+
+ 
 
   const headerScale = scrollY.interpolate({
     inputRange: [0, 40],
@@ -165,7 +112,7 @@ const ListOfCar = ({ navigation }) => {
 
   const renderItem = ({ item }) => (
     <View style={styles.item}>
-      <CarCard carsInfo={item} navigation={navigation} />
+      <CarCard carInfo={item} navigation={navigation} />
     </View>
   );
 
@@ -209,7 +156,7 @@ const ListOfCar = ({ navigation }) => {
         </View>
       </Animated.View>
       <Animated.FlatList
-        data={carForYou}
+        data={cars}
         initialNumToRender={4}
         renderItem={renderItem}
         showsVerticalScrollIndicator={false}

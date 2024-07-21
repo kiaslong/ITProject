@@ -10,6 +10,12 @@ export class CarService {
 
   constructor(private prisma: PrismaService) {}
 
+  async onModuleInit() {
+    await this.prisma.$connect();
+
+  
+  }
+
   async registerCar(createCarDto: CreateCarDto, avatarUrl: string, imageUrls: {
     front: string;
     left: string;
@@ -209,4 +215,63 @@ export class CarService {
       };
     });
   }
+
+
+  async getInfoIncludingUser(userId: number): Promise<CarInfoDto[]> {
+    const cars = await this.prisma.car.findMany({
+      where: {
+        ownerId: userId,
+      },
+      include: {
+        owner: true,
+      },
+    });
+  
+    return cars.map(car => {
+      const features: CarFeatureDto[] = this.isCarFeatureArray(car.features)
+        ? car.features
+        : [];
+  
+      return {
+        id: car.id,
+        make: car.make,
+        model: car.model,
+        year: car.year,
+        isCarVerified: car.isCarVerified,
+        carImages: car.carImages,
+        carPapers: car.carPapers,
+        thumbImage: car.thumbImage,
+        transmission: car.transmission,
+        title: car.title,
+        location: car.location,
+        rating: car.rating,
+        trips: car.trips,
+        oldPrice: car.oldPrice,
+        newPrice: car.newPrice,
+        supportsDelivery: car.supportsDelivery,
+        description: car.description,
+        features: features,
+        ownerId: car.ownerId,
+        owner: {
+          id: car.owner.id,
+          name: car.owner.fullName,
+          rating: car.owner.ownerRating?.toString() || '0',
+          trips: car.owner.ownerTrips || '0',
+          avatar: car.owner.avatarUrl,
+          responseRate: car.owner.ownerResponseRate,
+          approvalRate: car.owner.ownerApprovalRate,
+          responseTime: car.owner.ownerResponseTime,
+        } as OwnerDto,
+        fastAcceptBooking: car.fastAcceptBooking,
+        allowApplyPromo: car.allowApplyPromo,
+        startDateFastBooking: car.startDateFastBooking,
+        endDateFastBooking: car.endDateFastBooking,
+        fuelConsumption: car.fuelConsumption,
+        licensePlate: car.licensePlate,
+        fuelType: car.fuelType,
+        numberOfSeats:car.numberOfSeats
+      };
+    });
+  }
+  
 }

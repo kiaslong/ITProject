@@ -46,6 +46,8 @@ model User {
   ownerApprovalRate         String    @default("0%")
   ownerResponseTime         String    @default("0%")
   orders                    Order[]   // One-to-Many relationship with Order
+  reviewsReceived           Review[]  @relation("OwnerReviews") // Reviews received as an owner
+  reviewsGiven              Review[]  @relation("UserReviews") // Reviews given as a user
 }
 
 model Promotion {
@@ -97,6 +99,8 @@ model Order {
   user         User        @relation(fields: [userId], references: [id])
   carId        Int         // Foreign key to Car
   car          Car         @relation(fields: [carId], references: [id])
+  startRentDate DateTime
+  endRentDate  DateTime
   paymentState PaymentState @default(PENDING) // Enum for payment state
   orderState   OrderState   @default(PENDING) // Enum for order state
   totalPrice   Float       // Total price of the order
@@ -112,4 +116,16 @@ model Otp {
   expiryTime   DateTime
   createdTime  DateTime
   isVerified   Boolean  @default(false)
+}
+
+model Review {
+  id        Int      @id @default(autoincrement())
+  rating    Float    // Rating given by the reviewer
+  comment   String?  // Optional comment
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  userId    Int      // Foreign key to User (reviewer)
+  user      User     @relation("UserReviews", fields: [userId], references: [id])
+  ownerId   Int      // Foreign key to User (owner being reviewed)
+  owner     User     @relation("OwnerReviews", fields: [ownerId], references: [id])
 }

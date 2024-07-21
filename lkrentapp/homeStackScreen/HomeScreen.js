@@ -149,7 +149,7 @@ function CarCardList({ carList, navigation }) {
               width: adjustedWidth,
             }}
           >
-            <CarCard carsInfo={item} navigation={navigation} />
+            <CarCard carInfo={item} navigation={navigation} />
           </View>
         )}
         showsHorizontalScrollIndicator={false}
@@ -246,6 +246,8 @@ const benefitsData = [
 ];
 
 export default function HomeScreen({ navigation }) {
+
+  const placeholderImage = require("../assets/placeholder.png")
   const [currentIndex, setCurrentIndex] = useState(0);
   const dispatch = useDispatch();
   const isLoggedIn = useSelector((state) => state.loggedIn.isLoggedIn);
@@ -254,7 +256,7 @@ export default function HomeScreen({ navigation }) {
   
   const carStatus = useSelector((state) => state.cars.status);
   const blurhash = '|rF?hV%2WCj[ayj[a|j[az_NaeWBj@ayfRayfQfQM{M|azj[azf6fQfQfQIpWXofj[ayj[j[fQayWCoeoeaya}j[ayfQa{oLj?j[WVj[ayayj[fQoff7azayj[j[j[ayofayayayj[fQj[ayayj[ayfjj[j[ayjuayj[';
-  const imageUri = user?.avatarUrl || 'https://cdn.idntimes.com/content-images/community/2022/03/1714382190-93512ef73cc9128141b72669a922c6ee-f48b234e3eecffd2d897cd799c3043de.jpg';
+  const imageUri = user?.avatarUrl || placeholderImage;
 
   useEffect(() => {
     if (isLoggedIn && user?.id) {
@@ -270,7 +272,7 @@ export default function HomeScreen({ navigation }) {
     <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
       <View style={styles.headerHome}>
         <Image
-          source={{ uri: imageUri }}
+          source={ imageUri }
           style={styles.headerImage}
           contentFit='cover'
           cachePolicy="disk"
