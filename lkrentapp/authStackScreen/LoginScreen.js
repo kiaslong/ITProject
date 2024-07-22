@@ -17,6 +17,7 @@ import { useDispatch } from "react-redux";
 import { loginRequest, loginSuccess, loginFailure } from "../store/loginSlice";
 import api from "../api";
 import { saveToken } from "../utils/tokenStorage";
+import { encryptPassword } from "../utils/cryptoUtil";
 
 
 const deviceHeight = Dimensions.get("window").height;
@@ -149,9 +150,14 @@ export default function LoginScreen() {
       dispatch(loginRequest());
 
       try {
+        const phoneNumber = phoneNumberRef.current.trim();
+        const password = passwordRef.current.trim();
+
+        const encryptedPassword = await encryptPassword(password);
+
         const response = await api.post("/auth/login", {
-          phoneNumber: phoneNumberRef.current.trim(),
-          password: passwordRef.current.trim(),
+          phoneNumber,
+          password: encryptedPassword,
         });
 
         const { token } = response.data;
@@ -160,18 +166,18 @@ export default function LoginScreen() {
 
         const userInfoResponse = await api.get("/auth/info", {
           headers: {
-            Authorization:token.access_token,
+            Authorization: `Bearer ${token.access_token}`,
           },
         });
 
         const user = userInfoResponse.data;
-        dispatch(loginSuccess({ user}));
+        dispatch(loginSuccess({ user }));
         navigation.navigate("Cá nhân");
       } catch (error) {
         dispatch(loginFailure());
         Alert.alert(
           "Login Failed",
-          error.response?.data?.message || "Something went wrong"
+          error.response?.data?.message ==="Invalid credentials" ? "Sai SĐT hay mật khẩu" : error.response?.data?.message  || "Something went wrong"
         );
       }
     }

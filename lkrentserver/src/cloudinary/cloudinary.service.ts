@@ -24,7 +24,7 @@ export class CloudinaryService {
   }
 
   async uploadCarImage(file: Express.Multer.File, folder: string): Promise<string> {
-    return this.uploadImageToCloudinary(file, folder, { width: 300, crop: 'scale' });
+    return this.uploadImageToCloudinary(file, folder, { width: 350, crop: 'scale' });
   }
 
   private async uploadImageToCloudinary(
@@ -64,10 +64,16 @@ export class CloudinaryService {
       throw new Error('Invalid image URL provided for deletion');
     }
 
-    const publicId = this.extractPublicIdFromUrl(imageUrl);
+    let publicId = this.extractPublicIdFromUrl(imageUrl);
     if (!publicId) {
       throw new Error('Failed to extract public_id from image URL');
     }
+
+    if (imageUrl.includes('profileAvatar')) {
+      publicId = `profileAvatar/${publicId}`;
+    }
+
+    this.logger.log(`Deleting image with publicId: ${publicId}`); // Log the publicId before deletion
 
     try {
       await cloudinary.uploader.destroy(publicId);
@@ -80,6 +86,6 @@ export class CloudinaryService {
 
   private extractPublicIdFromUrl(url: string): string | null {
     const match = url.match(/\/([^\/]+)\.[^\/]+$/);
-    return match ? match[1] : null;
+    return match ? match[1] : null; // Corrected this line to extract publicId correctly
   }
 }

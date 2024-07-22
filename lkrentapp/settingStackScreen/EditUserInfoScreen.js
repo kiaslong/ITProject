@@ -148,7 +148,7 @@ const EditUserInfoScreen = ({ route }) => {
           <Image
             source={ imageUri }
             style={styles.image}
-            contentFit='scale-down'
+            contentFit='cover'
             cachePolicy="disk"
             placeholder={blurhash}
           />

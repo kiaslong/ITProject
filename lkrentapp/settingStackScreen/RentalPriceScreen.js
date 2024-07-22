@@ -23,6 +23,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { setField, resetRegistration } from '../store/registrationSlice';
 import api from "../api";
 import { getToken } from "../utils/tokenStorage";
+import { reloadOwnerCars } from "../store/carListSlice";
 
 const { height } = Dimensions.get('window');
 
@@ -233,7 +234,9 @@ const RentalPriceScreen = ({ route }) => {
       });
 
       if (response.status === 201) {
+        dispatch(reloadOwnerCars())
         setMessage('Car registered successfully.');
+        
         setTimeout(() => {
           dispatch(resetRegistration());
           navigation.navigate('UserRegisterCarScreen', {

@@ -12,6 +12,7 @@ import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { VerifyPhoneNumberDto } from './dto/verify-phone-number.dto';
 import { AuthService } from '../auth/auth.service';
 import { Prisma } from '@prisma/client';
+import { ChangePasswordDto } from './dto/change-password.dto';
 
 @ApiTags('auth')
 @Controller('auth')
@@ -198,4 +199,38 @@ export class UserController {
   async deleteUser(@Param('id', ParseIntPipe) id: number) {
     return this.userService.deleteUser(id);
   }
+
+  @UseGuards(JwtAuthGuard)
+  @Put(':id/change-password')
+  @ApiOperation({ summary: 'Change user password' })
+  @ApiResponse({ status: 200, description: 'Password successfully changed.' })
+  @ApiResponse({ status: 400, description: 'Bad Request.' })
+  @ApiResponse({ status: 401, description: 'Unauthorized.' })
+  @ApiBody({ type: ChangePasswordDto })
+  async changePassword(
+    @Param('id', ParseIntPipe) userId: number,
+    @Body() changePasswordDto: ChangePasswordDto,
+    @Headers('Authorization') authHeader: string
+  ) {
+    if (!authHeader) {
+      throw new UnauthorizedException('Authorization header is missing');
+    }
+
+    const token = authHeader.replace('Bearer ', '');
+    const { valid, decoded } = await this.authService.validateToken(token);
+    if (!valid) {
+      throw new UnauthorizedException('Invalid token');
+    }
+
+    if (decoded.sub !== userId) {
+      throw new UnauthorizedException('You can only change your own password');
+    }
+
+    try {
+      return await this.userService.changePassword(userId, changePasswordDto);
+    } catch (error) {
+      throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
+    }
+  }
+  
 }

@@ -11,6 +11,7 @@ import { MailerService } from '../mailer/mailer.service';
 import * as crypto from 'crypto';
 import { VerifyPhoneNumberDto } from './dto/verify-phone-number.dto';
 import { Prisma } from '@prisma/client';
+import { ChangePasswordDto } from './dto/change-password.dto';
 
 @Injectable()
 export class UserService {
@@ -28,7 +29,7 @@ export class UserService {
     // Ensure Cloudinary is properly configured
     await this.cloudinaryService.initializeCloudinary();
 
-    console.log('UserService initialized: Database and Cloudinary connections established.');
+   
   }
 
 
@@ -190,6 +191,31 @@ export class UserService {
       }
       throw error;
     }
+  }
+
+  async changePassword(userId: number, changePasswordDto: ChangePasswordDto) {
+    const user = await this.prisma.user.findUnique({
+      where: { id: userId },
+    });
+
+    if (!user) {
+      throw new NotFoundException(`User with ID ${userId} not found`);
+    }
+
+    const isPasswordValid = await bcrypt.compare(changePasswordDto.currentPassword, user.password);
+    if (!isPasswordValid) {
+      throw new HttpException('Current password is incorrect', HttpStatus.BAD_REQUEST);
+    }
+
+    const salt = await bcrypt.genSalt();
+    const hashedPassword = await bcrypt.hash(changePasswordDto.newPassword, salt);
+
+    await this.prisma.user.update({
+      where: { id: userId },
+      data: { password: hashedPassword },
+    });
+
+    return { message: 'Password changed successfully' };
   }
 
 }

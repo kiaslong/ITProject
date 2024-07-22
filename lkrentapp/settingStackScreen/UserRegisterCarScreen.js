@@ -1,41 +1,29 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import { View, Text, FlatList, StyleSheet, TouchableOpacity, Alert } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { useDispatch, useSelector } from 'react-redux';
 import { registerFunction, unregisterFunction } from '../store/functionRegistry';
-import CarCard from "../components/CarCard";
 import { resetRegistration } from '../store/registrationSlice';
-import { getToken } from '../utils/tokenStorage';
-import api from '../api';
+import { fetchOwnerCars } from '../store/carListSlice';
 import OwnerCarCard from '../components/OwnerCarCard';
 
 const UserRegisterCarScreen = () => {
   const navigation = useNavigation();
   const user = useSelector(state => state.loggedIn.user);
+  const ownerCars = useSelector(state => state.carsList.ownerCars);
   const dispatch = useDispatch();
-  const [cars, setCars] = useState([]);
-
-  
 
   useEffect(() => {
-    const fetchCars = async () => {
-      const token = await getToken();
-      try {
-        const response = await api.get('/car/info-include-user', {
-          params: {
-            userId: user.id,
-          },
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
-        setCars(response.data);
-      } catch (error) {
-        console.error(error);
-      }
-    };
-    fetchCars();
-  }, [user]);
+    if (user) {
+   
+      dispatch(fetchOwnerCars(user.id));
+    }
+  }, [user, dispatch]);
+
+  useEffect(() => {
+   
+  }, [ownerCars]);
+
 
   useEffect(() => {
     const key = 'resetRegistration';
@@ -49,7 +37,7 @@ const UserRegisterCarScreen = () => {
             text: "OK",
             onPress: () => {
               dispatch(resetRegistration());
-              navigation.goBack(); 
+              navigation.goBack();
             }
           }
         ]
@@ -66,7 +54,6 @@ const UserRegisterCarScreen = () => {
   useEffect(() => {
     const key = 'registerCar';
     const onPress = () => {
-      
       if (!user.phoneNumberVerified) {
         Alert.alert(
           "Yêu cầu xác thực số điện thoại",
@@ -82,7 +69,7 @@ const UserRegisterCarScreen = () => {
         screenTitle: "Thông tin xe",
         showCloseButton: true,
         animationType: "slide_from_bottom",
-        backFunctionName:"resetRegistration"
+        backFunctionName: "resetRegistration"
       });
     };
 
@@ -95,7 +82,6 @@ const UserRegisterCarScreen = () => {
 
   const renderItem = ({ item }) => (
     <View style={styles.itemContainer}>
-      {/* <CarCard carInfo={item} navigation={navigation} /> */}
       <OwnerCarCard carInfo={item} navigation={navigation} />
     </View>
   );
@@ -103,11 +89,13 @@ const UserRegisterCarScreen = () => {
   return (
     <View style={styles.container}>
       <FlatList
-        data={cars}
+        data={ownerCars}
         showsVerticalScrollIndicator={false}
         renderItem={renderItem}
         keyExtractor={(item) => item.id}
       />
+
+    
 
       <TouchableOpacity
         style={styles.button}
@@ -127,7 +115,7 @@ const UserRegisterCarScreen = () => {
             screenTitle: "Thông tin xe",
             showCloseButton: true,
             animationType: "slide_from_bottom",
-            backFunctionName:"resetRegistration"
+            backFunctionName: "resetRegistration"
           });
         }}
       >
