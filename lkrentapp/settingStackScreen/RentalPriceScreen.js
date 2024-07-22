@@ -23,12 +23,12 @@ import { useDispatch, useSelector } from 'react-redux';
 import { setField, resetRegistration } from '../store/registrationSlice';
 import api from "../api";
 import { getToken } from "../utils/tokenStorage";
-import { reloadOwnerCars } from "../store/carListSlice";
+import { fetchOwnerCars } from "../store/carListSlice";
 
 const { height } = Dimensions.get('window');
 
 const RentalPriceScreen = ({ route }) => {
-
+  const user = useSelector(state => state.loggedIn.user);
   const navigation = useNavigation();
   const { functionName } = route.params;
   const key = functionName;
@@ -234,23 +234,28 @@ const RentalPriceScreen = ({ route }) => {
       });
 
       if (response.status === 201) {
-        dispatch(reloadOwnerCars())
-        setMessage('Car registered successfully.');
-        
-        setTimeout(() => {
-          dispatch(resetRegistration());
-          navigation.navigate('UserRegisterCarScreen', {
-            showHeader: true,
-            showTitle: true,
-            showBackButton: true,
-            screenTitle: "Đăng ký xe",
-            showCloseButton: true,
-            animationType: "slide_from_bottom",
-            functionName:"registerCar",
-            showIcon:true,
-            iconName:"car"
-          });
-        }, 2000); // Display the message for 2 seconds before navigating
+        dispatch(fetchOwnerCars(user.id));
+        Alert.alert('Thông tin đã được lưu', 'Hãy chờ xe được duyệt', [
+          {
+            text: "OK",
+            onPress: () => {
+              setTimeout(() => {
+                dispatch(resetRegistration());
+                navigation.navigate('UserRegisterCarScreen', {
+                  showHeader: true,
+                  showTitle: true,
+                  showBackButton: true,
+                  screenTitle: "Đăng ký xe",
+                  showCloseButton: true,
+                  animationType: "slide_from_bottom",
+                  functionName:"registerCar",
+                  showIcon:true,
+                  iconName:"car"
+                });
+              }, 600);
+            },
+          },
+        ]);
       }
 
       return response.data;

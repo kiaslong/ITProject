@@ -3,6 +3,7 @@ import {
   Post,
   Get,
   Body,
+  Patch,
   UseGuards,
   UseInterceptors,
   UploadedFiles,
@@ -25,6 +26,7 @@ import { CloudinaryService } from '../cloudinary/cloudinary.service';
 import { CreateCarDto } from './dto/create-car.dto';
 import { plainToClass } from 'class-transformer';
 import { validate } from 'class-validator';
+import { VerifyCarDto } from './dto/verify-car.dto';
 
 @ApiTags('car')
 @ApiBearerAuth()
@@ -143,6 +145,22 @@ export class CarController {
     }
   }
 
+
+  @Get('info-verified')
+  @ApiOperation({ summary: 'Get information about all cars' })
+  @ApiResponse({ status: 200, description: 'Successfully retrieved car information.' })
+  @ApiResponse({ status: 401, description: 'Unauthorized.' })
+  async getInfoVeified() {
+    try {
+      const carInfo = await this.carService.getInfoVerified();
+     
+      return carInfo;
+    } catch (error) {
+      this.logger.error('Error retrieving car information:', error.message);
+      throw new HttpException(error.message, error.status || HttpStatus.BAD_REQUEST);
+    }
+  }
+
   @Get('info-exclude-user')
   @ApiOperation({ summary: 'Get information about all cars excluding those owned by a specific user' })
   @ApiResponse({ status: 200, description: 'Successfully retrieved car information excluding specific user.' })
@@ -170,5 +188,30 @@ async getInfoIncludingUser(@Query('userId') userId: string) {
     throw new HttpException(error.message, error.status || HttpStatus.BAD_REQUEST);
   }
 }
+
+
+@Patch('verify')
+@ApiOperation({ summary: 'Verify a car' })
+@ApiResponse({ status: 200, description: 'Car successfully verified.' })
+@ApiResponse({ status: 400, description: 'Bad Request.' })
+@ApiResponse({ status: 401, description: 'Unauthorized.' })
+async verifyCar(@Body() verifyCarDto: VerifyCarDto) {
+  try {
+    const errors = await validate(verifyCarDto);
+    if (errors.length > 0) {
+      this.logger.error('Validation failed:', errors);
+      throw new HttpException({ message: 'Validation failed', errors }, HttpStatus.BAD_REQUEST);
+    }
+
+    await this.carService.verifyCar(verifyCarDto.carId, verifyCarDto.isCarVerified);
+    this.logger.log(`Car ${verifyCarDto.carId} verification status set to ${verifyCarDto.isCarVerified}`);
+
+    return { message: 'Car successfully verified' };
+  } catch (error) {
+    this.logger.error('Error verifying car:', error.message);
+    throw new HttpException(error.message, error.status || HttpStatus.BAD_REQUEST);
+  }
+}
+
 
 }

@@ -1,67 +1,64 @@
-import React, { useState } from 'react';
-import { Card, Button, ListGroup, ListGroupItem, Badge, Container, Row, Col, Modal, FormControl, InputGroup } from 'react-bootstrap';
+import React, { useState, useEffect } from 'react';
+import { Card, Button, ListGroup, ListGroupItem, Badge, Container, Row, Col, Modal, FormControl, InputGroup, Pagination } from 'react-bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
+import api from '../api';
 
 const RentalCars = () => {
-  const [cars, setCars] = useState([
-    {
-      id: 1,
-      licensePlate: '29A-12345',
-      company: 'Toyota',
-      model: 'Camry',
-      year: 2019,
-      seats: 5,
-      transmission: 'Automatic',
-      fuel: 'Gasoline',
-      images: [{ uri: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ7Ow-jdSFfiCijZRPsQz6GQcoF61ahECtZMA&s" }],
-      documents: [{ uri: "https://bizweb.dktcdn.net/100/415/690/files/giay-to-xe-o-to-gom-nhung-gi-1.png?v=1677634176713" }],
-      description: 'A comfortable and fuel-efficient car.',
-      price: '500,000 VND',
-      promotion: 'Có',
-    },
-    {
-      id: 2,
-      licensePlate: '30B-67890',
-      company: 'Honda',
-      model: 'Civic',
-      year: 2018,
-      seats: 5,
-      transmission: 'Manual',
-      fuel: 'Gasoline',
-      images: [{ uri: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ7Ow-jdSFfiCijZRPsQz6GQcoF61ahECtZMA&s" }],
-      documents: [{ uri: 'https://bizweb.dktcdn.net/100/415/690/files/giay-to-xe-o-to-gom-nhung-gi-1.png?v=1677634176713' }],
-      description: 'A stylish and reliable car.',
-      price: '450,000 VND',
-      promotion: 'Không',
-    },
-    {
-      id: 3,
-      licensePlate: '31C-54321',
-      company: 'Ford',
-      model: 'Focus',
-      year: 2020,
-      seats: 5,
-      transmission: 'Automatic',
-      fuel: 'Diesel',
-      images: [{ uri: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ7Ow-jdSFfiCijZRPsQz6GQcoF61ahECtZMA&s" }],
-      documents: [{ uri: 'https://bizweb.dktcdn.net/100/415/690/files/giay-to-xe-o-to-gom-nhung-gi-1.png?v=1677634176713' }],
-      description: 'A powerful and spacious car.',
-      price: '600,000 VND',
-      promotion: 'Có',
-    },
-  ]);
-
+  const [cars, setCars] = useState([]);
   const [acceptedCars, setAcceptedCars] = useState([]);
   const [showAccepted, setShowAccepted] = useState(false);
   const [showModal, setShowModal] = useState(false);
   const [carToDelete, setCarToDelete] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [expandedCards, setExpandedCards] = useState({});
+  const [imageModal, setImageModal] = useState({ show: false, src: '' });
+  const [currentPage, setCurrentPage] = useState(1);
+  const carsPerPage = 5;
+  const placeholder = require("../assets/placeholder.png");
 
-  const handleAccept = (id) => {
-    const car = cars.find(car => car.id === id);
-    if (car) {
-      setAcceptedCars([...acceptedCars, car]);
-      setCars(cars.filter(car => car.id !== id));
+  useEffect(() => {
+    fetchCars();
+  }, [showAccepted]);
+
+  const fetchCars = async () => {
+    try {
+      setLoading(true);
+      const token = localStorage.getItem('access_token');
+      const endpoint = showAccepted ? '/car/info-verified' : '/car/info';
+      const response = await api.get(endpoint, {
+        headers: {
+          Authorization: `Bearer ${token}`
+        },
+      });
+      setCars(response.data);
+      setLoading(false);
+    } catch (err) {
+      setError('Failed to fetch cars. Please try again later.');
+      setLoading(false);
+    }
+  };
+
+  const handleAccept = async (id) => {
+    try {
+      const token = localStorage.getItem('access_token');
+      await api.patch('/car/verify', {
+        carId: id,
+        isCarVerified: true
+      }, {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      });
+
+      const car = cars.find(car => car.id === id);
+      if (car) {
+        setAcceptedCars([...acceptedCars, car]);
+        setCars(cars.filter(car => car.id !== id));
+      }
+    } catch (err) {
+      setError('Failed to verify car. Please try again later.');
     }
   };
 
@@ -84,29 +81,54 @@ const RentalCars = () => {
     setCarToDelete(null);
   };
 
-  const filteredCars = showAccepted
-    ? acceptedCars.filter(car =>
-        car.company.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        car.licensePlate.includes(searchQuery)
-      )
-    : cars.filter(car =>
-        car.company.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        car.licensePlate.includes(searchQuery)
-      );
+  const handleImageClick = (src) => {
+    setImageModal({ show: true, src });
+  };
+
+  const handleCardExpand = (id) => {
+    setExpandedCards((prev) => ({
+      ...prev,
+      [id]: !prev[id]
+    }));
+  };
+
+  const handlePageChange = (pageNumber) => {
+    setCurrentPage(pageNumber);
+  };
+
+  const getPaginatedCars = () => {
+    const startIndex = (currentPage - 1) * carsPerPage;
+    return cars.slice(startIndex, startIndex + carsPerPage);
+  };
+
+  const filteredCars = getPaginatedCars().filter(car =>
+    car.make.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    car.licensePlate.includes(searchQuery)
+  );
+
+  const totalPages = Math.ceil(cars.length / carsPerPage);
+
+  if (loading) return <div>Loading...</div>;
+  if (error) return <div>{error}</div>;
 
   return (
     <Container className="mt-4">
-      <Row>
+      <Row className="mb-3">
         <Col>
           <Button variant="info" onClick={() => setShowAccepted(!showAccepted)}>
             {showAccepted ? 'Xem xe đăng ký' : 'Xem xe đã chấp nhận'}
+          </Button>
+        </Col>
+        <Col className="text-end">
+          <Button variant="primary" onClick={fetchCars}>
+            Tải lại
           </Button>
         </Col>
       </Row>
       <Row className="mt-3">
         <Col>
           <InputGroup className="mb-3">
-          <InputGroup.Text id="search-icon"><i className="bi bi-search"></i></InputGroup.Text>
+            <InputGroup.Text id="search-icon"><i className="bi bi-search"></i></InputGroup.Text>
             <FormControl
               placeholder="Tìm kiếm theo tên công ty hoặc biển số xe"
               value={searchQuery}
@@ -127,46 +149,73 @@ const RentalCars = () => {
                   <ListGroupItem>Không có xe nào.</ListGroupItem>
                 ) : (
                   filteredCars.map(car => (
-                    <ListGroupItem key={car.id} className="mb-3">
+                    <ListGroupItem key={car.id} className="mb-3" onClick={() => handleCardExpand(car.id)} style={{ cursor: 'pointer' }}>
                       <div className="d-flex justify-content-between align-items-center">
                         <div>
-                          <h5 className="mb-1">{car.company} {car.model} <Badge bg="info">{car.year}</Badge></h5>
+                          <h5 className="mb-1">{car.make} {car.model} <Badge bg="info">{car.year}</Badge></h5>
                           <p className="mb-1"><strong>Biển số xe:</strong> {car.licensePlate}</p>
-                          <p className="mb-1"><strong>Số chỗ ngồi:</strong> {car.seats}</p>
-                          <p className="mb-1"><strong>Hộp số:</strong> {car.transmission}</p>
-                          <p className="mb-1"><strong>Nhiên liệu:</strong> {car.fuel}</p>
-                          <p className="mb-1"><strong>Giá cho thuê:</strong> {car.price}</p>
-                          <p className="mb-1"><strong>Khuyến mãi:</strong> {car.promotion}</p>
-                          <p className="mb-1"><strong>Mô tả:</strong> {car.description}</p>
+                          {expandedCards[car.id] && (
+                            <>
+                              <p className="mb-1"><strong>Số chỗ ngồi:</strong> {car.numberOfSeats}</p>
+                              <p className="mb-1"><strong>Hộp số:</strong> {car.transmission}</p>
+                              <p className="mb-1"><strong>Nhiên liệu:</strong> {car.fuelType}</p>
+                              <p className="mb-1"><strong>Giá cho thuê:</strong> {car.price} VND</p>
+                              <p className="mb-1"><strong>Khuyến mãi:</strong> {car.allowApplyPromo ? 'Có' : 'Không'}</p>
+                              <p className="mb-1"><strong>Mô tả:</strong> {car.description}</p>
+                              <p className="mb-1"><strong>Chủ xe:</strong> {car.owner.name}</p>
+                              <p className="mb-1"><strong>Tỉ lệ phản hồi:</strong> {car.owner.responseRate}%</p>
+                              <p className="mb-1"><strong>Tỉ lệ chấp nhận:</strong> {car.owner.approvalRate}%</p>
+                              <p className="mb-1"><strong>Thời gian phản hồi:</strong> {car.owner.responseTime} giờ</p>
+                              {showAccepted ? null : (
+                                <>
+                                  <p className="mb-1"><strong>Ảnh đại diện</strong></p>
+                                  {car.owner.avatar && <img src={car.owner.avatar} alt="Owner Avatar" className="img-thumbnail me-2" style={{ width: '100px' }} onClick={(e) => { e.stopPropagation(); handleImageClick(car.owner.avatar); }}/>}
+                                  {!car.owner.avatar && <img src={placeholder} alt="Placeholder Avatar" className="img-thumbnail me-2" style={{ width: '100px' }} />}
+                                  <div className="mt-3">
+                                    <strong>Hình ảnh:</strong>
+                                    <div className="d-flex flex-wrap mb-2">
+                                      {car.carImages && Object.values(car.carImages).map((image, index) => (
+                                        <img
+                                          key={index}
+                                          src={image}
+                                          alt={`Car ${index + 1}`}
+                                          className="img-thumbnail me-2"
+                                          style={{ width: '100px' }}
+                                          onClick={(e) => { e.stopPropagation(); handleImageClick(image); }}
+                                        />
+                                      ))}
+                                    </div>
+                                    <strong>Giấy tờ xe:</strong>
+                                    <div className="d-flex flex-wrap">
+                                      {car.carPapers && Object.values(car.carPapers).map((image, index) => (
+                                        <img
+                                          key={index}
+                                          src={image}
+                                          alt={`Car Paper ${index + 1}`}
+                                          className="img-thumbnail me-2"
+                                          style={{ width: '100px' }}
+                                          onClick={(e) => { e.stopPropagation(); handleImageClick(image); }}
+                                        />
+                                      ))}
+                                    </div>
+                                  </div>
+                                </>
+                              )}
+                            </>
+                          )}
                         </div>
                         <div className="d-flex">
                           {showAccepted ? (
                             <>
-                              <Button variant="danger" className="me-2" onClick={() => handleDelete(car.id)}>Delete</Button>
-                              <Button variant="warning" onClick={() => handleCancel(car.id)}>Cancel</Button>
+                              <Button variant="danger" className="me-2" onClick={(e) => { e.stopPropagation(); handleDelete(car.id); }}>Delete</Button>
+                              <Button variant="warning" onClick={(e) => { e.stopPropagation(); handleCancel(car.id); }}>Cancel</Button>
                             </>
                           ) : (
                             <>
-                              <Button variant="success" className="me-2" onClick={() => handleAccept(car.id)}>Accept</Button>
-                              <Button variant="danger" onClick={() => handleDelete(car.id)}>Cancel</Button>
+                              <Button variant="success" className="me-2" onClick={(e) => { e.stopPropagation(); handleAccept(car.id); }}>Accept</Button>
+                              <Button variant="danger" onClick={(e) => { e.stopPropagation(); handleDelete(car.id); }}>Cancel</Button>
                             </>
                           )}
-                        </div>
-                      </div>
-                      <div className="mt-3">
-                        <strong>Hình ảnh:</strong>
-                        <div className="d-flex flex-wrap">
-                          {car.images.map((image, index) => (
-                            <img key={index} src={image.uri} alt="Car" className="img-thumbnail me-2" style={{ width: '100px' }} />
-                          ))}
-                        </div>
-                      </div>
-                      <div className="mt-3">
-                        <strong>Giấy tờ:</strong>
-                        <div className="d-flex flex-wrap">
-                          {car.documents.map((document, index) => (
-                            <img key={index} src={document.uri} alt="Document" className="img-thumbnail me-2" style={{ width: '100px' }} />
-                          ))}
                         </div>
                       </div>
                     </ListGroupItem>
@@ -175,6 +224,17 @@ const RentalCars = () => {
               </ListGroup>
             </Card.Body>
           </Card>
+        </Col>
+      </Row>
+      <Row>
+        <Col>
+          <Pagination className="d-flex justify-content-center">
+            {[...Array(totalPages)].map((_, index) => (
+              <Pagination.Item key={index + 1} active={index + 1 === currentPage} onClick={() => handlePageChange(index + 1)}>
+                {index + 1}
+              </Pagination.Item>
+            ))}
+          </Pagination>
         </Col>
       </Row>
 
@@ -189,6 +249,20 @@ const RentalCars = () => {
           </Button>
           <Button variant="danger" onClick={confirmDelete}>
             Xóa
+          </Button>
+        </Modal.Footer>
+      </Modal>
+
+      <Modal show={imageModal.show} onHide={() => setImageModal({ show: false, src: '' })}>
+        <Modal.Header closeButton>
+          <Modal.Title>Hình ảnh</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <img src={imageModal.src} alt="Preview" className="img-fluid" />
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={() => setImageModal({ show: false, src: '' })}>
+            Đóng
           </Button>
         </Modal.Footer>
       </Modal>

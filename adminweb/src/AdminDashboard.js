@@ -13,7 +13,9 @@ const AdminDashboard = () => {
   const navigate = useNavigate();
 
   const handleLogout = () => {
-    // Perform logout logic here (e.g., clearing authentication tokens)
+    // Remove the token from localStorage
+    localStorage.removeItem('access_token');
+    // Navigate to the login page
     navigate('/');
   };
 

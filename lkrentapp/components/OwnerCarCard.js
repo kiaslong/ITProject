@@ -34,7 +34,7 @@ const OwnerCarCard = ({ carInfo, navigation }) => {
             <Text style={styles.delivery}>{carInfo.supportsDelivery ? 'Giao xe tận nơi' : ''}</Text>
           </View>
           <View style={styles.priceSection}>
-            <Text style={styles.price}>{carInfo.newPrice}K₫/ngày</Text>
+            <Text style={styles.price}>{carInfo.price}K₫/ngày</Text>
           </View>
           <View style={styles.status}>
             <Text style={styles.statusText}>{carInfo.status}</Text>

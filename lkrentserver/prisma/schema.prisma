@@ -44,16 +44,18 @@ model User {
   ownerTrips                String?   // Owner trips, default is null
   ownerResponseRate         String    @default("0%")
   ownerApprovalRate         String    @default("0%")
-  ownerResponseTime         String    @default("0%")
+  ownerResponseTime         String    @default("0 phút")
   orders                    Order[]   // One-to-Many relationship with Order
   reviewsReceived           Review[]  @relation("OwnerReviews") // Reviews received as an owner
   reviewsGiven              Review[]  @relation("UserReviews") // Reviews given as a user
 }
 
 model Promotion {
-  id       Int    @id @default(autoincrement())
-  promoCode String @unique
-  discount String 
+  id          Int       @id @default(autoincrement())
+  promoCode   String    @unique
+  discount    String 
+  makeApply   String?
+  modelApply  String?
 }
 
 model Car {

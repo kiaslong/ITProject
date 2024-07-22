@@ -73,22 +73,6 @@ const carListSlice = createSlice({
     setOwnerCars: (state, action) => {
       state.ownerCars = action.payload;
     },
-    reloadSearchingCars: (state, action) => {
-      // Trigger fetching action here
-      state.searching = [];
-    },
-    reloadCarForYou: (state, action) => {
-      // Trigger fetching action here
-      state.carForYou = [];
-    },
-    reloadCarHistory: (state, action) => {
-      // Trigger fetching action here
-      state.carHistory = [];
-    },
-    reloadOwnerCars: (state, action) => {
-      // Trigger fetching action here
-      state.ownerCars = [];
-    },
   },
   extraReducers: (builder) => {
     builder

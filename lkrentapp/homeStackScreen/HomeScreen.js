@@ -1,6 +1,6 @@
 // src/screens/HomeScreen.js
-import React, { useState, useEffect ,useRef} from "react";
-import { ScrollView, View, StyleSheet, Text, Pressable, FlatList, Dimensions, Platform } from "react-native";
+import React, { useState, useEffect, useRef } from "react";
+import { ScrollView, View, StyleSheet, Text, Pressable, FlatList, Dimensions, Platform, RefreshControl, ActivityIndicator } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import CarCard from "../components/CarCard";
 import PromotionCard from "../components/PromotionCard";
@@ -8,7 +8,6 @@ import ImageCard from "../components/ImageCard";
 import BenefitsCard from "../components/BenefitsCard";
 import SearchBox from "../components/SearchBox";
 import { useSelector, useDispatch } from "react-redux";
-
 import { Image } from "expo-image";
 import { fetchCarForYou } from "../store/carListSlice";
 
@@ -17,6 +16,65 @@ const PaperWork = require('../assets/paperwork.png');
 const Delivery = require('../assets/delivery.png');
 const EasyPay = require('../assets/easypay.png');
 const MultiCar = require('../assets/multicar.png');
+
+const { width } = Dimensions.get("window");
+const cardWidth = width * 1.1;
+const cardSpacing = 8;
+const cardFullWidth = cardWidth + cardSpacing;
+
+const promotions = [
+  {
+    id: "1",
+    imageUrl: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ7Ow-jdSFfiCijZRPsQz6GQcoF61ahECtZMA&s",
+    promotionText: "Khuyến mãi 30% phí cho thuê xe Mercedes",
+    discountText: "30%",
+  },
+  {
+    id: "2",
+    imageUrl: "https://cdni.autocarindia.com/utils/imageresizer.ashx?n=https://cms.haymarketindia.net/model/uploads/modelimages/BMW-2-Series-Gran-Coupe-271220221147.jpg&w=872&h=578&q=75&c=1",
+    promotionText: "Khuyến mãi 20% phí cho thuê xe BMW",
+    discountText: "20%",
+  },
+  {
+    id: "3",
+    imageUrl: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQmIwj74aj-4g71TjdSxaNpLMTTO9CpBiUm5A&s",
+    promotionText: "Khuyến mãi thêm 10% cho người mới thuê xe lần đầu",
+    discountText: "10%",
+  },
+];
+
+const benefitsData = [
+  {
+    id: '1',
+    image: CarLocation,
+    title: 'An tâm đặt xe',
+    description: 'Không tính phí hủy chuyến trong vòng 1h sau đặt cọc. Hoàn cọc và bồi thường 100% nếu chủ xe hủy chuyến trong vòng 7 ngày trước chuyến đi.',
+  },
+  {
+    id: '2',
+    image: PaperWork,
+    title: 'Thủ tục đơn giản',
+    description: 'Chỉ cần có CCCD gắn chip (hoặc Passport) & Giấy phép lái xe bạn đã đủ điều kiện thuê xe trên Mioto',
+  },
+  {
+    id: '3',
+    image: Delivery,
+    title: 'Giao xe tận nơi',
+    description: 'Bạn có thể lựa chọn giao xe đến nơi bạn muốn....phí tiết kiệm chỉ từ 15k/km',
+  },
+  {
+    id:'4',
+    image: EasyPay,
+    title:'Thanh toán dễ dàng',
+    description:'Thanh toán dễ dàng bằng cách quét QR'
+  },
+  {
+    id:'5',
+    image: MultiCar,
+    title:'Đa dạng dòng xe ',
+    description:'Hơn 100 dòng xe cho bạn tùy ý lựa chọn: Mini, Sedan, CUV, SUV , MPV , Bán tải.'
+  },
+];
 
 function HeartIcon({ navigation }) {
   const handleHeartPress = () => {
@@ -51,11 +109,6 @@ function GiftIcon({ navigation }) {
     </Pressable>
   );
 }
-
-const { width } = Dimensions.get("window");
-const cardWidth = width * 1.1;
-const cardSpacing = 8;
-const cardFullWidth = cardWidth + cardSpacing;
 
 function FlatListForPromotion({ setCurrentIndex }) {
   const flatListRef = useRef(null);
@@ -192,69 +245,14 @@ const BenefitsList = () => {
   );
 };
 
-const promotions = [
-  {
-    id: "1",
-    imageUrl: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ7Ow-jdSFfiCijZRPsQz6GQcoF61ahECtZMA&s",
-    promotionText: "Khuyến mãi 30% phí cho thuê xe Mercedes",
-    discountText: "30%",
-  },
-  {
-    id: "2",
-    imageUrl: "https://cdni.autocarindia.com/utils/imageresizer.ashx?n=https://cms.haymarketindia.net/model/uploads/modelimages/BMW-2-Series-Gran-Coupe-271220221147.jpg&w=872&h=578&q=75&c=1",
-    promotionText: "Khuyến mãi 20% phí cho thuê xe BMW",
-    discountText: "20%",
-  },
-  {
-    id: "3",
-    imageUrl: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQmIwj74aj-4g71TjdSxaNpLMTTO9CpBiUm5A&s",
-    promotionText: "Khuyến mãi thêm 10% cho người mới thuê xe lần đầu",
-    discountText: "10%",
-  },
-];
-
-const benefitsData = [
-  {
-    id: '1',
-    image: CarLocation,
-    title: 'An tâm đặt xe',
-    description: 'Không tính phí hủy chuyến trong vòng 1h sau đặt cọc. Hoàn cọc và bồi thường 100% nếu chủ xe hủy chuyến trong vòng 7 ngày trước chuyến đi.',
-  },
-  {
-    id: '2',
-    image: PaperWork,
-    title: 'Thủ tục đơn giản',
-    description: 'Chỉ cần có CCCD gắn chip (hoặc Passport) & Giấy phép lái xe bạn đã đủ điều kiện thuê xe trên Mioto',
-  },
-  {
-    id: '3',
-    image: Delivery,
-    title: 'Giao xe tận nơi',
-    description: 'Bạn có thể lựa chọn giao xe đến nơi bạn muốn....phí tiết kiệm chỉ từ 15k/km',
-  },
-  {
-    id:'4',
-    image: EasyPay,
-    title:'Thanh toán dễ dàng',
-    description:'Thanh toán dễ dàng bằng cách quét QR'
-  },
-  {
-    id:'5',
-    image: MultiCar,
-    title:'Đa dạng dòng xe ',
-    description:'Hơn 100 dòng xe cho bạn tùy ý lựa chọn: Mini, Sedan, CUV, SUV , MPV , Bán tải.'
-  },
-];
-
 export default function HomeScreen({ navigation }) {
-
-  const placeholderImage = require("../assets/placeholder.png")
+  const placeholderImage = require("../assets/placeholder.png");
   const [currentIndex, setCurrentIndex] = useState(0);
+  const [refreshing, setRefreshing] = useState(false);
   const dispatch = useDispatch();
   const isLoggedIn = useSelector((state) => state.loggedIn.isLoggedIn);
-  const user = useSelector(state => state.loggedIn.user);
+  const user = useSelector((state) => state.loggedIn.user);
   const carList = useSelector((state) => state.carsList.carForYou);
-  
   const carStatus = useSelector((state) => state.carsList.status);
   const blurhash = '|rF?hV%2WCj[ayj[a|j[az_NaeWBj@ayfRayfQfQM{M|azj[azf6fQfQfQIpWXofj[ayj[j[fQayWCoeoeaya}j[ayfQa{oLj?j[WVj[ayayj[fQoff7azayj[j[j[ayofayayayj[fQj[ayayj[ayfjj[j[ayjuayj[';
   const imageUri = user?.avatarUrl || placeholderImage;
@@ -265,15 +263,41 @@ export default function HomeScreen({ navigation }) {
     } 
   }, [user, dispatch]);
 
+  const onRefresh = async () => {
+    setRefreshing(true);
+    if (user?.id) {
+      await dispatch(fetchCarForYou(user.id));
+    }
+    setRefreshing(false);
+  };
+
   if (carStatus === 'loading') {
-    return <Text>Loading...</Text>;
+    return (
+      <View style={styles.loadingContainer}>
+        <ActivityIndicator size="large" color="#0000ff" />
+      </View>
+    );
   }
 
   return (
-    <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
+    <ScrollView
+      style={styles.container}
+      showsVerticalScrollIndicator={false}
+      refreshControl={
+        <RefreshControl
+          style={styles.refresh}
+          refreshing={refreshing}
+          progressViewOffset={60}
+          enabled={true}
+          onRefresh={onRefresh}
+          tintColor="#03a9f4"
+          colors={["#03a9f4"]}
+        />
+      }
+    >
       <View style={styles.headerHome}>
         <Image
-          source={ imageUri }
+          source={imageUri}
           style={styles.headerImage}
           contentFit='cover'
           cachePolicy="disk"
@@ -313,8 +337,18 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: "#fff",
   },
+  refresh: {
+    height:10,
+    alignItems:"flex-end",
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "#fff",
+  },
   headerHome: {
-    paddingTop: 55,
+    paddingTop:45,
     paddingLeft: 20,
     paddingRight: 20,
     paddingBottom: 10,

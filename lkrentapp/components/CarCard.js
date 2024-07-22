@@ -68,8 +68,8 @@ const CarCard = ({ carInfo, navigation }) => {
           </View>
           <View style={styles.priceSection}>
             <View style={styles.price}>
-              <Text style={styles.oldPrice}>{carInfo.oldPrice}K₫</Text>
-              <Text style={styles.newPrice}>{carInfo.newPrice}K₫/ngày</Text>
+              <Text style={styles.oldPrice}>{carInfo.price}K₫</Text>
+              <Text style={styles.newPrice}>{carInfo.price}K₫/ngày</Text>
             </View>
             {carInfo.allowApplyPromo && (
               <Text style={styles.discount}>Giảm {carInfo.discount}</Text>

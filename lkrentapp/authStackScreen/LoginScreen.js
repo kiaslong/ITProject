@@ -160,6 +160,8 @@ export default function LoginScreen() {
           password: encryptedPassword,
         });
 
+        console.log(encryptedPassword)
+
         const { token } = response.data;
 
         await saveToken(token.access_token); // Save the token
