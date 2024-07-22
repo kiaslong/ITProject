@@ -109,13 +109,7 @@ const AddressPickerModal = ({ visible, onClose, onSelect, items, title, initialA
     resetState();
   };
 
-  const handleBack = () => {
-    if (step > 0) {
-      setSearch('');
-      setStep(step - 1);
-      flatListRef.current.scrollToOffset({ animated: false, offset: 0 });
-    }
-  };
+
 
   const debouncedAutoComplete = useMemo(
     () =>

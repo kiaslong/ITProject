@@ -60,6 +60,26 @@ const CarDetails = ({ carInfo, navigation }) => {
     [time]
   );
 
+
+  const trimLocation = (location) => {
+    const parts = location.split(',');
+    if (parts.length > 2) {
+      let part2 = parts[2].trim();
+      let part3 = parts[3].trim();
+      if (!part2.startsWith('Quận')) {
+        part2 = 'Quận ' + part2;
+      }
+      if (part3 && !(part3.startsWith('Thành phố'))) {
+        part3 = 'Thành phố ' + part3;
+      }
+      
+      
+      return [part2,part3].join(', ').trim();
+    }
+    return location.trim();
+  };
+
+
   return (
     <View style={styles.details}>
       <Text style={styles.smallSectionTitle}>Thời gian thuê xe</Text>
@@ -105,7 +125,7 @@ const CarDetails = ({ carInfo, navigation }) => {
           />
           <View style={styles.locationOptionContainer}>
             <Text style={styles.locationOptionText}>Tôi tự đến lấy xe</Text>
-            <Text style={styles.location}>{carInfo.location}</Text>
+            <Text style={styles.location}>{trimLocation(carInfo.location)}</Text>
           </View>
           <Text style={styles.freeDelivery}>Miễn phí</Text>
         </TouchableOpacity>

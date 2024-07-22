@@ -52,9 +52,8 @@ model User {
 
 model Promotion {
   id       Int    @id @default(autoincrement())
-  discount String // Discount on the car
-  carId    Int    // Foreign key to Car
-  car      Car    @relation(fields: [carId], references: [id])
+  promoCode String @unique
+  discount String 
 }
 
 model Car {
@@ -76,8 +75,7 @@ model Car {
   location            String    // Location of the car
   rating              String    @default("0.0")
   trips               String    @default("0")
-  oldPrice            String    // Old price of the car
-  newPrice            String
+  price               String
   supportsDelivery    Boolean   @default(false)
   fastAcceptBooking   Boolean   @default(false)
   startDateFastBooking DateTime? 
@@ -86,7 +84,6 @@ model Car {
   allowDiscount1Week  Boolean   @default(false)
   discount1WeekPercent String?  
   features            Json?      // Features of the car
-  promotions          Promotion[] // One-to-Many relationship with Promotion
   ownerId             Int
   owner               User?     @relation(fields: [ownerId], references: [id], name: "UserCars")
   favouriteByUsers    User[]    @relation("UserFavouriteCars")

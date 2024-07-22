@@ -8,8 +8,9 @@ import ImageCard from "../components/ImageCard";
 import BenefitsCard from "../components/BenefitsCard";
 import SearchBox from "../components/SearchBox";
 import { useSelector, useDispatch } from "react-redux";
-import { fetchCarsExcludingUser } from "../store/carSlice";
+
 import { Image } from "expo-image";
+import { fetchCarForYou } from "../store/carListSlice";
 
 const CarLocation = require('../assets/carlocation.jpg');
 const PaperWork = require('../assets/paperwork.png');
@@ -252,17 +253,17 @@ export default function HomeScreen({ navigation }) {
   const dispatch = useDispatch();
   const isLoggedIn = useSelector((state) => state.loggedIn.isLoggedIn);
   const user = useSelector(state => state.loggedIn.user);
-  const carList = useSelector((state) => state.cars.cars);
+  const carList = useSelector((state) => state.carsList.carForYou);
   
-  const carStatus = useSelector((state) => state.cars.status);
+  const carStatus = useSelector((state) => state.carsList.status);
   const blurhash = '|rF?hV%2WCj[ayj[a|j[az_NaeWBj@ayfRayfQfQM{M|azj[azf6fQfQfQIpWXofj[ayj[j[fQayWCoeoeaya}j[ayfQa{oLj?j[WVj[ayayj[fQoff7azayj[j[j[ayofayayayj[fQj[ayayj[ayfjj[j[ayjuayj[';
   const imageUri = user?.avatarUrl || placeholderImage;
 
   useEffect(() => {
-    if (isLoggedIn && user?.id) {
-      dispatch(fetchCarsExcludingUser(user.id));
-    }
-  }, [isLoggedIn, user, dispatch]);
+    if (user?.id) {
+      dispatch(fetchCarForYou(user.id));
+    } 
+  }, [user, dispatch]);
 
   if (carStatus === 'loading') {
     return <Text>Loading...</Text>;

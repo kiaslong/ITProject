@@ -57,6 +57,8 @@ const carListSlice = createSlice({
     carForYou: [],
     carHistory: [],
     ownerCars: [],
+    status: 'idle',
+    error:null,
   },
   reducers: {
     setSearchingCars: (state, action) => {
@@ -89,18 +91,51 @@ const carListSlice = createSlice({
     },
   },
   extraReducers: (builder) => {
-    builder.addCase(fetchSearchingCars.fulfilled, (state, action) => {
-      state.searching = action.payload;
-    });
-    builder.addCase(fetchCarForYou.fulfilled, (state, action) => {
-      state.carForYou = action.payload;
-    });
-    builder.addCase(fetchCarHistory.fulfilled, (state, action) => {
-      state.carHistory = action.payload;
-    });
-    builder.addCase(fetchOwnerCars.fulfilled, (state, action) => {
-      state.ownerCars = action.payload;
-    });
+    builder
+      .addCase(fetchSearchingCars.pending, (state) => {
+        state.status = 'loading';
+      })
+      .addCase(fetchSearchingCars.fulfilled, (state, action) => {
+        state.status = 'succeeded';
+        state.searching = action.payload;
+      })
+      .addCase(fetchSearchingCars.rejected, (state, action) => {
+        state.status = 'failed';
+        state.error = action.error.message;
+      })
+      .addCase(fetchCarForYou.pending, (state) => {
+        state.status = 'loading';
+      })
+      .addCase(fetchCarForYou.fulfilled, (state, action) => {
+        state.status = 'succeeded';
+        state.carForYou = action.payload;
+      })
+      .addCase(fetchCarForYou.rejected, (state, action) => {
+        state.status = 'failed';
+        state.error = action.error.message;
+      })
+      .addCase(fetchCarHistory.pending, (state) => {
+        state.status = 'loading';
+      })
+      .addCase(fetchCarHistory.fulfilled, (state, action) => {
+        state.status = 'succeeded';
+        state.carHistory = action.payload;
+      })
+      .addCase(fetchCarHistory.rejected, (state, action) => {
+        state.status = 'failed';
+        state.error = action.error.message;
+      })
+      .addCase(fetchOwnerCars.pending, (state) => {
+        state.status = 'loading';
+      })
+      .addCase(fetchOwnerCars.fulfilled, (state, action) => {
+        state.status = 'succeeded';
+        state.ownerCars = action.payload;
+      })
+      .addCase(fetchOwnerCars.rejected, (state, action) => {
+        state.status = 'failed';
+        state.error = action.error.message;
+      });
   },
 });
 

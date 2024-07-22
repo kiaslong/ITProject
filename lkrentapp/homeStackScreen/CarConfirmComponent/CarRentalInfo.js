@@ -21,6 +21,26 @@ const CarRentalInfo = ({ carInfo, time, navigation, showCarDetail }) => {
     [time]
   );
 
+
+  const trimLocation = (location) => {
+    const parts = location.split(',');
+    if (parts.length > 2) {
+      let part2 = parts[2].trim();
+      let part3 = parts[3].trim();
+      if (!part2.startsWith('Quận')) {
+        part2 = 'Quận ' + part2;
+      }
+      if (part3 && !(part3.startsWith('Thành phố'))) {
+        part3 = 'Thành phố ' + part3;
+      }
+      
+      
+      return [part2,part3].join(', ').trim();
+    }
+    return location.trim();
+  };
+
+
   return (
     <View style={styles.container}>
       {showCarDetail && (
@@ -82,7 +102,7 @@ const CarRentalInfo = ({ carInfo, time, navigation, showCarDetail }) => {
               <Ionicons name="location-outline" size={20 * scaleWidth} color="#000" />
               <Text style={styles.locationText}>Nhận xe tại địa chỉ của xe</Text>
             </View>
-            <Text style={styles.locationAddress}>{carInfo.location}</Text>
+            <Text style={styles.locationAddress}>{trimLocation(carInfo.location)}</Text>
             <TouchableOpacity onPress={handleMapPress}>
               <Text style={styles.mapLink}>Xem bản đồ</Text>
             </TouchableOpacity>

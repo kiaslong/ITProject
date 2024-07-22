@@ -19,12 +19,13 @@ export class CarFeatureDto {
     location: string;
     rating: string;
     trips: string;
-    oldPrice: string;
-    newPrice: string;
+    price: string;
     supportsDelivery: boolean;
     description: string;
     features: CarFeatureDto[];
     ownerId: number;
+    allowDiscount1Week:boolean;
+    discount1WeekPercent:string;
     numberOfSeats:string;
     fastAcceptBooking: boolean;
     allowApplyPromo: boolean;

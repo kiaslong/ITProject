@@ -2,8 +2,13 @@ import React, { useState } from 'react';
 import { StyleSheet, Text, View, TouchableOpacity } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
 
-const PricingTable = () => {
+const PricingTable = ({carInfo}) => {
   const [checked, setChecked] = useState('first');
+
+  const formatPrice = (price) => {
+    const priceWithZeros = price * 1000; // Add three more zeros
+    return priceWithZeros.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
+  };
 
   return (
     <View style={styles.container}>
@@ -11,12 +16,12 @@ const PricingTable = () => {
       <View style={styles.tableContainer}>
         <View style={styles.row}>
           <Text style={styles.label}>Đơn giá thuê <Icon name="information-circle-outline" size={16} color="#03A9F4" /></Text>
-          <Text style={styles.value}>918 400 đ/ngày</Text>
+          <Text style={styles.value}>{formatPrice(carInfo.oldPrice)} đ/ngày</Text>
         </View>
         <View style={styles.separator} />
         <View style={styles.row}>
           <Text style={styles.totalLabel}>Tổng cộng</Text>
-          <Text style={styles.totalValue}>1 008 800 đ x 1 ngày</Text>
+          <Text style={styles.totalValue}>{formatPrice(carInfo.newPrice)} đ/ngày</Text>
         </View>
         
         <View style={styles.section}>
