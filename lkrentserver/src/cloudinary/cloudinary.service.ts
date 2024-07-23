@@ -26,6 +26,10 @@ export class CloudinaryService {
   async uploadCarImage(file: Express.Multer.File, folder: string): Promise<string> {
     return this.uploadImageToCloudinary(file, folder, { width: 350, crop: 'scale' });
   }
+  
+  async uploadPromotionImage(file: Express.Multer.File): Promise<string> {
+    return this.uploadImageToCloudinary(file, 'promotionImages', { width: 350, crop: 'scale' });
+  }
 
   private async uploadImageToCloudinary(
     file: Express.Multer.File,
@@ -101,6 +105,27 @@ export class CloudinaryService {
     }
   }
 
+  async deletePromotionImage(imageUrl: string): Promise<void> {
+    if (!imageUrl) {
+      throw new Error('Invalid image URL provided for deletion');
+    }
+
+    const publicId = this.constructPublicIdForPromotion(imageUrl);
+    if (!publicId) {
+      throw new Error('Failed to extract public_id from image URL');
+    }
+
+    this.logger.log(`Deleting promotion image with publicId: ${publicId}`); // Log the publicId before deletion
+
+    try {
+      await cloudinary.uploader.destroy(publicId);
+      this.logger.log(`Promotion image deleted successfully: ${imageUrl}`);
+    } catch (error) {
+      this.logger.error('Error deleting promotion image from Cloudinary', error);
+      throw error;
+    }
+  }
+
   private constructPublicIdForAvatar(imageUrl: string): string | null {
     const publicId = this.extractPublicIdFromUrl(imageUrl);
     return publicId ? `profileAvatar/${publicId}` : null;
@@ -111,8 +136,13 @@ export class CloudinaryService {
     return publicId ? `car/${licensePlate}/${publicId}` : null;
   }
 
+  private constructPublicIdForPromotion(imageUrl: string): string | null {
+    const publicId = this.extractPublicIdFromUrl(imageUrl);
+    return publicId ? `promotionImages/${publicId}` : null;
+  }
+
   private extractPublicIdFromUrl(url: string): string | null {
     const match = url.match(/\/([^\/]+)\.[^\/]+$/);
-    return match ? match[1] : null; // Corrected this line to extract publicId correctly
+    return match ? match[1] : null;
   }
 }

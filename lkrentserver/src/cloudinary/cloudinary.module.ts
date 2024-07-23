@@ -4,7 +4,7 @@ import { CloudinaryService } from './cloudinary.service';
 import { CloudinaryProvider } from './cloudinary.config';
 
 @Module({
-  imports: [ConfigModule.forRoot(),],
+  imports: [ConfigModule.forRoot()],
   providers: [CloudinaryService, CloudinaryProvider],
   exports: [CloudinaryService],
 })

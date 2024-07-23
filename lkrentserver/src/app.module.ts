@@ -9,6 +9,7 @@ import { CarModule } from './car/car.module';
 import { AuthModule } from './auth/auth.module';
 import { CloudinaryModule } from './cloudinary/cloudinary.module';
 import { AdminModule } from './admin/admin.module';
+import { PromotionModule } from './promotion/promotion.module';
 
 @Module({
   imports: [
@@ -20,6 +21,7 @@ import { AdminModule } from './admin/admin.module';
     CarModule,
     AuthModule,
     AdminModule,
+    PromotionModule,
   ],
   providers: [PrismaService],
 })
