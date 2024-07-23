@@ -9,7 +9,9 @@ import { Image } from 'expo-image';
 const UserInfoScreen = () => {
   const placeholderImage = require("../assets/placeholder.png")
   const navigation = useNavigation();
+  
   const user = useSelector(state => state.loggedIn.user);
+  console.log(user)
   const blurhash =
     '|rF?hV%2WCj[ayj[a|j[az_NaeWBj@ayfRayfQfQM{M|azj[azf6fQfQfQIpWXofj[ayj[j[fQayWCoeoeaya}j[ayfQa{oLj?j[WVj[ayayj[fQoff7azayj[ayj[j[ayofayayayj[fQj[ayayj[ayfjj[j[ayjuayj[';
   const imageUri = user?.avatarUrl || placeholderImage;
@@ -90,7 +92,7 @@ const UserInfoScreen = () => {
               </Text>
             </View>
           </View>
-          <Text style={styles.extraInfoTextRight}>Xác thực ngay</Text>
+          <Text style={styles.extraInfoTextRight}> {user?.drivingLicenseVerified ? user?.drivingLicenseNumber : "Chưa xác thực" }</Text>
           <FontAwesome5 name="angle-right" color="black" style={styles.angleIcon} />
         </TouchableOpacity>
 

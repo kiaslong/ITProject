@@ -46,7 +46,7 @@ const EmailVerificationScreen = ({ navigation, route }) => {
         useNativeDriver: true,
       }).start();
 
-      Alert.alert('Success', 'OTP sent successfully!');
+      Alert.alert('Thành công', 'Gửi otp thành công!');
     } catch (error) {
       if (error.response && error.response.status === 400 && error.response.data.message === 'Email is already verified') {
         Alert.alert('Error', error.response.data.message, [

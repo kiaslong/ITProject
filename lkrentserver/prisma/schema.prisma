@@ -33,6 +33,10 @@ model User {
   createdAt                 DateTime  @default(now())
   updatedAt                 DateTime  @updatedAt
   drivingLicenseUrl         String?   // URL of the driving license, default is null
+  drivingLicenseFullName    String?
+  drivingLicenseDOB         String?
+  drivingLicenseExpireDate  String?
+  drivingLicenseNumber      String?
   numberOfSuccessRentals    Int       @default(0) // Number of successful rentals, default is 0
   rewardPoints              Int       @default(0) // Reward points, default is 0
   drivingLicenseVerified    Boolean   @default(false) // Driving license verified status

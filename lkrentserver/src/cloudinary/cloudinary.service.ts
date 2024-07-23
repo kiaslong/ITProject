@@ -31,6 +31,10 @@ export class CloudinaryService {
     return this.uploadImageToCloudinary(file, 'promotionImages', { width: 350, crop: 'scale' });
   }
 
+  async uploadDrivingLicense(file: Express.Multer.File): Promise<string> {
+    return this.uploadImageToCloudinary(file, 'drivingLicenses', { width: 500, crop: 'scale' });
+  }
+
   private async uploadImageToCloudinary(
     file: Express.Multer.File,
     folder: string,
@@ -126,6 +130,27 @@ export class CloudinaryService {
     }
   }
 
+  async deleteDrivingLicenseImage(imageUrl: string): Promise<void> {
+    if (!imageUrl) {
+      throw new Error('Invalid image URL provided for deletion');
+    }
+
+    const publicId = this.constructPublicIdForDrivingLicense(imageUrl);
+    if (!publicId) {
+      throw new Error('Failed to extract public_id from image URL');
+    }
+
+    this.logger.log(`Deleting driving license image with publicId: ${publicId}`); // Log the publicId before deletion
+
+    try {
+      await cloudinary.uploader.destroy(publicId);
+      this.logger.log(`Driving license image deleted successfully: ${imageUrl}`);
+    } catch (error) {
+      this.logger.error('Error deleting driving license image from Cloudinary', error);
+      throw error;
+    }
+  }
+
   private constructPublicIdForAvatar(imageUrl: string): string | null {
     const publicId = this.extractPublicIdFromUrl(imageUrl);
     return publicId ? `profileAvatar/${publicId}` : null;
@@ -139,6 +164,11 @@ export class CloudinaryService {
   private constructPublicIdForPromotion(imageUrl: string): string | null {
     const publicId = this.extractPublicIdFromUrl(imageUrl);
     return publicId ? `promotionImages/${publicId}` : null;
+  }
+
+  private constructPublicIdForDrivingLicense(imageUrl: string): string | null {
+    const publicId = this.extractPublicIdFromUrl(imageUrl);
+    return publicId ? `drivingLicenses/${publicId}` : null;
   }
 
   private extractPublicIdFromUrl(url: string): string | null {

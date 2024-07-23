@@ -65,7 +65,7 @@ const OtpEntryScreen = ({ route, navigation }) => {
       const userData = userInfoResponse.data;
       dispatch(updateUser(userData)); // Dispatch the updateUser action to update the user data in the Redux store
 
-      Alert.alert('Success', 'Your phone number has been verified successfully!', [
+      Alert.alert('Thành công', 'Số điện thoại của bạn đã được xác thực', [
         {
           text: 'OK', onPress: () => {
             setTimeout(() => {
