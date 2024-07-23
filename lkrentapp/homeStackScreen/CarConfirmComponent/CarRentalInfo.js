@@ -1,7 +1,8 @@
 import React, { useMemo } from "react";
-import { View, Text, StyleSheet, Image, TouchableOpacity, Dimensions } from "react-native";
+import { View, Text, StyleSheet,TouchableOpacity, Dimensions } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import moment from "moment";
+import { Image } from "expo-image";
 
 const { width, height } = Dimensions.get("window");
 const scaleWidth = width / 375; // 375 is the width of a standard iPhone screen
@@ -20,21 +21,34 @@ const CarRentalInfo = ({ carInfo, time, navigation, showCarDetail }) => {
     [time]
   );
 
+  const trimLocation = (location) => {
+    const parts = location.split(',');
+    if (parts.length > 2) {
+      let part2 = parts[2].trim();
+      let part3 = parts[3].trim();
+      
+      
+      
+      return [part2,part3].join(', ').trim();
+    }
+    return location.trim();
+  };
+
+
   return (
     <View style={styles.container}>
       {showCarDetail && (
         <>
           <View style={styles.header}>
-            <Image
-              source={{
-                uri: carInfo.thumbImage,
-              }}
+          <Image
+              source={carInfo.thumbImage}
               style={styles.carImage}
-              resizeMode="contain"
+              contentFit="contain"
+              transition={1000}
             />
             <View style={styles.carInfo}>
               <Text style={styles.carName}>{carInfo.title}</Text>
-              <Text style={styles.carId}>Mã số xe: {carInfo.id}</Text>
+              <Text style={styles.carId}>Mã số xe: LKX{carInfo.id}</Text>
               <View style={styles.ratingContainer}>
                 <Ionicons name="star" size={16 * scaleWidth} color="#FFD700" />
                 <Text style={styles.ratingText}>{carInfo.rating}</Text>
@@ -82,7 +96,7 @@ const CarRentalInfo = ({ carInfo, time, navigation, showCarDetail }) => {
               <Ionicons name="location-outline" size={20 * scaleWidth} color="#000" />
               <Text style={styles.locationText}>Nhận xe tại địa chỉ của xe</Text>
             </View>
-            <Text style={styles.locationAddress}>{carInfo.location}</Text>
+            <Text style={styles.locationAddress}>{trimLocation(carInfo.location)}</Text>
             <TouchableOpacity onPress={handleMapPress}>
               <Text style={styles.mapLink}>Xem bản đồ</Text>
             </TouchableOpacity>

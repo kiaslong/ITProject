@@ -2,11 +2,11 @@ import React, { useState } from "react";
 import {
   View,
   Text,
-  Image,
   StyleSheet,
   ScrollView,
   Dimensions,
 } from "react-native";
+import { Image } from 'expo-image';
 
 const { width, height } = Dimensions.get("window");
 
@@ -28,20 +28,25 @@ const ImageView = ({ carInfo }) => {
         onScroll={handleScroll}
         scrollEventThrottle={16}
       >
-        {carInfo.images.map((image, index) => (
+        {carInfo.carImages.map((image, index) => (
           <View key={index} style={styles.imageWrapper}>
-            <Image resizeMode="stretch" source={{ uri: image }} style={styles.image} />
+            <Image
+              source={{ uri: image }}
+              style={styles.image}
+              contentFit="cover"
+              cachePolicy="disk"
+            />
             <View style={styles.overlay} />
           </View>
         ))}
       </ScrollView>
       <View style={styles.indexContainer}>
         <Text style={styles.indexText}>{`${currentIndex}/${
-          carInfo.images.length
+          carInfo.carImages.length
         }`}</Text>
       </View>
       <View style={styles.dotsContainer}>
-        {carInfo.images.map((_, index) => (
+        {carInfo.carImages.map((_, index) => (
           <View
             key={index}
             style={[

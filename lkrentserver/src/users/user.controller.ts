@@ -1,17 +1,18 @@
-import { Controller, Post, Get, Body, Put, Param, UploadedFile, UseInterceptors, UseGuards, UnauthorizedException, HttpException, HttpStatus, Headers } from '@nestjs/common';
+import { Controller, Post, Get, Body, Put,Delete ,Param, UploadedFile, UseInterceptors, UseGuards, UnauthorizedException, HttpException, HttpStatus, Headers, ParseIntPipe } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { UserService } from './user.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { LoginUserDto } from './dto/login-user.dto';
 import { UserInfoDto } from './dto/user-info.dto';
 import { UpdateUserProfileDto } from './dto/update-user.dto';
-import { ApiTags, ApiOperation, ApiResponse, ApiBody, ApiConsumes } from '@nestjs/swagger';
+import { ApiTags, ApiOperation, ApiResponse, ApiBody, ApiConsumes,ApiParam } from '@nestjs/swagger';
 import { RequestOtpDto } from './dto/request-otp.dto';
 import { VerifyOtpDto } from './dto/verify-otp.dto';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { VerifyPhoneNumberDto } from './dto/verify-phone-number.dto';
 import { AuthService } from '../auth/auth.service';
 import { Prisma } from '@prisma/client';
+import { ChangePasswordDto } from './dto/change-password.dto';
 
 @ApiTags('auth')
 @Controller('auth')
@@ -117,7 +118,6 @@ export class UserController {
       phoneNumberVerified: user.phoneNumberVerified,
       ownerRating: user.ownerRating,
       ownerTrips: user.ownerTrips,
-      ownerBadgeText: user.ownerBadgeText,
       ownerResponseRate: user.ownerResponseRate,
       ownerApprovalRate: user.ownerApprovalRate,
       ownerResponseTime: user.ownerResponseTime,
@@ -186,4 +186,51 @@ export class UserController {
       throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
     }
   }
+
+
+  @UseGuards(JwtAuthGuard)
+  @Delete(':id')
+  @ApiOperation({ summary: 'Delete a user' })
+  @ApiParam({ name: 'id', type: 'number', description: 'User ID' })
+  @ApiResponse({ status: HttpStatus.OK, description: 'User successfully deleted.' })
+  @ApiResponse({ status: HttpStatus.NOT_FOUND, description: 'User not found.' })
+  @ApiResponse({ status: HttpStatus.UNAUTHORIZED, description: 'Unauthorized.' })
+  @ApiResponse({ status: HttpStatus.FORBIDDEN, description: 'Forbidden.' })
+  async deleteUser(@Param('id', ParseIntPipe) id: number) {
+    return this.userService.deleteUser(id);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Put(':id/change-password')
+  @ApiOperation({ summary: 'Change user password' })
+  @ApiResponse({ status: 200, description: 'Password successfully changed.' })
+  @ApiResponse({ status: 400, description: 'Bad Request.' })
+  @ApiResponse({ status: 401, description: 'Unauthorized.' })
+  @ApiBody({ type: ChangePasswordDto })
+  async changePassword(
+    @Param('id', ParseIntPipe) userId: number,
+    @Body() changePasswordDto: ChangePasswordDto,
+    @Headers('Authorization') authHeader: string
+  ) {
+    if (!authHeader) {
+      throw new UnauthorizedException('Authorization header is missing');
+    }
+
+    const token = authHeader.replace('Bearer ', '');
+    const { valid, decoded } = await this.authService.validateToken(token);
+    if (!valid) {
+      throw new UnauthorizedException('Invalid token');
+    }
+
+    if (decoded.sub !== userId) {
+      throw new UnauthorizedException('You can only change your own password');
+    }
+
+    try {
+      return await this.userService.changePassword(userId, changePasswordDto);
+    } catch (error) {
+      throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
+    }
+  }
+  
 }

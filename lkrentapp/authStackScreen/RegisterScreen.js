@@ -17,6 +17,7 @@ import api from "../api"; // Import the Axios instance
 import { loginSuccess } from "../store/loginSlice";
 import { useNavigation ,CommonActions} from "@react-navigation/native";
 import { saveToken } from "../utils/tokenStorage";
+import { encryptPassword } from "../utils/cryptoUtil";
 
 const RegisterScreen = () => {
   const [phoneNumber, setPhoneNumber] = useState("");
@@ -120,39 +121,37 @@ const RegisterScreen = () => {
   const handleRegisterPress = async () => {
     if (validateInputs()) {
       try {
+        const encryptedPassword = await encryptPassword(password.trim());
+        console.log(encryptedPassword)
+
         const registerResponse = await api.post("/auth/register", {
           phoneNumber: phoneNumber.trim(),
           fullName: fullName.trim(),
-          password: password.trim(),
+          password: encryptedPassword,
         });
-
-        
 
         // Automatically log in the user after successful registration
         const loginResponse = await api.post("/auth/login", {
           phoneNumber: phoneNumber.trim(),
-          password: password.trim(),
+          password: encryptedPassword,
         });
 
         const { token } = loginResponse.data;
-        
 
         await saveToken(token.access_token);
 
         // Use the token to fetch user info
         const userInfoResponse = await api.get("/auth/info", {
           headers: {
-            Authorization:token.access_token,
+            Authorization: `Bearer ${token.access_token}`,
           },
         });
 
-       
-
         const user = userInfoResponse.data;
-        dispatch(loginSuccess({ user}));
+        dispatch(loginSuccess({ user }));
         Alert.alert(
-          "Registration Successful",
-          "You have been registered and logged in successfully.",
+          "Đăng ký thành công",
+          "Bạn đã đăng ký thành công và được tự động đăng nhập.",
           [
             {
               text: "OK",
@@ -179,6 +178,7 @@ const RegisterScreen = () => {
       }
     }
   };
+
 
   return (
     <KeyboardAvoidingView

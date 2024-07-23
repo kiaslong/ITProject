@@ -15,7 +15,7 @@ const CarRentalInfoScreen = ({ route, navigation }) => {
         <CarRentalInfo carInfo={carInfo} time={time} navigation={navigation} showCarDetail={true}/>
         <UserProfile carInfo={carInfo} showStats={false} />
         <MessageComponent />
-        <PricingTable />
+        <PricingTable carInfo={carInfo}/>
         <DocumentComponent />
         <CollateralComponent />
       </ScrollView>

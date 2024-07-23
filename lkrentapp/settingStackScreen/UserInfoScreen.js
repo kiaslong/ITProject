@@ -7,11 +7,12 @@ import { registerFunction, unregisterFunction } from '../store/functionRegistry'
 import { Image } from 'expo-image';
 
 const UserInfoScreen = () => {
+  const placeholderImage = require("../assets/placeholder.png")
   const navigation = useNavigation();
   const user = useSelector(state => state.loggedIn.user);
   const blurhash =
     '|rF?hV%2WCj[ayj[a|j[az_NaeWBj@ayfRayfQfQM{M|azj[azf6fQfQfQIpWXofj[ayj[j[fQayWCoeoeaya}j[ayfQa{oLj?j[WVj[ayayj[fQoff7azayj[ayj[j[ayofayayayj[fQj[ayayj[ayfjj[j[ayjuayj[';
-  const imageUri = user?.avatarUrl || 'https://cdn.idntimes.com/content-images/community/2022/03/1714382190-93512ef73cc9128141b72669a922c6ee-f48b234e3eecffd2d897cd799c3043de.jpg';
+  const imageUri = user?.avatarUrl || placeholderImage;
 
   useEffect(() => {
     const key = 'editUserInfo';
@@ -51,7 +52,7 @@ const UserInfoScreen = () => {
     <View style={styles.safeContainer}>
       <View style={styles.container}>
         <Image
-          source={{ uri: imageUri }}
+          source={ imageUri }
           style={styles.image}
           contentFit='cover'
           cachePolicy="disk"

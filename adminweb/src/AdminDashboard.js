@@ -13,7 +13,9 @@ const AdminDashboard = () => {
   const navigate = useNavigate();
 
   const handleLogout = () => {
-    // Perform logout logic here (e.g., clearing authentication tokens)
+    // Remove the token from localStorage
+    localStorage.removeItem('access_token');
+    // Navigate to the login page
     navigate('/');
   };
 
@@ -44,7 +46,7 @@ const AdminDashboard = () => {
               </Nav.Item>
               <Nav.Item>
                 <Nav.Link eventKey="advertisement-images">
-                  <i className="bi bi-images"></i> Quảng cáo hình ảnh
+                  <i className="bi bi-images"></i> Quảng cáo và ưu đãi
                 </Nav.Link>
               </Nav.Item>
               <Nav.Item>

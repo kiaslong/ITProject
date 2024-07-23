@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef, useCallback, useMemo } from "react"
 import { View, Text, StyleSheet, TouchableOpacity, Modal, ActivityIndicator, Platform } from "react-native";
 import MapView, { Circle } from "react-native-maps";
 import Ionicons from "react-native-vector-icons/Ionicons";
-import { getCoordinates } from "../../fetchData/Position";
+import { getCoordinates, getGeocodeByAddress } from "../../fetchData/Position";
 
 // Simple LRU cache implementation
 class LRUCache {
@@ -54,7 +54,8 @@ const LocationComponent = ({ address }) => {
         if (cachedCoords) {
           setLocation(cachedCoords);
         } else {
-          const coords = await getCoordinates(address,process.env.MAP_BOX_KEY);
+          const coords = await getGeocodeByAddress(address,process.env.GOONG_KEY_2);
+         
           if (coords?.latitude && coords?.longitude) {
             setLocation(coords);
             coordinateCache.set(address, coords);
@@ -105,11 +106,25 @@ const LocationComponent = ({ address }) => {
     );
   }
 
+  const trimLocation = (location) => {
+    const parts = location.split(',');
+    if (parts.length > 2) {
+      let part2 = parts[2].trim();
+      let part3 = parts[3].trim();
+      
+      
+      
+      return [part2,part3].join(', ').trim();
+    }
+    return location.trim();
+  };
+
+
   return (
     <View style={styles.container}>
       <View style={styles.locationContainer}>
         <Ionicons name="location-outline" size={20} color="#03A9F4" />
-        <Text style={styles.locationText}>{address}</Text>
+        <Text style={styles.locationText}>{trimLocation(address)}</Text>
       </View>
       <MapView
         ref={mapRef}

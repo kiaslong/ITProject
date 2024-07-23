@@ -1,12 +1,50 @@
 import React from 'react';
-import { View, Text, StyleSheet, Image } from 'react-native';
+import { View, Text, StyleSheet } from 'react-native';
+import { Image } from 'expo-image';
 import { FontAwesome6 } from '@expo/vector-icons';
 
 const UserProfile = ({ carInfo, showStats }) => {
+
+  const placeholderImage = require("../../assets/placeholder.png")
   const { owner } = carInfo;
-  const { name, rating, trips, avatar, badgeText, stats } = owner;
+  const { name, rating, trips, avatar, responseRate, approvalRate, responseTime } = owner;
   const additionalInfoText = "Nhằm bảo mật thông tin cá nhân, LKRental sẽ gửi chi tiết liên hệ của chủ xe sau khi khách hàng hoàn tất bước thanh toán trên ứng dụng.";
-  const { responseRate, approvalRate, responseTime } = stats;
+
+  const calculateBadgeLevel = (rating, trips, responseRate, responseTime, approvalRate) => {
+    // Example calculations to determine badge level
+    const numericRating = parseFloat(rating);
+    const numericTrips = parseInt(trips, 10);
+    const numericResponseRate = parseInt(responseRate, 10);
+    const numericApprovalRate = parseInt(approvalRate, 10);
+    const numericResponseTime = parseInt(responseTime, 10);
+
+    const score = (numericRating * 20) + (numericTrips * 5) + (numericResponseRate * 2) + (numericApprovalRate * 2) - (numericResponseTime / 10);
+
+    if (score > 500) {
+      return "Cao cấp";
+    } else if (score > 300) {
+      return "Trung bình";
+    } else {
+      return "Mới bắt đầu";
+    }
+  };
+
+  const badgeLevel = calculateBadgeLevel(rating, trips, responseRate, responseTime, approvalRate);
+
+  const generateBadgeText = (badgeLevel) => {
+    switch (badgeLevel) {
+      case "Cao cấp":
+        return "Chủ xe có tỉ lệ phản hồi cao, mức giá cạnh tranh & dịch vụ nhận được nhiều đánh giá tốt từ khách hàng.";
+      case "Trung bình":
+        return "Chủ xe có dịch vụ khá tốt, giá cả hợp lý và được khách hàng tin tưởng.";
+      case "Mới bắt đầu":
+        return "Chủ xe mới tham gia, cần thêm thời gian để khẳng định dịch vụ.";
+      default:
+        return "";
+    }
+  };
+
+  const badgeText = generateBadgeText(badgeLevel);
 
   return (
     <View style={styles.container}>
@@ -15,7 +53,12 @@ const UserProfile = ({ carInfo, showStats }) => {
       </View>
       <View style={styles.profileContainer}>
         <View style={styles.profileHeader}>
-          <Image source={{ uri: avatar }} style={styles.profileImage} />
+        <Image
+            source={avatar ? avatar : placeholderImage}
+            style={styles.profileImage}
+            contentFit="cover"
+            transition={1000}
+          />
           <View style={styles.profileDetails}>
             <Text style={styles.userName}>{name}</Text>
             <View style={styles.ratingContainer}>

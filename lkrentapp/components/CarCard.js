@@ -1,53 +1,73 @@
 import React, { useState } from 'react';
-import { View, Text, Image, StyleSheet, TouchableOpacity } from 'react-native';
+import { View, Text,  StyleSheet, TouchableOpacity } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
+import { Image } from 'expo-image';
 
-const CarCard = ({ carsInfo, navigation }) => {
+const CarCard = ({ carInfo, navigation }) => {
+  
+  
   const [isFavorite, setIsFavorite] = useState(false);
+ 
 
   const toggleFavorite = () => {
     setIsFavorite(!isFavorite);
   };
 
   const handlePress = () => {
-    navigation.navigate('CarDetail', { carInfo: carsInfo });
+    navigation.navigate('CarDetail', { carInfo: carInfo });
   };
 
-  // Simplify the address
-  const addressParts = carsInfo.location.split(', ');
-  const simplifiedAddress = `${addressParts[0]}, ${addressParts.slice(-3).join(', ')}`;
+  const getTransmissionText = (transmission) => {
+    return transmission === 'Automatic' ? 'Số tự động' : 'Số sàn';
+  };
+
+ 
+  
+  const trimLocation = (location) => {
+    const parts = location.split(',');
+    if (parts.length > 2) {
+      let part2 = parts[2].trim();
+      let part3 = parts[3].trim();
+      
+      
+      
+      return [part2,part3].join(', ').trim();
+    }
+    return location.trim();
+  };
+
 
   return (
     <TouchableOpacity onPress={handlePress}>
       <View style={styles.card}>
-        <Image source={{ uri: carsInfo.thumbImage }} style={styles.image} />
+        <Image source={{ uri: carInfo.thumbImage }} style={styles.image} contentFit='cover' />
         <TouchableOpacity style={styles.heartIcon} onPress={toggleFavorite}>
           <Icon name={isFavorite ? 'heart' : 'heart-o'} size={24} color="#03a9f4" />
         </TouchableOpacity>
-        {carsInfo.fastAcceptBooking && (
+        {carInfo.fastAcceptBooking && (
           <View style={styles.status}>
             <Text style={styles.fastBooking}>Đặt xe nhanh ⚡</Text>
           </View>
         )}
         <View style={styles.details}>
           <View style={styles.info}>
-            <Text style={styles.transmission}>{carsInfo.transmission}</Text>
-            <Text style={styles.delivery}>{carsInfo.supportsDelivery ? 'Giao xe tận nơi' : ''}</Text>
+            <Text style={styles.transmission}>{getTransmissionText(carInfo.transmission)}</Text>
+            <Text style={styles.delivery}>{carInfo.supportsDelivery ? 'Giao xe tận nơi' : ''}</Text>
           </View>
-          <Text style={styles.title}>{carsInfo.title}</Text>
-          <Text style={styles.location}>{simplifiedAddress}</Text>
+          <Text style={styles.title}>{carInfo.title} {carInfo.year}</Text>
+          <Text numberOfLines={1} style={styles.location}>{trimLocation(carInfo.location)}</Text>
           <View style={styles.separator} />
           <View style={styles.rating}>
-            <Text style={styles.ratingText}>{carsInfo.rating} ⭐</Text>
-            <Text style={styles.trips}>{carsInfo.trips} chuyến</Text>
+            <Text style={styles.ratingText}>{carInfo.rating} ⭐</Text>
+            <Text style={styles.trips}>{carInfo.trips} chuyến</Text>
           </View>
           <View style={styles.priceSection}>
             <View style={styles.price}>
-              <Text style={styles.oldPrice}>{carsInfo.oldPrice}K₫</Text>
-              <Text style={styles.newPrice}>{carsInfo.newPrice}K₫/ngày</Text>
+              <Text style={styles.oldPrice}>{carInfo.price}K₫</Text>
+              <Text style={styles.newPrice}>{carInfo.price}K₫/ngày</Text>
             </View>
-            {carsInfo.discount && (
-              <Text style={styles.discount}>Giảm {carsInfo.discount}</Text>
+            {carInfo.allowApplyPromo && (
+              <Text style={styles.discount}>Giảm {carInfo.discount}</Text>
             )}
           </View>
         </View>

@@ -19,12 +19,14 @@ export class CarFeatureDto {
     location: string;
     rating: string;
     trips: string;
-    oldPrice: string;
-    newPrice: string;
+    price: string;
     supportsDelivery: boolean;
     description: string;
     features: CarFeatureDto[];
     ownerId: number;
+    allowDiscount1Week:boolean;
+    discount1WeekPercent:string;
+    numberOfSeats:string;
     fastAcceptBooking: boolean;
     allowApplyPromo: boolean;
     startDateFastBooking: Date | null;
@@ -40,7 +42,7 @@ export class CarFeatureDto {
     rating: string;
     trips: string;
     avatar: string;
-    badgeText: string;
+
     responseRate: string;
     approvalRate: string;
     responseTime: string;

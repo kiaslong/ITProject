@@ -1,4 +1,4 @@
-import { Injectable, HttpException, HttpStatus } from '@nestjs/common';
+import { Injectable, HttpException, HttpStatus, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { LoginUserDto } from './dto/login-user.dto';
@@ -10,6 +10,8 @@ import { RequestOtpDto } from './dto/request-otp.dto';
 import { MailerService } from '../mailer/mailer.service';
 import * as crypto from 'crypto';
 import { VerifyPhoneNumberDto } from './dto/verify-phone-number.dto';
+import { Prisma } from '@prisma/client';
+import { ChangePasswordDto } from './dto/change-password.dto';
 
 @Injectable()
 export class UserService {
@@ -18,6 +20,18 @@ export class UserService {
     private cloudinaryService: CloudinaryService,
     private mailerService: MailerService,
   ) {}
+
+
+  async onModuleInit() {
+    // Ensure database connection is established
+    await this.prisma.$connect();
+
+    // Ensure Cloudinary is properly configured
+    await this.cloudinaryService.initializeCloudinary();
+
+   
+  }
+
 
   async create(createUserDto: CreateUserDto) {
     const salt = await bcrypt.genSalt();
@@ -44,42 +58,48 @@ export class UserService {
     updateUserProfileDto: UpdateUserProfileDto,
     file?: Express.Multer.File,
   ) {
-    let avatarUrl: string | undefined;
-
-    // Fetch the current user data
-    const currentUser = await this.prisma.user.findUnique({
-      where: { id: userId },
-      select: { avatarUrl: true },
-    });
-
+    const data: any = { ...updateUserProfileDto, gender: updateUserProfileDto.gender || 'Nam' };
+    let avatarUploadPromise: Promise<string | undefined> | undefined;
+  
     if (file) {
-      // If there's an existing avatar, delete it
-      if (currentUser?.avatarUrl) {
-        await this.cloudinaryService.deleteImage(currentUser.avatarUrl);
-      }
-      
-      // Upload the new avatar
-      avatarUrl = await this.cloudinaryService.uploadAvatar(file);
+      avatarUploadPromise = this.prisma.user
+        .findUnique({
+          where: { id: userId },
+          select: { avatarUrl: true },
+        })
+        .then(async (currentUser) => {
+          if (currentUser?.avatarUrl) {
+            await this.cloudinaryService.deleteAvatarImage(currentUser.avatarUrl);
+          }
+          return this.cloudinaryService.uploadAvatar(file);
+        });
     }
-
-    const data: any = { ...updateUserProfileDto };
-    if (avatarUrl) {
-      data.avatarUrl = avatarUrl;
-    }
-
-    // Set default gender to 'Nam' if not provided
-    data.gender = data.gender || 'Nam';
-
+  
     try {
-      return this.prisma.user.update({
-        where: { id: userId },
-        data,
-      });
+      const [updatedUser, avatarUrl] = await Promise.all([
+        this.prisma.user.update({
+          where: { id: userId },
+          data,
+        }),
+        avatarUploadPromise,
+      ]);
+  
+      if (avatarUrl) {
+        await this.prisma.user.update({
+          where: { id: userId },
+          data: { avatarUrl },
+        });
+      }
+  
+      return { ...updatedUser, avatarUrl: avatarUrl || updatedUser.avatarUrl };
     } catch (error) {
-      throw new HttpException('Failed to update profile', HttpStatus.BAD_REQUEST);
+      if (error instanceof Prisma.PrismaClientKnownRequestError) {
+        throw new HttpException(`Database error: ${error.message}`, HttpStatus.BAD_REQUEST);
+      }
+      throw new HttpException('Failed to update profile', HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
-
+  
   async requestOtp(requestOtpDto: RequestOtpDto, userId: number) {
     const user = await this.prisma.user.findUnique({
       where: { email: requestOtpDto.email },
@@ -158,4 +178,44 @@ export class UserService {
       throw new HttpException('Failed to verify phone number', HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
+
+  async deleteUser(userId: number) {
+    try {
+      const user = await this.prisma.user.delete({
+        where: { id: userId },
+      });
+      return { message: 'User deleted successfully', user };
+    } catch (error) {
+      if (error.code === 'P2025') {
+        throw new NotFoundException(`User with ID ${userId} not found`);
+      }
+      throw error;
+    }
+  }
+
+  async changePassword(userId: number, changePasswordDto: ChangePasswordDto) {
+    const user = await this.prisma.user.findUnique({
+      where: { id: userId },
+    });
+
+    if (!user) {
+      throw new NotFoundException(`User with ID ${userId} not found`);
+    }
+
+    const isPasswordValid = await bcrypt.compare(changePasswordDto.currentPassword, user.password);
+    if (!isPasswordValid) {
+      throw new HttpException('Current password is incorrect', HttpStatus.BAD_REQUEST);
+    }
+
+    const salt = await bcrypt.genSalt();
+    const hashedPassword = await bcrypt.hash(changePasswordDto.newPassword, salt);
+
+    await this.prisma.user.update({
+      where: { id: userId },
+      data: { password: hashedPassword },
+    });
+
+    return { message: 'Password changed successfully' };
+  }
+
 }

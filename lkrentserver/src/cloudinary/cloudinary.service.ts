@@ -11,7 +11,7 @@ export class CloudinaryService {
     this.initializeCloudinary();
   }
 
-  private initializeCloudinary() {
+  public async initializeCloudinary() {
     cloudinary.config({
       cloud_name: this.configService.get<string>('CLOUDINARY_CLOUD_NAME'),
       api_key: this.configService.get<string>('CLOUDINARY_API_KEY'),
@@ -20,20 +20,32 @@ export class CloudinaryService {
   }
 
   async uploadAvatar(file: Express.Multer.File): Promise<string> {
-    return this.uploadImageToCloudinary(file, 'profileAvatar');
+    return this.uploadImageToCloudinary(file, 'profileAvatar', { width: 200, crop: 'scale' });
   }
 
   async uploadCarImage(file: Express.Multer.File, folder: string): Promise<string> {
-    return this.uploadImageToCloudinary(file, folder);
+    return this.uploadImageToCloudinary(file, folder, { width: 350, crop: 'scale' });
+  }
+  
+  async uploadPromotionImage(file: Express.Multer.File): Promise<string> {
+    return this.uploadImageToCloudinary(file, 'promotionImages', { width: 350, crop: 'scale' });
   }
 
-  private async uploadImageToCloudinary(file: Express.Multer.File, folder: string): Promise<string> {
+  private async uploadImageToCloudinary(
+    file: Express.Multer.File,
+    folder: string,
+    transformation?: { width: number; crop: string }
+  ): Promise<string> {
     if (!file?.buffer) {
       throw new Error('Invalid file provided for upload');
     }
 
     return new Promise((resolve, reject) => {
-      const uploadOptions = { folder };
+      const uploadOptions: any = { folder };
+      if (transformation) {
+        uploadOptions.transformation = transformation;
+      }
+
       const uploadStream = cloudinary.uploader.upload_stream(
         uploadOptions,
         (error: any, result: UploadApiResponse) => {
@@ -51,23 +63,82 @@ export class CloudinaryService {
     });
   }
 
-  async deleteImage(imageUrl: string): Promise<void> {
+  async deleteAvatarImage(imageUrl: string): Promise<void> {
     if (!imageUrl) {
       throw new Error('Invalid image URL provided for deletion');
     }
 
-    const publicId = this.extractPublicIdFromUrl(imageUrl);
+    const publicId = this.constructPublicIdForAvatar(imageUrl);
     if (!publicId) {
       throw new Error('Failed to extract public_id from image URL');
     }
 
+    this.logger.log(`Deleting avatar image with publicId: ${publicId}`); // Log the publicId before deletion
+
     try {
       await cloudinary.uploader.destroy(publicId);
-      this.logger.log(`Image deleted successfully: ${imageUrl}`);
+      this.logger.log(`Avatar image deleted successfully: ${imageUrl}`);
     } catch (error) {
-      this.logger.error('Error deleting image from Cloudinary', error);
+      this.logger.error('Error deleting avatar image from Cloudinary', error);
       throw error;
     }
+  }
+
+  async deleteCarImage(imageUrl: string, licensePlate: string): Promise<void> {
+    if (!imageUrl) {
+      throw new Error('Invalid image URL provided for deletion');
+    }
+
+    const publicId = this.constructPublicIdForCar(licensePlate, imageUrl);
+    if (!publicId) {
+      throw new Error('Failed to construct public_id from image URL');
+    }
+
+    this.logger.log(`Deleting car image with publicId: ${publicId}`); // Log the publicId before deletion
+
+    try {
+      await cloudinary.uploader.destroy(publicId);
+      this.logger.log(`Car image deleted successfully: ${imageUrl}`);
+    } catch (error) {
+      this.logger.error('Error deleting car image from Cloudinary', error);
+      throw error;
+    }
+  }
+
+  async deletePromotionImage(imageUrl: string): Promise<void> {
+    if (!imageUrl) {
+      throw new Error('Invalid image URL provided for deletion');
+    }
+
+    const publicId = this.constructPublicIdForPromotion(imageUrl);
+    if (!publicId) {
+      throw new Error('Failed to extract public_id from image URL');
+    }
+
+    this.logger.log(`Deleting promotion image with publicId: ${publicId}`); // Log the publicId before deletion
+
+    try {
+      await cloudinary.uploader.destroy(publicId);
+      this.logger.log(`Promotion image deleted successfully: ${imageUrl}`);
+    } catch (error) {
+      this.logger.error('Error deleting promotion image from Cloudinary', error);
+      throw error;
+    }
+  }
+
+  private constructPublicIdForAvatar(imageUrl: string): string | null {
+    const publicId = this.extractPublicIdFromUrl(imageUrl);
+    return publicId ? `profileAvatar/${publicId}` : null;
+  }
+
+  private constructPublicIdForCar(licensePlate: string, imageUrl: string): string | null {
+    const publicId = this.extractPublicIdFromUrl(imageUrl);
+    return publicId ? `car/${licensePlate}/${publicId}` : null;
+  }
+
+  private constructPublicIdForPromotion(imageUrl: string): string | null {
+    const publicId = this.extractPublicIdFromUrl(imageUrl);
+    return publicId ? `promotionImages/${publicId}` : null;
   }
 
   private extractPublicIdFromUrl(url: string): string | null {

@@ -1,26 +1,25 @@
-import React, { useState, useCallback, useEffect } from "react";
+import React, { useState, useCallback } from "react";
 import { View, Text, FlatList, StyleSheet, TouchableOpacity, Pressable, ActivityIndicator } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useNavigation, CommonActions } from "@react-navigation/native";
 import { useDispatch, useSelector } from "react-redux";
 import { Image } from 'expo-image';
 import { logout } from "../store/loginSlice";
-import { removeToken } from "../utils/tokenStorage";
+import { getToken, removeToken } from "../utils/tokenStorage";
 import CustomAlert from "../components/CustomAlert";
+import api from "../api";
 
 const SettingScreen = () => {
+  const placeholderImage = require("../assets/placeholder.png");
   const user = useSelector(state => state.loggedIn.user);
   const [alertVisible, setAlertVisible] = useState(false);
   const [logoutPromptVisible, setLogoutPromptVisible] = useState(false);
+  const [loading, setLoading] = useState(false);
   const dispatch = useDispatch();
   const navigation = useNavigation();
   const blurhash =
   '|rF?hV%2WCj[ayj[a|j[az_NaeWBj@ayfRayfQfQM{M|azj[azf6fQfQfQIpWXofj[ayj[j[fQayWCoeoeaya}j[ayfQa{oLj?j[WVj[ayayj[fQoff7azayj[ayj[j[ayofayayayj[fQj[ayayj[ayfjj[j[ayjuayj[';
-  const imageUri = user?.avatarUrl || 'https://cdn.idntimes.com/content-images/community/2022/03/1714382190-93512ef73cc9128141b72669a922c6ee-f48b234e3eecffd2d897cd799c3043de.jpg';
-
-
-
- 
+  const imageUri = user?.avatarUrl || placeholderImage;
 
   const profileMenu = [
     {
@@ -73,14 +72,31 @@ const SettingScreen = () => {
   }, []);
 
   const handleOk = useCallback(async () => {
+    const token = await getToken()
+    setLoading(true);
     setAlertVisible(false);
-    navigation.dispatch(
-      CommonActions.reset({
-        index: 0,
-        routes: [{ name: "Khám phá" }],
-      })
-    );
-  }, [navigation]);
+    try {
+      const response = await api.delete(`/auth/${user.id}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (response.data.message ==="User deleted successfully") {
+        await removeToken();
+        await dispatch(logout());
+        navigation.dispatch(
+          CommonActions.reset({
+            index: 0,
+            routes: [{ name: "Khám phá" }],
+          })
+        );
+      } else {
+        console.error("Failed to delete account:", response.data);
+      }
+    } catch (error) {
+      console.error("Error deleting account:", error);
+    } finally {
+      setLoading(false);
+    }
+  }, [navigation, user]);
 
   const handleLogoutPress = useCallback(() => {
     setLogoutPromptVisible(true);
@@ -121,15 +137,14 @@ const SettingScreen = () => {
     </View>
   ), [renderItem]);
 
-
-
   return (
     <View style={styles.container}>
+      {loading && <ActivityIndicator size="large" color="#03a9f4" />}
       <View style={styles.header}>
         <View style={styles.headerBackground} />
         <View style={styles.avatarContainer}>
-        <Image
-            source={{ uri: imageUri}}
+          <Image
+            source={imageUri}
             style={styles.image}
             contentFit='contain'
             cachePolicy="disk"
