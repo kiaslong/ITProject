@@ -14,15 +14,16 @@ export class PromotionService {
       imageUrl = await this.cloudinaryService.uploadPromotionImage(file);
     }
     return this.prisma.promotion.create({
-        data: {
-          promoCode: data.promoCode,
-          discount: data.discount,
-          makeApply: data.makeApply ?? null,
-          modelApply: data.modelApply ?? null,
-          promotionImageUrl: imageUrl,
-        },
-      });
-    }
+      data: {
+        promoCode: data.promoCode,
+        discount: data.discount,
+        makeApply: data.makeApply ?? null,
+        modelApply: data.modelApply ?? null,
+        expireDate: new Date(data.expireDate),
+        promotionImageUrl: imageUrl,
+      },
+    });
+  }
 
   async getPromotions(): Promise<Promotion[]> {
     return this.prisma.promotion.findMany();

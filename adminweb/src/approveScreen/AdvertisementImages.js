@@ -1,5 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { Card, Button, ListGroup, ListGroupItem, Image, Container, Row, Col, Modal, Form, Spinner } from 'react-bootstrap';
+import DatePicker from 'react-datepicker';
+import 'react-datepicker/dist/react-datepicker.css';
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 import makesAndModels from './json/carBrandsAndModels.json'; // Adjust the path if necessary
 import api from '../api';
 import './scss/AdvertisementImages.scss';
@@ -14,11 +18,14 @@ const AdvertisementImages = () => {
     makeApply: '',
     modelApply: '',
     promotionImageUrl: '',
+    expireDate: new Date(),
   });
   const [file, setFile] = useState(null);
   const [filePreview, setFilePreview] = useState(null);
   const [isAdding, setIsAdding] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [expandedPromotion, setExpandedPromotion] = useState(null);
+  const [imageModal, setImageModal] = useState({ show: false, imageUrl: '' });
 
   useEffect(() => {
     fetchPromotions();
@@ -56,14 +63,20 @@ const AdvertisementImages = () => {
       setPromotions(promotions.filter(promotion => promotion.id !== promotionToDelete));
       setShowModal(false);
       setPromotionToDelete(null);
+      toast.success('Quảng cáo đã được xóa thành công!');
     } catch (error) {
       console.error('Failed to delete promotion', error);
+      toast.error('Không thể xóa quảng cáo!');
     }
   };
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setNewPromotion({ ...newPromotion, [name]: value });
+  };
+
+  const handleDateChange = (date) => {
+    setNewPromotion({ ...newPromotion, expireDate: date });
   };
 
   const handleFileChange = (e) => {
@@ -82,12 +95,24 @@ const AdvertisementImages = () => {
 
   const handleAddPromotion = async () => {
     const token = localStorage.getItem('access_token');
+    
+    // Validate expiration date
+    const today = new Date();
+    today.setHours(0, 0, 0, 0); // Set to start of day
+    if (newPromotion.expireDate <= today) {
+      toast.error('Ngày hết hạn phải lớn hơn ngày hiện tại!');
+      return;
+    }
+
     const formData = new FormData();
     formData.append('promoCode', newPromotion.promoCode);
     formData.append('discount', newPromotion.discount);
     formData.append('makeApply', newPromotion.makeApply || '');
     formData.append('modelApply', newPromotion.modelApply || '');
-    formData.append('file', file);
+    formData.append('expireDate', newPromotion.expireDate.toISOString());
+    if (file) {
+      formData.append('file', file);
+    }
 
     try {
       setIsAdding(true);
@@ -105,11 +130,14 @@ const AdvertisementImages = () => {
         makeApply: '',
         modelApply: '',
         promotionImageUrl: '',
+        expireDate: new Date(),
       });
       setFile(null);
       setFilePreview(null);
+      toast.success('Quảng cáo đã được thêm thành công!');
     } catch (error) {
       console.error('Failed to add promotion', error);
+      toast.error('Không thể thêm quảng cáo!');
     } finally {
       setIsAdding(false);
     }
@@ -121,8 +149,21 @@ const AdvertisementImages = () => {
     setFilePreview(null);
   };
 
+  const toggleExpand = (id) => {
+    setExpandedPromotion(expandedPromotion === id ? null : id);
+  };
+
+  const handleImageClick = (imageUrl) => {
+    setImageModal({ show: true, imageUrl });
+  };
+
+  const closeImageModal = () => {
+    setImageModal({ show: false, imageUrl: '' });
+  };
+
   return (
     <Container className="mt-4">
+      <ToastContainer />
       {loading && (
         <div className="loading-overlay">
           <Spinner animation="border" variant="primary" />
@@ -135,19 +176,39 @@ const AdvertisementImages = () => {
             <Card.Body>
               <ListGroup>
                 {promotions.map(promotion => (
-                  <ListGroupItem key={promotion.id} className="mb-3">
+                  <ListGroupItem 
+                    key={promotion.id} 
+                    className="mb-3"
+                    onClick={() => toggleExpand(promotion.id)}
+                    style={{ cursor: 'pointer' }}
+                  >
                     <div className="d-flex justify-content-between align-items-center">
                       <div>
                         <h5 className="mb-1">{promotion.promoCode}</h5>
-                        <p className="mb-1"><strong>Discount:</strong> {promotion.discount}</p>
-                        <Image src={promotion.promotionImageUrl} alt="Promotion" className="img-thumbnail" style={{ width: '100px', height: '100px' }} />
+                        <p className="mb-1"><strong>Định lượng giảm:</strong> {promotion.discount}</p>
                       </div>
-                      <Button variant="danger" onClick={() => handleDelete(promotion.id)}>Delete</Button>
+                      <Button variant="danger" onClick={(e) => { e.stopPropagation(); handleDelete(promotion.id); }}>Xóa</Button>
                     </div>
+                    {expandedPromotion === promotion.id && (
+                      <div className="mt-3">
+                        <p><strong>Nhà sản xuất áp dụng:</strong> {promotion.makeApply || 'Tất cả'}</p>
+                        <p><strong>Mẫu áp dụng:</strong> {promotion.modelApply || 'Tất cả'}</p>
+                        <p><strong>Hết hạn:</strong> {new Date(promotion.expireDate).toLocaleDateString()}</p>
+                        {promotion.promotionImageUrl && (
+                          <Image 
+                            src={promotion.promotionImageUrl} 
+                            alt="Promotion" 
+                            className="img-thumbnail" 
+                            style={{ width: '200px', height: '200px', cursor: 'pointer' }} 
+                            onClick={(e) => { e.stopPropagation(); handleImageClick(promotion.promotionImageUrl); }} 
+                          />
+                        )}
+                      </div>
+                    )}
                   </ListGroupItem>
                 ))}
               </ListGroup>
-              <Button variant="primary" onClick={() => setShowModal(true)}>Add Promotion</Button>
+              <Button variant="primary" onClick={() => setShowModal(true)}>Thêm quảng cáo</Button>
             </Card.Body>
           </Card>
         </Col>
@@ -162,61 +223,74 @@ const AdvertisementImages = () => {
             'Bạn có chắc chắn muốn xóa quảng cáo này?'
           ) : (
             <Form>
-              <Form.Group controlId="promoCode">
-                <Form.Label>Promo Code</Form.Label>
+              <Form.Group controlId="promoCode" className="mb-3">
+                <Form.Label>Mã giảm giá (nếu là % thêm chữ P ví dụ LK hay là LKP) <span className="text-danger">*</span></Form.Label>
                 <Form.Control
                   type="text"
                   name="promoCode"
                   value={newPromotion.promoCode}
                   onChange={handleInputChange}
+                  required
                 />
               </Form.Group>
-              <Form.Group controlId="discount">
-                <Form.Label>Discount</Form.Label>
+              <Form.Group controlId="discount" className="mb-3">
+                <Form.Label>Định lượng giảm giá (ví dụ 20 hoặc 20%) <span className="text-danger">*</span></Form.Label>
                 <Form.Control
                   type="text"
                   name="discount"
                   value={newPromotion.discount}
                   onChange={handleInputChange}
+                  required
                 />
               </Form.Group>
-              <Form.Group controlId="makeApply">
-                <Form.Label>Make Apply</Form.Label>
+              <Form.Group controlId="makeApply" className="mb-3">
+                <Form.Label>Nhà sản xuất áp dụng <span className="text-danger">{newPromotion.modelApply ? '*' : ''}</span></Form.Label>
                 <Form.Control
                   as="select"
                   name="makeApply"
                   value={newPromotion.makeApply}
                   onChange={handleInputChange}
                 >
-                  <option value="">Select Make</option>
+                  <option value="">Chọn nhà sản xuất</option>
                   {Object.keys(makesAndModels).map(make => (
                     <option key={make} value={make}>{make}</option>
                   ))}
                 </Form.Control>
               </Form.Group>
               {newPromotion.makeApply && (
-                <Form.Group controlId="modelApply">
-                  <Form.Label>Model Apply</Form.Label>
+                <Form.Group controlId="modelApply" className="mb-3">
+                  <Form.Label>Mẫu áp dụng</Form.Label>
                   <Form.Control
                     as="select"
                     name="modelApply"
                     value={newPromotion.modelApply}
                     onChange={handleInputChange}
                   >
-                    <option value="">Select Model</option>
+                    <option value="">Chọn mẫu</option>
                     {makesAndModels[newPromotion.makeApply].map(model => (
                       <option key={model} value={model}>{model}</option>
                     ))}
                   </Form.Control>
                 </Form.Group>
               )}
-              <Form.Group controlId="promotionImageUrl">
-                <Form.Label>Image URL</Form.Label>
+              <Form.Group controlId="expireDate" className="mb-3">
+                <Form.Label>Ngày hết hạn <span className="text-danger">*</span></Form.Label>
+                <DatePicker
+                  selected={newPromotion.expireDate}
+                  onChange={handleDateChange}
+                  dateFormat="dd/MM/yyyy"
+                  className="form-control"
+                  required
+                  minDate={new Date()}
+                />
+              </Form.Group>
+              <Form.Group controlId="promotionImageUrl" className="mb-3">
+                <Form.Label>Link ảnh</Form.Label>
                 <Form.Control type="file" name="file" onChange={handleFileChange} />
               </Form.Group>
               {filePreview && (
                 <div className="mt-3">
-                  <p>Image Preview:</p>
+                  <p>Ảnh xem trước:</p>
                   <Image src={filePreview} alt="Preview" className="img-thumbnail" style={{ width: '200px', height: '200px' }} />
                 </div>
               )}
@@ -232,7 +306,7 @@ const AdvertisementImages = () => {
               Xóa
             </Button>
           ) : (
-            <Button variant="primary" onClick={handleAddPromotion}>
+            <Button variant="primary" onClick={handleAddPromotion} disabled={isAdding}>
               {isAdding && (
                 <Spinner
                   as="span"
@@ -246,6 +320,20 @@ const AdvertisementImages = () => {
               Thêm
             </Button>
           )}
+        </Modal.Footer>
+      </Modal>
+
+      <Modal show={imageModal.show} onHide={closeImageModal}>
+        <Modal.Header closeButton>
+          <Modal.Title>Xem ảnh trước</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <Image src={imageModal.imageUrl} alt="Preview" className="img-thumbnail" style={{ width: '100%', height: 'auto' }} />
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={closeImageModal}>
+            Đóng
+          </Button>
         </Modal.Footer>
       </Modal>
     </Container>

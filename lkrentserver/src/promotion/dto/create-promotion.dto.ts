@@ -1,36 +1,32 @@
 import { ApiProperty } from '@nestjs/swagger';
 
+import { IsString, IsOptional, IsDateString } from 'class-validator';
+
 export class CreatePromotionDto {
-  @ApiProperty({
-    description: 'The unique promo code for the promotion',
-    example: 'SAVE20',
-  })
+  @IsString()
+  @ApiProperty()
   promoCode: string;
 
-  @ApiProperty({
-    description: 'The discount amount or percentage',
-    example: '20%',
-  })
+  @IsString()
+  @ApiProperty()
   discount: string;
 
-  @ApiProperty({
-    description: 'The make of the car this promotion applies to',
-    example: 'Toyota',
-    required: false,
-  })
+  @IsOptional()
+  @IsString()
+  @ApiProperty()
   makeApply?: string;
 
-  @ApiProperty({
-    description: 'The model of the car this promotion applies to',
-    example: 'Camry',
-    required: false,
-  })
+  @IsOptional()
+  @IsString()
+  @ApiProperty()
   modelApply?: string;
 
-  @ApiProperty({
-    description: 'The URL of the promotion image',
-    example: 'http://example.com/promo.jpg',
-    required: false,
-  })
+  @IsOptional()
+  @IsString()
+  @ApiProperty()
   promotionImageUrl?: string;
+
+  @ApiProperty()
+  @IsDateString()
+  expireDate: Date;
 }

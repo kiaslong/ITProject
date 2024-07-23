@@ -197,7 +197,7 @@ const CarSpecs = ({ carInfo }) => (
       <CarSpec
         icon="people-outline"
         title="Số ghế"
-        value={carInfo.numberOfSeats}
+        value={`${carInfo.numberOfSeats} chỗ`}
       />
       <CarSpec
         icon="water-outline"
@@ -207,7 +207,7 @@ const CarSpecs = ({ carInfo }) => (
       <CarSpec
         icon="speedometer-outline"
         title="Tiêu hao"
-        value={carInfo.fuelConsumption}
+        value={`${carInfo.fuelConsumption}l/100km`}
       />
     </View>
   </View>

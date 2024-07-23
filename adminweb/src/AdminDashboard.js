@@ -46,7 +46,7 @@ const AdminDashboard = () => {
               </Nav.Item>
               <Nav.Item>
                 <Nav.Link eventKey="advertisement-images">
-                  <i className="bi bi-images"></i> Quảng cáo hình ảnh
+                  <i className="bi bi-images"></i> Quảng cáo và ưu đãi
                 </Nav.Link>
               </Nav.Item>
               <Nav.Item>

@@ -4,6 +4,7 @@ import locationReducer from "./locationSlice";
 import timeReducer from "./timeSlice";
 import registrationReducer from './registrationSlice';
 import carListReducer from './carListSlice'
+import promotionReducer from './promotionSlice';
 
 
 const store = configureStore({
@@ -11,6 +12,7 @@ const store = configureStore({
     loggedIn: loggedInReducer,
     carsList:carListReducer,
     location: locationReducer,
+    promotions: promotionReducer,
     time: timeReducer,
     registration: registrationReducer,
   },

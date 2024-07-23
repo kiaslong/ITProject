@@ -1,71 +1,266 @@
-import React, { useState } from 'react';
-import { StyleSheet, Text, View, TouchableOpacity } from 'react-native';
+import React, { useState, useRef } from 'react';
+import {
+  View, Text, TouchableOpacity, StyleSheet, Dimensions, Modal, TouchableWithoutFeedback, Animated, Easing, TextInput,
+} from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
+import { useSelector } from 'react-redux';
 
-const PricingTable = ({carInfo}) => {
-  const [checked, setChecked] = useState('first');
+const { height } = Dimensions.get('window');
+
+const PricingTable = ({ carInfo }) => {
+  const promotions = useSelector((state) => state.promotions.promotions);
+  const [checked, setChecked] = useState(null);
+  const [promoCode, setPromoCode] = useState('');
+  const [detailModalVisible, setDetailModalVisible] = useState(false);
+  const [depositModalVisible, setDepositModalVisible] = useState(false);
+  const [paymentModalVisible, setPaymentModalVisible] = useState(false);
+  const [additionalPromotions, setAdditionalPromotions] = useState([]);
+  const detailModalSlideAnim = useRef(new Animated.Value(height)).current;
+  const depositModalSlideAnim = useRef(new Animated.Value(height)).current;
+  const paymentModalSlideAnim = useRef(new Animated.Value(height)).current;
+
+  const animateModal = (modalAnim, toValue, duration, callback) => {
+    Animated.timing(modalAnim, {
+      toValue,
+      duration,
+      easing: Easing.inOut(Easing.ease),
+      useNativeDriver: true,
+    }).start(callback);
+  };
+
+  const openDetailModal = () => {
+    setDetailModalVisible(true);
+    animateModal(detailModalSlideAnim, 0, 200);
+  };
+
+  const closeDetailModal = () => {
+    animateModal(detailModalSlideAnim, height, 200, () => {
+      setDetailModalVisible(false);
+    });
+  };
+
+  const openDepositModal = () => {
+    setDepositModalVisible(true);
+    animateModal(depositModalSlideAnim, 0, 200);
+  };
+
+  const closeDepositModal = () => {
+    animateModal(depositModalSlideAnim, height, 200, () => {
+      setDepositModalVisible(false);
+    });
+  };
+
+  const openPaymentModal = () => {
+    setPaymentModalVisible(true);
+    animateModal(paymentModalSlideAnim, 0, 200);
+  };
+
+  const closePaymentModal = () => {
+    animateModal(paymentModalSlideAnim, height, 200, () => {
+      setPaymentModalVisible(false);
+    });
+  };
+
+  const renderModal = (visible, content, closeModal, modalAnim) => (
+    <Modal
+      transparent={true}
+      visible={visible}
+      onRequestClose={closeModal}
+      animationType="none"
+    >
+      <TouchableWithoutFeedback onPress={closeModal}>
+        <View style={styles.modalOverlay}>
+          <TouchableWithoutFeedback>
+            <Animated.View
+              style={[
+                styles.modalContent,
+                { transform: [{ translateY: modalAnim }] },
+              ]}
+            >
+              <TouchableOpacity
+                style={[styles.button, styles.buttonClose]}
+                onPress={closeModal}
+              >
+                <Text style={styles.textStyle}>X</Text>
+              </TouchableOpacity>
+              {content}
+              <View style={styles.paddingBottom}></View>
+            </Animated.View>
+          </TouchableWithoutFeedback>
+        </View>
+      </TouchableWithoutFeedback>
+    </Modal>
+  );
 
   const formatPrice = (price) => {
-    const priceWithZeros = price * 1000; // Add three more zeros
-    return priceWithZeros.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
+    return price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
   };
+
+  const applyPromoCode = () => {
+    const selectedPromotion = promotions.find(promo =>
+      promo.promoCode === promoCode && new Date(promo.expireDate) >= new Date()
+    );
+    if (selectedPromotion) {
+      setChecked(selectedPromotion.promoCode);
+      setAdditionalPromotions([selectedPromotion]);
+    } else {
+      setChecked(null);
+      setAdditionalPromotions([]);
+    }
+  };
+
+  const calculateTotalPrice = () => {
+    let totalPrice = carInfo.price * 1000; // Convert to VND
+    if (checked) {
+      const selectedPromotion = [...applicablePromotions, ...additionalPromotions].find(promo => promo.promoCode === checked);
+      if (selectedPromotion) {
+        const discount = selectedPromotion.discount.includes('%')
+          ? Math.round((parseFloat(selectedPromotion.discount) / 100) * totalPrice) // Percentage discount
+          : parseInt(selectedPromotion.discount) * 1000; // Fixed discount in thousands
+        totalPrice -= discount;
+      }
+    }
+    return totalPrice;
+  };
+
+  const calculateDeposit = () => {
+    return Math.round(calculateTotalPrice() * 0.35);
+  };
+
+  const calculatePaymentOnPickup = () => {
+    return Math.round(calculateTotalPrice() - calculateDeposit());
+  };
+
+  const detailModalContent = (
+    <>
+      <Text style={styles.detailTitle}>Đơn giá thuê</Text>
+      <Text style={styles.normalText}>
+        - Giá thuê xe được tính tròn theo ngày, thời gian thuê xe ít hơn 24 tiếng sẽ được tính tròn 1 ngày.
+      </Text>
+      <Text style={styles.normalText}>
+        - Giá thuê không bao gồm tiền xăng / tiền sạc pin. Khi kết thúc chuyến đi bạn vui lòng đổ xăng, sạc pin về lại mức ban đầu như khi nhận xe, hoặc thanh toán lại chi phí xăng xe/sạc pin cho chủ xe.
+      </Text>
+      <Text style={styles.normalText}>
+        - Giá thuê xe đã bao gồm phí dịch vụ của LKRental. Phí dịch vụ giúp chúng tôi duy trì ứng dụng & triển khai các hoạt động chăm sóc khách hàng một cách chu đáo, nhằm đảm bảo bạn có được chuyến đi an toàn & trải nghiệm tốt nhất cùng LKRental, bao gồm:
+      </Text>
+      <Text style={styles.normalText}>
+        + Dịch vụ tổng đài, chăm sóc & hỗ trợ khách hàng đặt xe.
+      </Text>
+      <Text style={styles.normalText}>
+        + Tìm xe thay thế/ hoàn tiền/ đền tiền nếu chuyến đi bị hủy bởi chủ xe.
+      </Text>
+      <Text style={styles.normalText}>
+        + Tìm xe thay thế/ hoàn tiền nếu bạn thay đổi lịch trình.
+      </Text>
+      <Text style={styles.normalText}>
+        + Hỗ trợ dàn xếp tranh chấp phát sinh với chủ xe (nếu có).
+      </Text>
+      <Text style={styles.normalText}>
+        + Hỗ trợ làm việc với nhà bảo hiểm, garage đối tác khi xảy ra sự cố (nếu có).
+      </Text>
+      <Text style={styles.normalText}>
+        + Và tất cả những vấn đề phát sinh khác trong quá trình thuê xe nếu bạn cần sự hỗ trợ từ chúng tôi.
+      </Text>
+    </>
+  );
+
+  const depositModalContent = (
+    <>
+      <Text style={styles.detailTitle}>Đặt cọc qua ứng dụng</Text>
+      <Text style={styles.normalText}>
+        - 30% giá trị chuyến đi cần được thanh toán trước qua LKRental để giữ chỗ xe thuê. Số tiền còn lại Khách thuê sẽ thanh toán cho Chủ xe khi làm thủ tục nhận xe.
+      </Text>
+      <Text style={styles.normalText}>
+        - Trường hợp Khách thuê thay đổi ý định thuê xe, xin vui lòng hủy chuyến <Text style={{ fontWeight: 'bold' }}>trong vòng 1h</Text> sau khi giữ chỗ để không bị mất phí.
+      </Text>
+    </>
+  );
+
+  const paymentModalContent = (
+    <>
+      <Text style={styles.detailTitle}>Thanh toán khi nhận xe</Text>
+      <Text style={styles.normalText}>
+        - Khách thuê có thể thanh toán 70% giá trị thuê xe bằng Tiền mặt hoặc Chuyển khoản cho Chủ xe khi làm thủ tục nhận xe.
+      </Text>
+    </>
+  );
+
+  // Filter promotions to only show applicable and non-expired ones
+  const applicablePromotions = promotions.filter(promo =>
+    (promo.makeApply || promo.modelApply) &&
+    (!promo.makeApply || promo.makeApply === carInfo.make) &&
+    (!promo.modelApply || promo.modelApply === carInfo.model) &&
+    new Date(promo.expireDate) >= new Date()
+  );
 
   return (
     <View style={styles.container}>
       <Text style={styles.header}>Bảng tính giá</Text>
       <View style={styles.tableContainer}>
         <View style={styles.row}>
-          <Text style={styles.label}>Đơn giá thuê <Icon name="information-circle-outline" size={16} color="#03A9F4" /></Text>
-          <Text style={styles.value}>{formatPrice(carInfo.price)} đ/ngày</Text>
+          <Text style={styles.label}>Đơn giá thuê <Icon name="information-circle-outline" size={16} color="#03A9F4" onPress={openDetailModal} /></Text>
+          <Text style={styles.value}>{formatPrice(carInfo.price * 1000)} đ/ngày</Text>
         </View>
         <View style={styles.separator} />
         <View style={styles.row}>
           <Text style={styles.totalLabel}>Tổng cộng</Text>
-          <Text style={styles.totalValue}>{formatPrice(carInfo.price)} đ/ngày</Text>
+          <Text style={styles.totalValue}>{formatPrice(calculateTotalPrice())} đ/ngày</Text>
         </View>
-        
         <View style={styles.section}>
           <Text style={styles.sectionHeader}>Khuyến mãi</Text>
-          <View style={styles.row}>
-            <TouchableOpacity
-              style={styles.radioButton}
-              onPress={() => setChecked('first')}
-            >
-              <View style={checked === 'first' ? styles.radioButtonChecked : styles.radioButtonUnchecked} />
-            </TouchableOpacity>
-            <View style={styles.promotionContainer}>
-              <Text style={styles.promotionLabel}>Chương trình giảm giá</Text>
-              <Text style={styles.promotionDescription}>Giảm 120K trên đơn giá</Text>
+          {[...applicablePromotions, ...additionalPromotions].map(promo => (
+            <View key={promo.promoCode} style={styles.row}>
+              <TouchableOpacity
+                style={styles.radioButton}
+                onPress={() => setChecked(promo.promoCode)}
+              >
+                <View style={checked === promo.promoCode ? styles.radioButtonChecked : styles.radioButtonUnchecked} />
+              </TouchableOpacity>
+              <View style={styles.promotionContainer}>
+                <Text style={styles.promotionLabel}>{promo.promoCode}</Text>
+                <Text style={styles.promotionDescription}>
+                  {promo.discount.includes('%')
+                    ? `Giảm ${promo.discount} trên tổng tiền`
+                    : `Giảm ${formatPrice(promo.discount * 1000)} đ trên tổng tiền`}
+                </Text>
+              </View>
+              <Text style={styles.promotionValue}>
+                {promo.discount.includes('%')
+                  ? `-${promo.discount}`
+                  : `-${formatPrice(promo.discount * 1000)} đ`}
+              </Text>
             </View>
-            <Text style={styles.promotionValue}>-120 000 đ</Text>
-          </View>
-          <View style={styles.row}>
-            <TouchableOpacity
-              style={styles.radioButton}
-              onPress={() => setChecked('second')}
-            >
-              <View style={checked === 'second' ? styles.radioButtonChecked : styles.radioButtonUnchecked} />
+          ))}
+          <View style={styles.promoCodeContainer}>
+            <TextInput
+              style={styles.promoCodeInput}
+              placeholder="Nhập mã khuyến mãi"
+              value={promoCode}
+              onChangeText={setPromoCode}
+            />
+            <TouchableOpacity style={styles.applyButton} onPress={applyPromoCode}>
+              <Text style={styles.applyButtonText}>Áp dụng</Text>
             </TouchableOpacity>
-            <View style={styles.promotionContainer}>
-              <Text style={styles.promotionLabel}>Mã giảm giá</Text>
-            </View>
           </View>
         </View>
-        
         <View style={styles.row}>
           <Text style={styles.finalLabel}>Thành tiền</Text>
-          <Text style={styles.finalValue}>888 800 đ</Text>
+          <Text style={styles.finalValue}>{formatPrice(calculateTotalPrice())} đ</Text>
         </View>
         <View style={styles.separator} />
         <View style={styles.row}>
-          <Text style={styles.label}>Đặt cọc qua ứng dụng <Icon name="information-circle-outline" size={16} color="#03A9F4" /></Text>
-          <Text style={styles.value}>292 800 đ</Text>
+          <Text style={styles.label}>Đặt cọc qua ứng dụng <Icon name="information-circle-outline" size={16} color="#03A9F4" onPress={openDepositModal} /></Text>
+          <Text style={styles.value}>{formatPrice(calculateDeposit())} đ</Text>
         </View>
         <View style={styles.row}>
-          <Text style={styles.label}>Thanh toán khi nhận xe <Icon name="information-circle-outline" size={16} color="#03A9F4" /></Text>
-          <Text style={styles.value}>596 000 đ</Text>
+          <Text style={styles.label}>Thanh toán khi nhận xe <Icon name="information-circle-outline" size={16} color="#03A9F4" onPress={openPaymentModal} /></Text>
+          <Text style={styles.value}>{formatPrice(calculatePaymentOnPickup())} đ</Text>
         </View>
       </View>
+
+      {renderModal(detailModalVisible, detailModalContent, closeDetailModal, detailModalSlideAnim)}
+      {renderModal(depositModalVisible, depositModalContent, closeDepositModal, depositModalSlideAnim)}
+      {renderModal(paymentModalVisible, paymentModalContent, closePaymentModal, paymentModalSlideAnim)}
     </View>
   );
 };
@@ -181,9 +376,70 @@ const styles = StyleSheet.create({
     marginVertical: 8,
     marginHorizontal: 16,
   },
+  promoCodeContainer: {
+    flexDirection: 'row',
+    marginTop: 10,
+  },
+  promoCodeInput: {
+    flex: 1,
+    borderColor: '#03A9F4',
+    borderWidth: 1,
+    borderRadius: 8,
+    paddingHorizontal: 10,
+    marginRight: 10,
+  },
+  applyButton: {
+    backgroundColor: '#03A9F4',
+    padding: 10,
+    borderRadius: 8,
+  },
+  applyButtonText: {
+    color: '#fff',
+    fontWeight: 'bold',
+  },
+  modalOverlay: {
+    flex: 1,
+    justifyContent: 'flex-end',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+  },
+  modalContent: {
+    backgroundColor: '#fff',
+    padding: 16,
+    borderTopLeftRadius: 16,
+    borderTopRightRadius: 16,
+    maxHeight: height * 0.8,
+  },
+  button: {
+    alignSelf: "flex-start",
+    borderRadius: 28,
+    padding: 5,
+    width: 28,
+    height: 28,
+    marginBottom: 16,
+    marginTop: 16,
+  },
+  buttonClose: {
+    backgroundColor: "#03A9F4",
+  },
+  textStyle: {
+    color: "white",
+    fontSize: 16,
+    fontWeight: "bold",
+    textAlign: "center",
+  },
+  detailTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginBottom: 16,
+    color: '#03A9F4',
+  },
+  normalText: {
+    fontSize: 15,
+    marginBottom: 10,
+  },
+  paddingBottom: {
+    paddingBottom: 20,
+  }
 });
 
 export default PricingTable;
-
-
-

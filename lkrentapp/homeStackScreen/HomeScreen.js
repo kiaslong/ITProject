@@ -1,4 +1,3 @@
-// src/screens/HomeScreen.js
 import React, { useState, useEffect, useRef } from "react";
 import { ScrollView, View, StyleSheet, Text, Pressable, FlatList, Dimensions, Platform, RefreshControl, ActivityIndicator } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
@@ -10,6 +9,8 @@ import SearchBox from "../components/SearchBox";
 import { useSelector, useDispatch } from "react-redux";
 import { Image } from "expo-image";
 import { fetchCarForYou } from "../store/carListSlice";
+import { getPromotions } from "../store/promotionSlice";
+import moment from 'moment';
 
 const CarLocation = require('../assets/carlocation.jpg');
 const PaperWork = require('../assets/paperwork.png');
@@ -21,27 +22,6 @@ const { width } = Dimensions.get("window");
 const cardWidth = width * 1.1;
 const cardSpacing = 8;
 const cardFullWidth = cardWidth + cardSpacing;
-
-const promotions = [
-  {
-    id: "1",
-    imageUrl: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ7Ow-jdSFfiCijZRPsQz6GQcoF61ahECtZMA&s",
-    promotionText: "Khuyến mãi 30% phí cho thuê xe Mercedes",
-    discountText: "30%",
-  },
-  {
-    id: "2",
-    imageUrl: "https://cdni.autocarindia.com/utils/imageresizer.ashx?n=https://cms.haymarketindia.net/model/uploads/modelimages/BMW-2-Series-Gran-Coupe-271220221147.jpg&w=872&h=578&q=75&c=1",
-    promotionText: "Khuyến mãi 20% phí cho thuê xe BMW",
-    discountText: "20%",
-  },
-  {
-    id: "3",
-    imageUrl: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQmIwj74aj-4g71TjdSxaNpLMTTO9CpBiUm5A&s",
-    promotionText: "Khuyến mãi thêm 10% cho người mới thuê xe lần đầu",
-    discountText: "10%",
-  },
-];
 
 const benefitsData = [
   {
@@ -112,6 +92,13 @@ function GiftIcon({ navigation }) {
 
 function FlatListForPromotion({ setCurrentIndex }) {
   const flatListRef = useRef(null);
+  const promotions = useSelector((state) => state.promotions.promotions);
+
+  const validPromotions = promotions.filter(promotion => {
+    const now = moment();
+    const expirationDate = moment(promotion.expireDate);
+    return expirationDate.isAfter(now) && promotion.promotionImageUrl;
+  });
 
   const onScroll = useRef((event) => {
     const index = Math.round(event.nativeEvent.contentOffset.x / cardFullWidth);
@@ -120,8 +107,8 @@ function FlatListForPromotion({ setCurrentIndex }) {
 
   const onMomentumScrollEnd = useRef((event) => {
     const index = Math.round(event.nativeEvent.contentOffset.x / cardFullWidth);
-    if (index >= promotions.length - 1) {
-      flatListRef.current.scrollToIndex({ index: promotions.length - 1, animated: false });
+    if (index >= validPromotions.length - 1) {
+      flatListRef.current.scrollToIndex({ index: validPromotions.length - 1, animated: false });
     }
   }).current;
 
@@ -129,17 +116,20 @@ function FlatListForPromotion({ setCurrentIndex }) {
     <View style={styles.promotionListContainer}>
       <FlatList
         ref={flatListRef}
-        data={promotions}
+        data={validPromotions}
         renderItem={({ item }) => (
           <View style={[styles.promotionCardWrapper, { width: cardWidth }]}>
             <PromotionCard
-              imageUrl={item.imageUrl}
-              promotionText={item.promotionText}
-              discountText={item.discountText}
+              imageUrl={item.promotionImageUrl}
+              makeApply={item.makeApply}
+              discountText={item.discount}
+              modelApply={item.modelApply}
+              promoCode={item.promoCode}
+              expireDate={item.expireDate}
             />
           </View>
         )}
-        keyExtractor={(item) => item.id}
+        keyExtractor={(item) => item.id.toString()}
         horizontal
         contentContainerStyle={[
           styles.promotionList,
@@ -166,9 +156,15 @@ function FlatListForPromotion({ setCurrentIndex }) {
 }
 
 function DotIndex({ currentIndex }) {
+  const promotions = useSelector((state) => state.promotions.promotions);
+  const validPromotions = promotions.filter(promotion => {
+    const now = moment();
+    const expirationDate = moment(promotion.expireDate);
+    return expirationDate.isAfter(now) && promotion.promotionImageUrl;
+  });
   return (
     <View style={styles.dotsContainer}>
-      {promotions.map((_, index) => (
+      {validPromotions.map((_, index) => (
         <View
           key={index}
           style={[
@@ -254,21 +250,23 @@ export default function HomeScreen({ navigation }) {
   const user = useSelector((state) => state.loggedIn.user);
   const carList = useSelector((state) => state.carsList.carForYou);
   const carStatus = useSelector((state) => state.carsList.status);
+  const promotionsStatus = useSelector((state) => state.promotions.status);
   const blurhash = '|rF?hV%2WCj[ayj[a|j[az_NaeWBj@ayfRayfQfQM{M|azj[azf6fQfQfQIpWXofj[ayj[j[fQayWCoeoeaya}j[ayfQa{oLj?j[WVj[ayayj[fQoff7azayj[j[j[ayofayayayj[fQj[ayayj[ayfjj[j[ayjuayj[';
   const imageUri = user?.avatarUrl || placeholderImage;
 
   useEffect(() => {
-    // Call fetchCarForYou with user.id or null if user is not defined
+    dispatch(getPromotions());
     dispatch(fetchCarForYou(user ? user.id : null));
   }, [user, dispatch]);
 
   const onRefresh = async () => {
     setRefreshing(true);
-    dispatch(fetchCarForYou(user ? user.id : null));
+    await dispatch(getPromotions());
+    await dispatch(fetchCarForYou(user ? user.id : null));
     setRefreshing(false);
   };
 
-  if (carStatus === 'loading') {
+  if (carStatus === 'loading' || promotionsStatus === 'loading') {
     return (
       <View style={styles.loadingContainer}>
         <ActivityIndicator size="large" color="#0000ff" />
@@ -300,11 +298,11 @@ export default function HomeScreen({ navigation }) {
           cachePolicy="disk"
           placeholder={blurhash}
         />  
-        {isLoggedIn ? <Text style={styles.headerText}>{user?.fullName}</Text> :<Text style={styles.headerText}>Xin chào </Text>}
+        {isLoggedIn ? <Text style={styles.headerText}>{user?.fullName}</Text> : <Text style={styles.headerText}>Xin chào </Text>}
         <View style={styles.iconContainer}>
-          {isLoggedIn ? <HeartIcon navigation={navigation} /> : null }
-          {isLoggedIn ? <View style={styles.verticalSeparator} /> : null }
-          {isLoggedIn ? <GiftIcon navigation={navigation} /> : null }
+          {isLoggedIn ? <HeartIcon navigation={navigation} /> : null}
+          {isLoggedIn ? <View style={styles.verticalSeparator} /> : null}
+          {isLoggedIn ? <GiftIcon navigation={navigation} /> : null}
         </View>
       </View>
       <SearchBox navigation={navigation} />
@@ -335,8 +333,8 @@ const styles = StyleSheet.create({
     backgroundColor: "#fff",
   },
   refresh: {
-    height:10,
-    alignItems:"flex-end",
+    height: 10,
+    alignItems: "flex-end",
   },
   loadingContainer: {
     flex: 1,
@@ -345,7 +343,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#fff",
   },
   headerHome: {
-    paddingTop:45,
+    paddingTop: 45,
     paddingLeft: 20,
     paddingRight: 20,
     paddingBottom: 10,
@@ -383,7 +381,7 @@ const styles = StyleSheet.create({
     padding: 2,
   },
   promotionListContainer: {
-    height: 185,
+    height: 230,
     flex: 1,
     backgroundColor: "#fff",
   },
@@ -393,7 +391,7 @@ const styles = StyleSheet.create({
   promotionCardWrapper: {
     borderRadius: 10,
     overflow: "hidden",
-    height: 205,
+    height: 230,
   },
   dotsContainer: {
     flexDirection: "row",

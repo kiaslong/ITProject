@@ -33,7 +33,7 @@ export const fetchCarForYou = createAsyncThunk(
           headers: { Authorization: `Bearer ${adminToken}` },
         });
       }
-      console.log(response.data)
+      
       return response.data;
       
     } catch (error) {

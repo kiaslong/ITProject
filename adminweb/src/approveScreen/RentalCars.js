@@ -328,7 +328,7 @@ const RentalCars = () => {
                                   handleDelete(car.id);
                                 }}
                               >
-                                Delete
+                                Xóa
                               </Button>
                             </>
                           ) : (

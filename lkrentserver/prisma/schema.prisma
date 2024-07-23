@@ -56,7 +56,8 @@ model Promotion {
   discount    String 
   makeApply   String?
   modelApply  String?
-  promotionImageUrl String? 
+  promotionImageUrl String?
+   expireDate       DateTime 
 }
 
 model Car {
