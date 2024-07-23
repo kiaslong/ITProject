@@ -258,16 +258,13 @@ export default function HomeScreen({ navigation }) {
   const imageUri = user?.avatarUrl || placeholderImage;
 
   useEffect(() => {
-    if (user?.id) {
-      dispatch(fetchCarForYou(user.id));
-    } 
+    // Call fetchCarForYou with user.id or null if user is not defined
+    dispatch(fetchCarForYou(user ? user.id : null));
   }, [user, dispatch]);
 
   const onRefresh = async () => {
     setRefreshing(true);
-    if (user?.id) {
-      await dispatch(fetchCarForYou(user.id));
-    }
+    dispatch(fetchCarForYou(user ? user.id : null));
     setRefreshing(false);
   };
 

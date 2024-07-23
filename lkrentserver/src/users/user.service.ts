@@ -69,7 +69,7 @@ export class UserService {
         })
         .then(async (currentUser) => {
           if (currentUser?.avatarUrl) {
-            await this.cloudinaryService.deleteImage(currentUser.avatarUrl);
+            await this.cloudinaryService.deleteAvatarImage(currentUser.avatarUrl);
           }
           return this.cloudinaryService.uploadAvatar(file);
         });

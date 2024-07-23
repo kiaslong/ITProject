@@ -148,6 +148,8 @@ const RegisterCarScreen = () => {
   };
 
   const handleAddressSelect = (address) => {
+
+    const firstPartOfStreet = address.street.split(',')[0].trim();
     
     setInitAddress({
       street: address.street,
@@ -157,7 +159,7 @@ const RegisterCarScreen = () => {
     });    
     handleSelect(
       "location",
-      `${address.street}`
+      `${firstPartOfStreet}, ${address.ward.name_with_type}, ${address.district.name_with_type}, ${address.city.name_with_type}`
     );
     setShowAddressPicker(false);
   };

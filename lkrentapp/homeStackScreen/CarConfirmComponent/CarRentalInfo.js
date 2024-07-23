@@ -21,18 +21,12 @@ const CarRentalInfo = ({ carInfo, time, navigation, showCarDetail }) => {
     [time]
   );
 
-
   const trimLocation = (location) => {
     const parts = location.split(',');
     if (parts.length > 2) {
       let part2 = parts[2].trim();
       let part3 = parts[3].trim();
-      if (!part2.startsWith('Quận')) {
-        part2 = 'Quận ' + part2;
-      }
-      if (part3 && !(part3.startsWith('Thành phố'))) {
-        part3 = 'Thành phố ' + part3;
-      }
+      
       
       
       return [part2,part3].join(', ').trim();
@@ -54,7 +48,7 @@ const CarRentalInfo = ({ carInfo, time, navigation, showCarDetail }) => {
             />
             <View style={styles.carInfo}>
               <Text style={styles.carName}>{carInfo.title}</Text>
-              <Text style={styles.carId}>Mã số xe: {carInfo.id}</Text>
+              <Text style={styles.carId}>Mã số xe: LKX{carInfo.id}</Text>
               <View style={styles.ratingContainer}>
                 <Ionicons name="star" size={16 * scaleWidth} color="#FFD700" />
                 <Text style={styles.ratingText}>{carInfo.rating}</Text>

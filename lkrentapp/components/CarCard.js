@@ -4,7 +4,7 @@ import Icon from 'react-native-vector-icons/FontAwesome';
 import { Image } from 'expo-image';
 
 const CarCard = ({ carInfo, navigation }) => {
-  console.log(carInfo)
+  
   
   const [isFavorite, setIsFavorite] = useState(false);
  
@@ -28,12 +28,7 @@ const CarCard = ({ carInfo, navigation }) => {
     if (parts.length > 2) {
       let part2 = parts[2].trim();
       let part3 = parts[3].trim();
-      if (!part2.startsWith('Quận')) {
-        part2 = 'Quận ' + part2;
-      }
-      if (part3 && !(part3.startsWith('Thành phố'))) {
-        part3 = 'Thành phố ' + part3;
-      }
+      
       
       
       return [part2,part3].join(', ').trim();
@@ -45,7 +40,7 @@ const CarCard = ({ carInfo, navigation }) => {
   return (
     <TouchableOpacity onPress={handlePress}>
       <View style={styles.card}>
-        <Image source={{ uri: carInfo.thumbImage }} style={styles.image} />
+        <Image source={{ uri: carInfo.thumbImage }} style={styles.image} contentFit='cover' />
         <TouchableOpacity style={styles.heartIcon} onPress={toggleFavorite}>
           <Icon name={isFavorite ? 'heart' : 'heart-o'} size={24} color="#03a9f4" />
         </TouchableOpacity>
@@ -60,7 +55,7 @@ const CarCard = ({ carInfo, navigation }) => {
             <Text style={styles.delivery}>{carInfo.supportsDelivery ? 'Giao xe tận nơi' : ''}</Text>
           </View>
           <Text style={styles.title}>{carInfo.title} {carInfo.year}</Text>
-          <Text style={styles.location}>{trimLocation(carInfo.location)}</Text>
+          <Text numberOfLines={1} style={styles.location}>{trimLocation(carInfo.location)}</Text>
           <View style={styles.separator} />
           <View style={styles.rating}>
             <Text style={styles.ratingText}>{carInfo.rating} ⭐</Text>

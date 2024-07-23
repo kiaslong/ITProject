@@ -11,6 +11,8 @@ import {
   HttpStatus,
   Logger,
   Query,
+  Param,
+  Delete,
 } from '@nestjs/common';
 import { FilesInterceptor } from '@nestjs/platform-express';
 import {
@@ -209,6 +211,22 @@ async verifyCar(@Body() verifyCarDto: VerifyCarDto) {
     return { message: 'Car successfully verified' };
   } catch (error) {
     this.logger.error('Error verifying car:', error.message);
+    throw new HttpException(error.message, error.status || HttpStatus.BAD_REQUEST);
+  }
+}
+
+@Delete(':id')
+@ApiOperation({ summary: 'Delete a car' })
+@ApiResponse({ status: 200, description: 'Car successfully deleted.' })
+@ApiResponse({ status: 400, description: 'Bad Request.' })
+@ApiResponse({ status: 401, description: 'Unauthorized.' })
+async deleteCar(@Param('id') id: string) {
+  try {
+    const carId = parseInt(id, 10);
+    const result = await this.carService.deleteCar(carId);
+    return result;
+  } catch (error) {
+    this.logger.error(`Error deleting car with ID ${id}:`, error.message);
     throw new HttpException(error.message, error.status || HttpStatus.BAD_REQUEST);
   }
 }

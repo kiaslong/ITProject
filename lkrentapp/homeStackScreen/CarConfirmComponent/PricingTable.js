@@ -16,12 +16,12 @@ const PricingTable = ({carInfo}) => {
       <View style={styles.tableContainer}>
         <View style={styles.row}>
           <Text style={styles.label}>Đơn giá thuê <Icon name="information-circle-outline" size={16} color="#03A9F4" /></Text>
-          <Text style={styles.value}>{formatPrice(carInfo.oldPrice)} đ/ngày</Text>
+          <Text style={styles.value}>{formatPrice(carInfo.price)} đ/ngày</Text>
         </View>
         <View style={styles.separator} />
         <View style={styles.row}>
           <Text style={styles.totalLabel}>Tổng cộng</Text>
-          <Text style={styles.totalValue}>{formatPrice(carInfo.newPrice)} đ/ngày</Text>
+          <Text style={styles.totalValue}>{formatPrice(carInfo.price)} đ/ngày</Text>
         </View>
         
         <View style={styles.section}>

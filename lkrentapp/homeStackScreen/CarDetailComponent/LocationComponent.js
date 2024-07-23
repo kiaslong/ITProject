@@ -106,11 +106,25 @@ const LocationComponent = ({ address }) => {
     );
   }
 
+  const trimLocation = (location) => {
+    const parts = location.split(',');
+    if (parts.length > 2) {
+      let part2 = parts[2].trim();
+      let part3 = parts[3].trim();
+      
+      
+      
+      return [part2,part3].join(', ').trim();
+    }
+    return location.trim();
+  };
+
+
   return (
     <View style={styles.container}>
       <View style={styles.locationContainer}>
         <Ionicons name="location-outline" size={20} color="#03A9F4" />
-        <Text style={styles.locationText}>{address}</Text>
+        <Text style={styles.locationText}>{trimLocation(address)}</Text>
       </View>
       <MapView
         ref={mapRef}

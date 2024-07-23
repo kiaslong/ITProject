@@ -1,6 +1,6 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import api from '../api';
-import { getToken } from '../utils/tokenStorage';
+import { getAdminToken, getToken } from '../utils/tokenStorage';
 
 export const fetchSearchingCars = createAsyncThunk(
   'cars/fetchSearchingCars',
@@ -16,13 +16,29 @@ export const fetchSearchingCars = createAsyncThunk(
 
 export const fetchCarForYou = createAsyncThunk(
   'cars/fetchCarForYou',
-  async (userId) => {
-    const token = await getToken();
-    const response = await api.get('/car/info-exclude-user', {
-      params: { userId, type: 'carForYou' },
-      headers: { Authorization: `Bearer ${token}` },
-    });
-    return response.data;
+  async (userId, { rejectWithValue }) => {
+    try {
+      const token = await getToken();
+      const adminToken = await getAdminToken()
+
+      let response;
+      
+      if (userId) {
+        response = await api.get('/car/info-exclude-user', {
+          params: { userId, type: 'carForYou' },
+          headers: { Authorization: `Bearer ${token}` },
+        });
+      } else {
+        response = await api.get('/car/info-verified', {
+          headers: { Authorization: `Bearer ${adminToken}` },
+        });
+      }
+      console.log(response.data)
+      return response.data;
+      
+    } catch (error) {
+      return rejectWithValue(error.response.data);
+    }
   }
 );
 

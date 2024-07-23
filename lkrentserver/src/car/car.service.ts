@@ -1,18 +1,20 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable, Logger } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateCarDto } from './dto/create-car.dto';
 import { CarInfoDto, OwnerDto, CarFeatureDto } from './dto/car-info.dto';
 import { parseRelativeTimeToDate } from './utils/utils.function';
+import { CloudinaryService } from '../cloudinary/cloudinary.service';
 
 @Injectable()
 export class CarService {
   private readonly logger = new Logger(CarService.name);
 
-  constructor(private prisma: PrismaService) {}
+  constructor(private prisma: PrismaService, private cloudinaryService: CloudinaryService
+  ){}
 
   async onModuleInit() {
     await this.prisma.$connect();
-
+    await this.cloudinaryService.initializeCloudinary();
   
   }
 
@@ -346,4 +348,37 @@ export class CarService {
     });
   }
   
+  async deleteCar(carId: number): Promise<{ message: string }> {
+    try {
+      const car = await this.prisma.car.findUnique({
+        where: { id: carId },
+        select: { carImages: true, thumbImage: true, carPapers: true, licensePlate: true },
+      });
+
+      if (!car) {
+        throw new HttpException('Car not found', HttpStatus.NOT_FOUND);
+      }
+
+      const imageUrls = [...car.carImages, ...car.carPapers,car.thumbImage];
+
+      for (const imageUrl of imageUrls) {
+        if (imageUrl) {
+          await this.cloudinaryService.deleteCarImage(imageUrl, car.licensePlate);
+        }
+      }
+
+     
+
+      await this.prisma.car.delete({
+        where: { id: carId },
+      });
+
+      this.logger.log(`Car with ID ${carId} deleted successfully.`);
+      return { message: 'Car deleted successfully' };
+    } catch (error) {
+      this.logger.error(`Failed to delete car with ID ${carId}:`, error);
+      throw new HttpException('Failed to delete car', HttpStatus.BAD_REQUEST);
+    }
+  }
+
 }

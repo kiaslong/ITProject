@@ -66,12 +66,7 @@ const CarDetails = ({ carInfo, navigation }) => {
     if (parts.length > 2) {
       let part2 = parts[2].trim();
       let part3 = parts[3].trim();
-      if (!part2.startsWith('Quận')) {
-        part2 = 'Quận ' + part2;
-      }
-      if (part3 && !(part3.startsWith('Thành phố'))) {
-        part3 = 'Thành phố ' + part3;
-      }
+      
       
       
       return [part2,part3].join(', ').trim();
