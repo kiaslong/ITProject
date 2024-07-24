@@ -122,7 +122,6 @@ const RegisterScreen = () => {
     if (validateInputs()) {
       try {
         const encryptedPassword = await encryptPassword(password.trim());
-        console.log(encryptedPassword)
 
         const registerResponse = await api.post("/auth/register", {
           phoneNumber: phoneNumber.trim(),

@@ -11,6 +11,7 @@ export class CarFeatureDto {
     model: string;
     year: number;
     isCarVerified: boolean;
+    requireCollateral:boolean;
     carImages: string[];
     carPapers: string[];
     thumbImage: string;

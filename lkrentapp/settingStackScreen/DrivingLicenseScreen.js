@@ -12,6 +12,7 @@ import { useSelector } from 'react-redux';
 import { getToken } from '../utils/tokenStorage';
 import { useDispatch } from 'react-redux';
 import { updateUser } from '../store/loginSlice';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const { width } = Dimensions.get('window');
 
@@ -22,7 +23,7 @@ const DrivingLicenseScreen = () => {
   const [image, setImage] = useState(null);
   const [licenseNumber, setLicenseNumber] = useState('');
   const [fullName, setFullName] = useState('');
-  const [birthDate, setBirthDate] = useState(new Date());
+  const [birthDate, setBirthDate] = useState(null);
   const [expireDate, setExpireDate] = useState(null);
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [cameraVisible, setCameraVisible] = useState(false);
@@ -31,9 +32,11 @@ const DrivingLicenseScreen = () => {
   const [isVerified, setIsVerified] = useState(true);
   const [loading, setLoading] = useState(true);
   const [isUpdating, setIsUpdating] = useState(false);
+  const [updatePressed, setUpdatePressed] = useState(false);
+
   const cameraRef = useRef(null);
 
-  const dispatch = useDispatch()
+  const dispatch = useDispatch();
 
   useEffect(() => {
     if (!hasPermission) {
@@ -45,9 +48,8 @@ const DrivingLicenseScreen = () => {
 
   const fetchInitialData = async () => {
     try {
-      
       const token = await getToken();
-      
+
       // Fetch driving license data
       const licenseResponse = await api.get(`auth/${user.id}/driving-licenses`, {
         headers: {
@@ -59,10 +61,19 @@ const DrivingLicenseScreen = () => {
         const { drivingLicenseUrl, drivingLicenseFullName, drivingLicenseDOB, drivingLicenseNumber, drivingLicenseVerified, drivingLicenseExpireDate } = licenseResponse.data;
         setImage(drivingLicenseUrl);
         setFullName(drivingLicenseFullName);
-        setBirthDate(new Date(drivingLicenseDOB));
+        setBirthDate(drivingLicenseDOB ? new Date(drivingLicenseDOB) : new Date('2010-01-01') );
         setLicenseNumber(drivingLicenseNumber);
         setIsVerified(drivingLicenseVerified);
         setExpireDate(drivingLicenseExpireDate);
+        if (!drivingLicenseVerified) {
+          const storedUpdatePressed = await AsyncStorage.getItem('updatePressed');
+          if (storedUpdatePressed === 'true') {
+          
+            setUpdatePressed(true);
+          }
+        } else {
+          await AsyncStorage.removeItem('updatePressed');
+        }
       } else {
         Alert.alert('Error', 'Failed to fetch driving license data');
       }
@@ -87,7 +98,6 @@ const DrivingLicenseScreen = () => {
     }
   };
 
-
   const pickImageFromLibrary = async () => {
     setPromptVisible(false);
     setCameraVisible(false);
@@ -98,7 +108,7 @@ const DrivingLicenseScreen = () => {
 
     if (!result.canceled && result.assets.length > 0) {
       setImage(result.assets[0].uri);
-      console.log(result.assets[0].uri);
+    
     }
   };
 
@@ -111,14 +121,16 @@ const DrivingLicenseScreen = () => {
     if (cameraRef.current) {
       const photo = await cameraRef.current.takePictureAsync({ quality: 1, base64: true });
       setImage(photo.uri);
-      console.log(photo.uri);
       setCameraVisible(false);
     }
   };
 
   const handleUpdate = async () => {
     setIsUpdating(true);
+    setUpdatePressed(true);
     try {
+      await AsyncStorage.setItem('updatePressed', 'true');
+
       const formData = new FormData();
       formData.append('file', {
         uri: image,
@@ -143,7 +155,7 @@ const DrivingLicenseScreen = () => {
         Alert.alert('Thành công', 'Giấy phép lái xe cập nhật thành công', [
           {
             text: "OK",
-            onPress: () => {
+            onPress: async () => {
               setTimeout(() => {
                 navigation.goBack();
               }, 500);
@@ -173,10 +185,6 @@ const DrivingLicenseScreen = () => {
 
   const handleConfirm = () => {
     setShowDatePicker(false);
-  };
-
-  const toggleCameraFacing = () => {
-    setCameraType(current => (current === 'back' ? 'front' : 'back'));
   };
 
   if (!hasPermission) {
@@ -221,16 +229,15 @@ const DrivingLicenseScreen = () => {
             )}
           </TouchableOpacity>
         </View>
-        {image && !isVerified && (
+        {image && !isVerified && updatePressed && (
           <Text style={styles.verificationText}>Đang chờ duyệt</Text>
         )}
-
-          {expireDate && (
+        {expireDate && (
           <>
-              <View style={styles.dateContainer}>
+            <View style={styles.dateContainer}>
               <Text style={styles.label}>Ngày hết hạn:</Text>
               <Text style={styles.expireDateText}>{expireDate}</Text>
-              </View>
+            </View>
           </>
         )}
         <Text style={styles.inputLabel}>Số giấy phép lái xe</Text>
@@ -269,7 +276,7 @@ const DrivingLicenseScreen = () => {
                   style={Platform.OS === 'ios' ? styles.datePickerIOS : undefined}
                 />
                 <View style={styles.confirmButtonContainer}>
-                  <PaperButton mode="contained" onPress={handleConfirm}>
+                  <PaperButton buttonColor='#03a9f4' mode="contained" onPress={handleConfirm}>
                     Xác nhận
                   </PaperButton>
                 </View>

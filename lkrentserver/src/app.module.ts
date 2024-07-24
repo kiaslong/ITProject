@@ -10,10 +10,14 @@ import { AuthModule } from './auth/auth.module';
 import { CloudinaryModule } from './cloudinary/cloudinary.module';
 import { AdminModule } from './admin/admin.module';
 import { PromotionModule } from './promotion/promotion.module';
+import { CountdownService } from './countdown/countdown.service';
+import { ScheduleModule } from '@nestjs/schedule';
+import { PromotionService } from './promotion/promotion.service';
 
 @Module({
   imports: [
     ConfigModule.forRoot(),
+    ScheduleModule.forRoot(),
     UserModule,
     CloudinaryModule,
     MailerModule,
@@ -23,6 +27,6 @@ import { PromotionModule } from './promotion/promotion.module';
     AdminModule,
     PromotionModule,
   ],
-  providers: [PrismaService],
+  providers: [PrismaService, CountdownService, PromotionService ],
 })
 export class AppModule {}

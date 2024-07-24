@@ -7,6 +7,10 @@ import {
   Animated,
   Dimensions,
   ActivityIndicator,
+  Alert,
+  Modal,
+  TextInput,
+  TouchableWithoutFeedback
 } from "react-native";
 import Ionicons from "react-native-vector-icons/Ionicons";
 import MaterialCommunityIcons from "react-native-vector-icons/MaterialCommunityIcons";
@@ -22,6 +26,7 @@ import TermsComponent from "./CarDetailComponent/TermsComponent";
 import ImageView from "./CarDetailComponent/ImageView";
 import AdditionalFees from "./CarDetailComponent/AdditionalFees";
 import CancellationPolicy from "./CarDetailComponent/CancellationPolicy";
+import Icon from 'react-native-vector-icons/Ionicons';
 
 const { width, height } = Dimensions.get("window");
 
@@ -50,6 +55,8 @@ const CarDetails = ({ carInfo, navigation }) => {
 
   const [pickupMethod, setPickupMethod] = useState("self");
   const time = useSelector((state) => state.time.time);
+  
+
 
   const currentYear = moment().year();
   const [start, end] = useMemo(
@@ -96,8 +103,7 @@ const CarDetails = ({ carInfo, navigation }) => {
               {end
                 ? `${end.format("HH:mm")} ${end.format("dd")}, ${end.format(
                     "DD/MM"
-                  )}/${currentYear}`
-                : ""}
+                  )}/${currentYear}`:""}
             </Text>
           </View>
         </TouchableOpacity>
@@ -238,7 +244,7 @@ const CarFeature = ({ carInfo }) => {
       <Text style={styles.bigSectionTitle}>Các tiện nghi trên xe</Text>
       <View style={styles.amenitiesContainer}>
         {features.map((feature, index) => {
-          const IconComponent = Ionicons; // Default to Ionicons if no library is provided
+          const IconComponent = getIconComponent(feature.library); // Using the function to get the correct icon component
           return (
             <View style={styles.amenity} key={index}>
               <IconComponent name={feature.icon} size={24} color="#03A9F4" />
@@ -246,6 +252,9 @@ const CarFeature = ({ carInfo }) => {
             </View>
           );
         })}
+        {features.length % 2 !== 0 && (
+          <View style={styles.amenity} /> 
+        )}
       </View>
     </View>
   );
@@ -280,34 +289,166 @@ export const DocumentComponent = () => {
 
 const ConfirmRental = ({ carInfo, navigation }) => {
   const time = useSelector((state) => state.time.time);
+  const user = useSelector((state) => state.loggedIn.user);
+  const promotions = useSelector((state) => state.promotions.promotions);
+  const [discountModalVisible, setDiscountModalVisible] = useState(false);
+  const [checked, setChecked] = useState(null);
+  const [promoCode, setPromoCode] = useState('');
+  const [additionalPromotions, setAdditionalPromotions] = useState([]);
 
   const handleConfirmPress = () => {
-    navigation.navigate("CarRentalInfoScreen", {
-      carInfo,
-      time: time,
-      showHeader: true,
-      showBackButton: true,
-      showTitle: true,
-      showCloseButton: true,
-      animationType: "slide_from_bottom",
-      screenTitle: "Xác nhận đặt xe",
-    });
+    if (user.drivingLicenseVerified) {
+      navigation.navigate("CarRentalInfoScreen", {
+        carInfo,
+        time: time,
+        showHeader: true,
+        showBackButton: true,
+        showTitle: true,
+        showCloseButton: true,
+        animationType: "slide_from_bottom",
+        screenTitle: "Xác nhận đặt xe",
+      });
+    } else {
+      Alert.alert("Thông báo", "Vui lòng xác minh giấy phép lái xe trước khi đặt xe.");
+    }
   };
+
+  const applyPromoCode = () => {
+    const selectedPromotion = promotions.find(promo =>
+      promo.promoCode === promoCode && new Date(promo.expireDate) >= new Date()
+    );
+    if (selectedPromotion) {
+      setChecked(selectedPromotion.promoCode);
+      setAdditionalPromotions([selectedPromotion]);
+    } else {
+      setChecked(null);
+      setAdditionalPromotions([]);
+    }
+  };
+
+  const formatPrice = (price) => {
+    return price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
+  };
+
+  const calculateTotalPrice = () => {
+    let totalPrice = carInfo.price ; // Convert to VND
+    if (checked) {
+      const selectedPromotion = [...applicablePromotions, ...additionalPromotions].find(promo => promo.promoCode === checked);
+      if (selectedPromotion) {
+        const discount = selectedPromotion.discount.includes('%')
+          ? Math.round((parseFloat(selectedPromotion.discount) / 100) * totalPrice) // Percentage discount
+          : parseInt(selectedPromotion.discount) ; // Fixed discount in thousands
+        totalPrice -= discount;
+      }
+    }
+    return totalPrice;
+  };
+
+  // Filter promotions to only show applicable and non-expired ones
+  const applicablePromotions = promotions.filter(promo =>
+    (promo.makeApply || promo.modelApply) &&
+    (!promo.makeApply || promo.makeApply === carInfo.make) &&
+    (!promo.modelApply || promo.modelApply === carInfo.model) &&
+    new Date(promo.expireDate) >= new Date()
+  );
+
+  const openDiscountModal = () => {
+    setDiscountModalVisible(true);
+  };
+
+  const closeDiscountModal = () => {
+    setDiscountModalVisible(false);
+  };
+
+  const discountModalContent = (
+    <>
+      <Text style={styles.sectionHeader}>Khuyến mãi</Text>
+      {[...applicablePromotions, ...additionalPromotions].map(promo => (
+        <View key={promo.promoCode} style={styles.row}>
+          <TouchableOpacity
+            style={styles.radioButton}
+            onPress={() => setChecked(promo.promoCode)}
+          >
+            <View style={checked === promo.promoCode ? styles.radioButtonChecked : styles.radioButtonUnchecked} />
+          </TouchableOpacity>
+          <View style={styles.promotionContainer}>
+            <Text style={styles.promotionLabel}>{promo.promoCode}</Text>
+            <Text style={styles.promotionDescription}>
+              {promo.discount.includes('%')
+                ? `Giảm ${promo.discount} trên tổng tiền`
+                : `Giảm ${formatPrice(promo.discount * 1000)} đ trên tổng tiền`}
+            </Text>
+          </View>
+          <Text style={styles.promotionValue}>
+            {promo.discount.includes('%')
+              ? `-${promo.discount}`
+              : `-${formatPrice(promo.discount * 1000)} đ`}
+          </Text>
+        </View>
+      ))}
+      <View style={styles.promoCodeContainer}>
+        <TextInput
+          style={styles.promoCodeInput}
+          placeholder="Nhập mã khuyến mãi"
+          value={promoCode}
+          onChangeText={setPromoCode}
+        />
+        <TouchableOpacity style={styles.applyButton} onPress={applyPromoCode}>
+          <Text style={styles.applyButtonText}>Áp dụng</Text>
+        </TouchableOpacity>
+      </View>
+      <TouchableOpacity style={styles.confirmButton} onPress={closeDiscountModal}>
+        <Text style={styles.confirmButtonText}>Xác nhận</Text>
+      </TouchableOpacity>
+    </>
+  );
 
   return (
     <View style={styles.bookContainer}>
       <View style={styles.priceInfo}>
-        <Text style={styles.newPrice}>{carInfo.oldPrice}K₫/ngày</Text>
-        <Text style={styles.totalPrice}>
-          Giá tổng: {carInfo.newPrice}K₫/ngày
-        </Text>
+        <Text style={styles.newPrice}>{carInfo.price}K₫/ngày</Text>
+        <View style={styles.priceRow}>
+          <Text style={styles.totalPrice}>
+            Giá tổng: {formatPrice(calculateTotalPrice())}K₫/ngày
+          </Text>
+          <TouchableOpacity style={styles.iconDiscount} onPress={openDiscountModal}>
+            <Icon name="pricetag-outline" size={24} color="#ffa500" />
+          </TouchableOpacity>
+        </View>
       </View>
-      <TouchableOpacity style={styles.bookButton} onPress={handleConfirmPress}>
+      <TouchableOpacity
+        style={[styles.bookButton, !user.drivingLicenseVerified && styles.disabledButton]}
+        onPress={handleConfirmPress}
+      >
         <Text style={styles.bookButtonText}>Chọn thuê</Text>
       </TouchableOpacity>
+
+      <Modal
+        transparent={true}
+        visible={discountModalVisible}
+        onRequestClose={closeDiscountModal}
+        animationType="none"
+      >
+        <TouchableWithoutFeedback onPress={closeDiscountModal}>
+          <View style={styles.modalOverlay}>
+            <TouchableWithoutFeedback>
+              <View style={styles.modalContent}>
+                <TouchableOpacity
+                  style={[styles.button, styles.buttonClose]}
+                  onPress={closeDiscountModal}
+                >
+                  <Text style={styles.textStyle}>X</Text>
+                </TouchableOpacity>
+                {discountModalContent}
+              </View>
+            </TouchableWithoutFeedback>
+          </View>
+        </TouchableWithoutFeedback>
+      </Modal>
     </View>
   );
 };
+
 
 const CarDetailScreen = ({ route, navigation }) => {
   const { carInfo } = route.params;
@@ -476,7 +617,7 @@ const CarDetailScreen = ({ route, navigation }) => {
         <View style={styles.separator} />
         <DocumentComponent />
         <View style={styles.separator} />
-        <CollateralComponent />
+        <CollateralComponent requireCollateral={carInfo.requireCollateral} />
         <View style={styles.separator} />
         <TermsComponent />
         <View style={styles.separator} />
@@ -875,6 +1016,124 @@ const styles = StyleSheet.create({
     marginLeft: 8,
     color: "#03A9F4",
   },
+  modalOverlay: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+  },
+  modalContent: {
+    width: '90%',
+    backgroundColor: '#fff',
+    borderRadius: 8,
+    padding: 20,
+  },
+  priceRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  buttonClose: {
+    backgroundColor: "#03A9F4",
+    alignSelf: 'flex-start',
+    marginBottom:10,
+    padding: 5,
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  confirmButton: {
+    backgroundColor: "#03A9F4",
+    marginTop: 20,
+    padding: 10,
+    borderRadius: 8,
+    alignItems: 'center',
+  },
+  confirmButtonText: {
+    color: '#fff',
+    fontWeight: 'bold',
+  },
+  textStyle: {
+    color: "white",
+    fontSize: 16,
+    fontWeight: "bold",
+    textAlign: "center",
+  },
+  sectionHeader: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    marginBottom: 5,
+    color: '#03A9F4',
+  },
+  row: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 10,
+  },
+  radioButton: {
+    width: 24,
+    height: 24,
+    borderRadius: 12,
+    borderWidth: 2,
+    borderColor: '#03A9F4',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 10,
+  },
+  radioButtonChecked: {
+    width: 12,
+    height: 12,
+    borderRadius: 6,
+    backgroundColor: '#03A9F4',
+  },
+  radioButtonUnchecked: {
+    width: 12,
+    height: 12,
+    borderRadius: 6,
+    backgroundColor: '#fff',
+  },
+  promotionContainer: {
+    flex: 1,
+    flexDirection: 'column',
+  },
+  promotionLabel: {
+    fontSize: 16,
+  },
+  promotionDescription: {
+    fontSize: 12,
+    color: '#666',
+    marginTop: 2,
+  },
+  promotionValue: {
+    fontSize: 16,
+    color: 'green',
+  },
+  promoCodeContainer: {
+    flexDirection: 'row',
+    marginTop: 10,
+  },
+  promoCodeInput: {
+    flex: 1,
+    borderColor: '#03A9F4',
+    borderWidth: 1,
+    borderRadius: 8,
+    paddingHorizontal: 10,
+    marginRight: 10,
+  },
+  applyButton: {
+    backgroundColor: '#03A9F4',
+    padding: 10,
+    borderRadius: 8,
+  },
+  applyButtonText: {
+    color: '#fff',
+    fontWeight: 'bold',
+  },
+  iconDiscount:{
+    marginLeft:8,
+    marginBottom:12,
+  }
 });
 
 export default CarDetailScreen;

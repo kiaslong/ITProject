@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "@babel/plugin-proposal-private-property-in-object": "^7.21.11",
     "axios": "^1.7.2",
     "bootstrap": "^5.3.3",
     "bootstrap-icons": "^1.11.3",
@@ -15,7 +16,6 @@
     "react-dom": "^18.3.1",
     "react-router-dom": "^6.24.1",
     "react-scripts": "5.0.1",
-    "react-toastify": "^10.0.5",
     "sass": "^1.77.6"
   },
   "scripts": {

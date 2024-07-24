@@ -126,6 +126,35 @@ export class UserController {
     };
   }
 
+
+  @Get('unverified-phone-users')
+  @UseGuards(JwtAuthGuard)
+  @ApiOperation({ summary: 'Get users with unverified phone numbers' })
+  @ApiResponse({ status: 200, description: 'Users retrieved successfully.' })
+  @ApiResponse({ status: 401, description: 'Unauthorized.' })
+  async getUnverifiedPhoneUsers(@Headers('Authorization') authHeader: string) {
+    if (!authHeader) {
+      throw new UnauthorizedException('Authorization header is missing');
+    }
+
+    const token = authHeader.replace('Bearer ', '');
+    const { valid } = await this.authService.validateToken(token);
+    if (!valid) {
+      throw new UnauthorizedException('Invalid token');
+    }
+
+    try {
+      const users = await this.userService.getUsersWithUnverifiedPhones();
+      return users.map(user => ({
+        id: user.id,
+        fullName: user.fullName,
+        phoneNumber: user.phoneNumber,
+      }));
+    } catch (error) {
+      throw new HttpException('Failed to fetch users', HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+  }
+
   @Post('request-otp')
   @UseGuards(JwtAuthGuard)
   @ApiOperation({ summary: 'Request OTP for email verification' })

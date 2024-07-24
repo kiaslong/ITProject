@@ -10,6 +10,9 @@ import { useSelector, useDispatch } from "react-redux";
 import { Image } from "expo-image";
 import { fetchCarForYou } from "../store/carListSlice";
 import { getPromotions } from "../store/promotionSlice";
+import { getToken } from "../utils/tokenStorage";
+import { updateUser } from "../store/loginSlice";
+import api from "../api";
 import moment from 'moment';
 
 const CarLocation = require('../assets/carlocation.jpg');
@@ -114,43 +117,47 @@ function FlatListForPromotion({ setCurrentIndex }) {
 
   return (
     <View style={styles.promotionListContainer}>
-      <FlatList
-        ref={flatListRef}
-        data={validPromotions}
-        renderItem={({ item }) => (
-          <View style={[styles.promotionCardWrapper, { width: cardWidth }]}>
-            <PromotionCard
-              imageUrl={item.promotionImageUrl}
-              makeApply={item.makeApply}
-              discountText={item.discount}
-              modelApply={item.modelApply}
-              promoCode={item.promoCode}
-              expireDate={item.expireDate}
-            />
-          </View>
-        )}
-        keyExtractor={(item) => item.id.toString()}
-        horizontal
-        contentContainerStyle={[
-          styles.promotionList,
-          Platform.OS === 'android' && { marginLeft: 16 },
-        ]}
-        showsHorizontalScrollIndicator={false}
-        snapToInterval={cardFullWidth}
-        decelerationRate="fast"
-        snapToAlignment="start"
-        onScroll={onScroll}
-        scrollEventThrottle={16}
-        onMomentumScrollEnd={Platform.OS === "android" ? onMomentumScrollEnd : null}
-        overScrollMode="never"
-        contentInset={{
-          up: 0,
-          down: 0,
-          left: 0,
-          right: width - cardWidth - cardSpacing * 2,
-        }}
-        contentInsetAdjustmentBehavior="automatic"
-      />
+      {validPromotions.length > 0 ? (
+        <FlatList
+          ref={flatListRef}
+          data={validPromotions}
+          renderItem={({ item }) => (
+            <View style={[styles.promotionCardWrapper, { width: cardWidth }]}>
+              <PromotionCard
+                imageUrl={item.promotionImageUrl}
+                makeApply={item.makeApply}
+                discountText={item.discount}
+                modelApply={item.modelApply}
+                promoCode={item.promoCode}
+                expireDate={item.expireDate}
+              />
+            </View>
+          )}
+          keyExtractor={(item) => item.id.toString()}
+          horizontal
+          contentContainerStyle={[
+            styles.promotionList,
+            Platform.OS === 'android' && { marginLeft: 16 },
+          ]}
+          showsHorizontalScrollIndicator={false}
+          snapToInterval={cardFullWidth}
+          decelerationRate="fast"
+          snapToAlignment="start"
+          onScroll={onScroll}
+          scrollEventThrottle={16}
+          onMomentumScrollEnd={Platform.OS === "android" ? onMomentumScrollEnd : null}
+          overScrollMode="never"
+          contentInset={{
+            up: 0,
+            down: 0,
+            left: 0,
+            right: width - cardWidth - cardSpacing * 2,
+          }}
+          contentInsetAdjustmentBehavior="automatic"
+        />
+      ) : (
+        <Text style={styles.noPromotionsText}>Hiện tại không có chương trình khuyến mãi nào.</Text>
+      )}
     </View>
   );
 }
@@ -164,15 +171,17 @@ function DotIndex({ currentIndex }) {
   });
   return (
     <View style={styles.dotsContainer}>
-      {validPromotions.map((_, index) => (
-        <View
-          key={index}
-          style={[
-            styles.dot,
-            { backgroundColor: index === currentIndex ? "black" : "grey" },
-          ]}
-        />
-      ))}
+      {validPromotions.length > 0 ? (
+        validPromotions.map((_, index) => (
+          <View
+            key={index}
+            style={[
+              styles.dot,
+              { backgroundColor: index === currentIndex ? "black" : "grey" },
+            ]}
+          />
+        ))
+      ) :null}
     </View>
   );
 }
@@ -181,6 +190,8 @@ function CarCardList({ carList, navigation }) {
   const normalWidth = width * 0.9;
   const oneItemWidth = width * 0.92;
   const gap = 16;
+
+  const promotions = useSelector((state) => state.promotions.promotions);
 
   const adjustedWidth = carList.length !== 1 ? normalWidth : oneItemWidth;
 
@@ -199,7 +210,7 @@ function CarCardList({ carList, navigation }) {
               width: adjustedWidth,
             }}
           >
-            <CarCard carInfo={item} navigation={navigation} />
+            <CarCard carInfo={item} promotions={promotions} navigation={navigation} />
           </View>
         )}
         showsHorizontalScrollIndicator={false}
@@ -260,7 +271,14 @@ export default function HomeScreen({ navigation }) {
   }, [user, dispatch]);
 
   const onRefresh = async () => {
+    const token = await getToken();
     setRefreshing(true);
+    const userInfoResponse = await api.get("/auth/info", {
+      headers: {
+        Authorization: token,
+      },
+    });
+    dispatch(updateUser(userInfoResponse.data));
     await dispatch(getPromotions());
     await dispatch(fetchCarForYou(user ? user.id : null));
     setRefreshing(false);
@@ -393,6 +411,12 @@ const styles = StyleSheet.create({
     overflow: "hidden",
     height: 230,
   },
+  noPromotionsText: {
+    textAlign: "center",
+    fontSize: 16,
+    color: "grey",
+    marginTop: 100,
+  },
   dotsContainer: {
     flexDirection: "row",
     justifyContent: "center",
@@ -403,6 +427,11 @@ const styles = StyleSheet.create({
     height: 8,
     borderRadius: 4,
     marginHorizontal: 4,
+  },
+  noPromotionsDotText: {
+    textAlign: "center",
+    fontSize: 14,
+    color: "grey",
   },
   carCardContainer: {
     flex: 1,

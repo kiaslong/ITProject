@@ -54,6 +54,20 @@ export class UserService {
     });
   }
 
+
+  async getUsersWithUnverifiedPhones() {
+    return this.prisma.user.findMany({
+      where: {
+        phoneNumberVerified: false,
+      },
+      select: {
+        id: true,
+        fullName: true,
+        phoneNumber: true,
+      },
+    });
+  }
+
   async updateProfile(
     userId: number,
     updateUserProfileDto: UpdateUserProfileDto,
@@ -318,5 +332,8 @@ export class UserService {
       },
     });
   }
+
+
+  
 
 }

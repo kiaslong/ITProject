@@ -20,25 +20,25 @@ export class CloudinaryService {
   }
 
   async uploadAvatar(file: Express.Multer.File): Promise<string> {
-    return this.uploadImageToCloudinary(file, 'profileAvatar', { width: 200, crop: 'scale' });
+    return this.uploadImageToCloudinary(file, 'profileAvatar', { width: 200, crop: 'scale',quality:'auto:best',fetch_format:'auto'});
   }
 
   async uploadCarImage(file: Express.Multer.File, folder: string): Promise<string> {
-    return this.uploadImageToCloudinary(file, folder, { width: 350, crop: 'scale' });
+    return this.uploadImageToCloudinary(file, folder, { width: 350, crop: 'scale',quality:'auto:best',fetch_format:'auto' });
   }
   
   async uploadPromotionImage(file: Express.Multer.File): Promise<string> {
-    return this.uploadImageToCloudinary(file, 'promotionImages', { width: 350, crop: 'scale' });
+    return this.uploadImageToCloudinary(file, 'promotionImages', { width: 350, crop: 'scale',quality:'auto:best',fetch_format:'auto' });
   }
 
   async uploadDrivingLicense(file: Express.Multer.File): Promise<string> {
-    return this.uploadImageToCloudinary(file, 'drivingLicenses', { width: 500, crop: 'scale' });
+    return this.uploadImageToCloudinary(file, 'drivingLicenses', { width: 500, crop: 'scale',quality:'auto:best',fetch_format:'auto'});
   }
 
   private async uploadImageToCloudinary(
     file: Express.Multer.File,
     folder: string,
-    transformation?: { width: number; crop: string }
+    transformation?: { width: number; crop: string ,quality:string,fetch_format:string}
   ): Promise<string> {
     if (!file?.buffer) {
       throw new Error('Invalid file provided for upload');

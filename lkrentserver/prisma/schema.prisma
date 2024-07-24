@@ -72,6 +72,7 @@ model Car {
   licensePlate        String
   isCarVerified       Boolean   @default(false)
   allowApplyPromo     Boolean   @default(false)
+  requireCollateral   Boolean   @default(false)
   carImages           String[]  // List of 4 car images
   carPapers           String[]  // List of car paper images
   thumbImage          String    // Thumbnail image of the car

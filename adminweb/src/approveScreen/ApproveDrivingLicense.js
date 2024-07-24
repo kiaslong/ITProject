@@ -1,8 +1,7 @@
-import React, { useState, useEffect } from 'react';
-import { Card, Button, ListGroup, ListGroupItem, Image, Container, Row, Col, Modal, FormControl, InputGroup } from 'react-bootstrap';
-import { toast, ToastContainer } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
+import React, { useState, useEffect, useCallback } from 'react';
+import { Card, Button, ListGroup, ListGroupItem, Image, Container, Row, Col, Modal, FormControl, InputGroup, Spinner } from 'react-bootstrap';
 import api from '../api';
+import Notification from '../components/Notification'; // Import the Notification component
 
 const ApproveDrivingLicense = () => {
   const [profiles, setProfiles] = useState([]);
@@ -13,14 +12,17 @@ const ApproveDrivingLicense = () => {
   const [loading, setLoading] = useState(true);
   const [expandedProfile, setExpandedProfile] = useState(null);
   const [previewImageUrl, setPreviewImageUrl] = useState('');
+  const [notifications, setNotifications] = useState([]); // State to manage notifications
 
-  useEffect(() => {
-    fetchUnverifiedProfiles();
+  const addNotification = useCallback((variant, message) => {
+    const id = new Date().getTime();
+    setNotifications(prevNotifications => [...prevNotifications, { id, variant, message }]);
   }, []);
 
-  const fetchUnverifiedProfiles = async () => {
+  const fetchUnverifiedProfiles = useCallback(async () => {
     try {
-      const token = localStorage.getItem('access_token'); // Adjust as per your token storage mechanism
+      setLoading(true);
+      const token = localStorage.getItem('access_token');
       const response = await api.get('/auth/unverified-driving-licenses', {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -29,21 +31,29 @@ const ApproveDrivingLicense = () => {
       setProfiles(response.data);
     } catch (error) {
       console.error('Error fetching unverified profiles:', error);
-      toast.error('Error fetching unverified profiles');
+      addNotification('danger', 'Error fetching unverified profiles. Please try again.');
     } finally {
       setLoading(false);
     }
-  };
+  }, [addNotification]);
 
-  const handleAccept = (id) => {
+  useEffect(() => {
+    fetchUnverifiedProfiles();
+  }, [fetchUnverifiedProfiles]);
+
+  const handleAccept = async (id) => {
     const profile = profiles.find((profile) => profile.id === id);
     if (profile) {
       if (profile.drivingLicenseExpireDate && validateDate(profile.drivingLicenseExpireDate)) {
-        setProfiles(profiles.filter((profile) => profile.id !== id));
-        updateDrivingLicenseDetails(profile.id, { drivingLicenseVerified: true, drivingLicenseExpireDate: profile.drivingLicenseExpireDate });
-        toast.success('Profile accepted successfully!');
+        try {
+          await updateDrivingLicenseDetails(profile.id, { drivingLicenseVerified: true, drivingLicenseExpireDate: profile.drivingLicenseExpireDate });
+          setProfiles(profiles.filter((p) => p.id !== id));
+          addNotification('success', 'Profile accepted successfully!');
+        } catch (error) {
+          addNotification('danger', 'Failed to accept profile. Please try again.');
+        }
       } else {
-        toast.error('Invalid or missing expiration date. Please enter a valid date in dd/mm/yyyy format.');
+        addNotification('danger', 'Invalid or missing expiration date. Please enter a valid date in dd/mm/yyyy format.');
       }
     }
   };
@@ -53,11 +63,18 @@ const ApproveDrivingLicense = () => {
     setShowDeleteModal(true);
   };
 
-  const confirmDelete = () => {
-    setProfiles(profiles.filter((profile) => profile.id !== profileToDelete));
-    setShowDeleteModal(false);
-    setProfileToDelete(null);
-    toast.error('Profile deleted successfully.');
+  const confirmDelete = async () => {
+    try {
+      await api.delete(`/auth/${profileToDelete}/delete-profile`);
+      setProfiles(profiles.filter((profile) => profile.id !== profileToDelete));
+      addNotification('success', 'Profile deleted successfully.');
+    } catch (error) {
+      console.error('Error deleting profile:', error);
+      addNotification('danger', 'Failed to delete profile. Please try again.');
+    } finally {
+      setShowDeleteModal(false);
+      setProfileToDelete(null);
+    }
   };
 
   const handleExpand = (id) => {
@@ -71,49 +88,42 @@ const ApproveDrivingLicense = () => {
 
   const handleExpireDateChange = (e, id) => {
     const date = e.target.value;
-    const updatedProfiles = profiles.map((profile) => {
-      if (profile.id === id) {
-        return { ...profile, drivingLicenseExpireDate: date };
-      }
-      return profile;
-    });
-    setProfiles(updatedProfiles);
+    setProfiles(profiles.map((profile) =>
+      profile.id === id ? { ...profile, drivingLicenseExpireDate: date } : profile
+    ));
   };
 
-  const handleExpireDateBlur = (e, id) => {
+  const handleExpireDateBlur = async (e, id) => {
     const date = e.target.value;
     if (date.trim() === '') {
-      alert('Expiration date cannot be empty.');
+      addNotification('danger', 'Expiration date cannot be empty.');
       return;
     }
     if (!validateDate(date)) {
-      alert('Invalid date format. Please use dd/mm/yyyy.');
+      addNotification('danger', 'Invalid date format. Please use dd/mm/yyyy.');
       return;
     }
-    updateDrivingLicenseDetails(id, { drivingLicenseExpireDate: date });
+    try {
+      await updateDrivingLicenseDetails(id, { drivingLicenseExpireDate: date });
+      addNotification('success', 'Expiration date updated successfully!');
+    } catch (error) {
+      addNotification('danger', 'Failed to update expiration date. Please try again.');
+    }
   };
 
   const updateDrivingLicenseDetails = async (id, details) => {
-    try {
-      const token = localStorage.getItem('access_token');
-      const response = await api.put(`/auth/${id}/update-driving-license-details`, details, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+    const token = localStorage.getItem('access_token');
+    const response = await api.put(`/auth/${id}/update-driving-license-details`, details, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
 
-      console.log('Response:', response); // Log the entire response
-
-      if (response.status === 200) {
-        toast.success('Driving license details updated successfully!');
-      } else {
-        console.error('Unexpected response status:', response.status);
-        toast.error('Unexpected response from server.');
-      }
-    } catch (error) {
-      console.error('Error updating driving license details:', error.response || error);
-      toast.error(`Failed to update driving license details: ${error.message}`);
+    if (response.status !== 200) {
+      throw new Error('Failed to update driving license details');
     }
+
+    return response.data;
   };
 
   const validateDate = (date) => {
@@ -129,13 +139,20 @@ const ApproveDrivingLicense = () => {
 
   return (
     <Container className="mt-4">
-      <ToastContainer />
+      <div>
+        {notifications.map(notification => (
+          <Notification
+            key={notification.id}
+            variant={notification.variant}
+            message={notification.message}
+            onClose={() => setNotifications(notifications.filter(n => n.id !== notification.id))}
+          />
+        ))}
+      </div>
       {loading ? (
         <Row>
           <Col className="text-center">
-            <div className="spinner-border text-primary" role="status">
-              <span className="sr-only">Loading...</span>
-            </div>
+            <Spinner animation="border" variant="primary" />
           </Col>
         </Row>
       ) : (
@@ -150,6 +167,9 @@ const ApproveDrivingLicense = () => {
                   onChange={(e) => setSearchQuery(e.target.value)}
                 />
               </InputGroup>
+            </Col>
+            <Col xs="auto">
+              <Button variant="primary" onClick={fetchUnverifiedProfiles}>Tải lại</Button>
             </Col>
           </Row>
           <Row>
