@@ -1,23 +1,45 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import {
-  View, Text, TouchableOpacity, StyleSheet, Dimensions, Modal, TouchableWithoutFeedback, Animated, Easing, TextInput,
+  View, Text, TouchableOpacity, StyleSheet, Dimensions, Modal, TouchableWithoutFeedback, Animated, Easing, TextInput, Alert
 } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
-import { useSelector } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
+import { setSelectedPromo } from '../../store/priceSlice'; // Adjust import path accordingly
 
 const { height } = Dimensions.get('window');
 
 const PricingTable = ({ carInfo }) => {
   const promotions = useSelector((state) => state.promotions.promotions);
-  const [checked, setChecked] = useState(null);
+  const selectedPromo = useSelector((state) => state.price.selectedPromo);
+  const dispatch = useDispatch();
+  const [checked, setChecked] = useState(selectedPromo);
   const [promoCode, setPromoCode] = useState('');
   const [detailModalVisible, setDetailModalVisible] = useState(false);
   const [depositModalVisible, setDepositModalVisible] = useState(false);
   const [paymentModalVisible, setPaymentModalVisible] = useState(false);
-  const [additionalPromotions, setAdditionalPromotions] = useState([]);
+  const [allPromotions, setAllPromotions] = useState([]);
   const detailModalSlideAnim = useRef(new Animated.Value(height)).current;
   const depositModalSlideAnim = useRef(new Animated.Value(height)).current;
   const paymentModalSlideAnim = useRef(new Animated.Value(height)).current;
+
+  useEffect(() => {
+    const applicablePromotions = promotions.filter(promo =>
+      (promo.makeApply || promo.modelApply) &&
+      (!promo.makeApply || promo.makeApply === carInfo.make) &&
+      (!promo.modelApply || promo.modelApply === carInfo.model) &&
+      new Date(promo.expireDate) >= new Date()
+    );
+
+    setAllPromotions(applicablePromotions);
+
+    if (selectedPromo) {
+      const selectedPromotion = promotions.find(promo => promo.promoCode === selectedPromo);
+      if (selectedPromotion && !applicablePromotions.some(promo => promo.promoCode === selectedPromo)) {
+        setAllPromotions(prevPromotions => [...prevPromotions, selectedPromotion]);
+      }
+      setChecked(selectedPromo);
+    }
+  }, [selectedPromo, promotions, carInfo]);
 
   const animateModal = (modalAnim, toValue, duration, callback) => {
     Animated.timing(modalAnim, {
@@ -34,6 +56,9 @@ const PricingTable = ({ carInfo }) => {
   };
 
   const closeDetailModal = () => {
+    if (checked) {
+      dispatch(setSelectedPromo(checked));
+    }
     animateModal(detailModalSlideAnim, height, 200, () => {
       setDetailModalVisible(false);
     });
@@ -96,23 +121,45 @@ const PricingTable = ({ carInfo }) => {
     return price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
   };
 
+  const handlePromoSelection = (promoCode) => {
+    setChecked(promoCode);
+    dispatch(setSelectedPromo(promoCode));
+  };
+
   const applyPromoCode = () => {
     const selectedPromotion = promotions.find(promo =>
       promo.promoCode === promoCode && new Date(promo.expireDate) >= new Date()
     );
     if (selectedPromotion) {
-      setChecked(selectedPromotion.promoCode);
-      setAdditionalPromotions([selectedPromotion]);
+      if (!allPromotions.some(promo => promo.promoCode === selectedPromotion.promoCode)) {
+        setAllPromotions(prevPromotions => [...prevPromotions, selectedPromotion]);
+        handlePromoSelection(selectedPromotion.promoCode);
+        Alert.alert(
+          "Thành công",
+          `Mã khuyến mãi "${selectedPromotion.promoCode}" đã được áp dụng thành công.`,
+          [{ text: "OK" }]
+        );
+      } else {
+        Alert.alert(
+          "Thông báo",
+          "Mã khuyến mãi này đã được áp dụng trước đó.",
+          [{ text: "OK" }]
+        );
+      }
     } else {
-      setChecked(null);
-      setAdditionalPromotions([]);
+      Alert.alert(
+        "Lỗi",
+        "Mã khuyến mãi không hợp lệ hoặc đã hết hạn. Vui lòng kiểm tra lại.",
+        [{ text: "OK" }]
+      );
     }
+    setPromoCode('');
   };
 
   const calculateTotalPrice = () => {
     let totalPrice = carInfo.price * 1000; // Convert to VND
     if (checked) {
-      const selectedPromotion = [...applicablePromotions, ...additionalPromotions].find(promo => promo.promoCode === checked);
+      const selectedPromotion = allPromotions.find(promo => promo.promoCode === checked);
       if (selectedPromotion) {
         const discount = selectedPromotion.discount.includes('%')
           ? Math.round((parseFloat(selectedPromotion.discount) / 100) * totalPrice) // Percentage discount
@@ -185,14 +232,6 @@ const PricingTable = ({ carInfo }) => {
     </>
   );
 
-  // Filter promotions to only show applicable and non-expired ones
-  const applicablePromotions = promotions.filter(promo =>
-    (promo.makeApply || promo.modelApply) &&
-    (!promo.makeApply || promo.makeApply === carInfo.make) &&
-    (!promo.modelApply || promo.modelApply === carInfo.model) &&
-    new Date(promo.expireDate) >= new Date()
-  );
-
   return (
     <View style={styles.container}>
       <Text style={styles.header}>Bảng tính giá</Text>
@@ -208,11 +247,11 @@ const PricingTable = ({ carInfo }) => {
         </View>
         <View style={styles.section}>
           <Text style={styles.sectionHeader}>Khuyến mãi</Text>
-          {[...applicablePromotions, ...additionalPromotions].map(promo => (
+          {allPromotions.map(promo => (
             <View key={promo.promoCode} style={styles.row}>
               <TouchableOpacity
                 style={styles.radioButton}
-                onPress={() => setChecked(promo.promoCode)}
+                onPress={() => handlePromoSelection(promo.promoCode)}
               >
                 <View style={checked === promo.promoCode ? styles.radioButtonChecked : styles.radioButtonUnchecked} />
               </TouchableOpacity>

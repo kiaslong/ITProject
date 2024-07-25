@@ -108,8 +108,9 @@ model Order {
   startRentDate DateTime
   endRentDate  DateTime
   paymentState PaymentState @default(PENDING) // Enum for payment state
-  orderState   OrderState   @default(PENDING) // Enum for order state
-  totalPrice   Float       // Total price of the order
+  orderState   OrderState   @default(PENDING) 
+  messageFromUser String?
+  totalPrice   String      // Total price of the order
   createdAt    DateTime    @default(now())
   updatedAt    DateTime    @updatedAt
 }

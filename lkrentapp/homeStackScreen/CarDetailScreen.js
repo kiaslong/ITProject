@@ -10,12 +10,13 @@ import {
   Alert,
   Modal,
   TextInput,
+  Easing,
   TouchableWithoutFeedback
 } from "react-native";
 import Ionicons from "react-native-vector-icons/Ionicons";
 import MaterialCommunityIcons from "react-native-vector-icons/MaterialCommunityIcons";
 import MaterialIcons from "react-native-vector-icons/MaterialIcons";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import moment from "moment";
 import LocationComponent from "./CarDetailComponent/LocationComponent";
 import UserProfile from "./CarDetailComponent/UserProfileDetail";
@@ -27,6 +28,7 @@ import ImageView from "./CarDetailComponent/ImageView";
 import AdditionalFees from "./CarDetailComponent/AdditionalFees";
 import CancellationPolicy from "./CarDetailComponent/CancellationPolicy";
 import Icon from 'react-native-vector-icons/Ionicons';
+import { setSelectedPromo } from '../store/priceSlice'; // Adjust import path accordingly
 
 const { width, height } = Dimensions.get("window");
 
@@ -55,8 +57,6 @@ const CarDetails = ({ carInfo, navigation }) => {
 
   const [pickupMethod, setPickupMethod] = useState("self");
   const time = useSelector((state) => state.time.time);
-  
-
 
   const currentYear = moment().year();
   const [start, end] = useMemo(
@@ -67,20 +67,16 @@ const CarDetails = ({ carInfo, navigation }) => {
     [time]
   );
 
-
   const trimLocation = (location) => {
     const parts = location.split(',');
     if (parts.length > 2) {
       let part2 = parts[2].trim();
       let part3 = parts[3].trim();
       
-      
-      
-      return [part2,part3].join(', ').trim();
+      return [part2, part3].join(', ').trim();
     }
     return location.trim();
   };
-
 
   return (
     <View style={styles.details}>
@@ -287,14 +283,20 @@ export const DocumentComponent = () => {
   );
 };
 
+
+
 const ConfirmRental = ({ carInfo, navigation }) => {
   const time = useSelector((state) => state.time.time);
   const user = useSelector((state) => state.loggedIn.user);
   const promotions = useSelector((state) => state.promotions.promotions);
-  const [discountModalVisible, setDiscountModalVisible] = useState(false);
-  const [checked, setChecked] = useState(null);
+  const selectedPromo = useSelector((state) => state.price.selectedPromo);
+  const dispatch = useDispatch();
+  const [checked, setChecked] = useState(selectedPromo);
   const [promoCode, setPromoCode] = useState('');
-  const [additionalPromotions, setAdditionalPromotions] = useState([]);
+  const [discountModalVisible, setDiscountModalVisible] = useState(false);
+  const [allPromotions, setAllPromotions] = useState([]);
+  const discountModalSlideAnim = useRef(new Animated.Value(height)).current;
+
 
   const handleConfirmPress = () => {
     if (user.drivingLicenseVerified) {
@@ -313,17 +315,81 @@ const ConfirmRental = ({ carInfo, navigation }) => {
     }
   };
 
+  useEffect(() => {
+    const applicablePromotions = promotions.filter(promo =>
+      (promo.makeApply || promo.modelApply) &&
+      (!promo.makeApply || promo.makeApply === carInfo.make) &&
+      (!promo.modelApply || promo.modelApply === carInfo.model) &&
+      new Date(promo.expireDate) >= new Date()
+    );
+
+    setAllPromotions(applicablePromotions);
+
+    if (selectedPromo) {
+      const selectedPromotion = promotions.find(promo => promo.promoCode === selectedPromo);
+      if (selectedPromotion && !applicablePromotions.some(promo => promo.promoCode === selectedPromo)) {
+        setAllPromotions(prevPromotions => [...prevPromotions, selectedPromotion]);
+      }
+      setChecked(selectedPromo);
+    }
+  }, [selectedPromo, promotions, carInfo]);
+
+  const animateModal = (modalAnim, toValue, duration, callback) => {
+    Animated.timing(modalAnim, {
+      toValue,
+      duration,
+      easing: Easing.inOut(Easing.ease),
+      useNativeDriver: true,
+    }).start(callback);
+  };
+
+  const openDiscountModal = () => {
+    setDiscountModalVisible(true);
+    animateModal(discountModalSlideAnim, 0, 200);
+  };
+
+  const closeDiscountModal = () => {
+    if (checked) {
+      dispatch(setSelectedPromo(checked));
+    }
+    animateModal(discountModalSlideAnim, height, 200, () => {
+      setDiscountModalVisible(false);
+    });
+  };
+
+  const handlePromoSelection = (promoCode) => {
+    setChecked(promoCode);
+    dispatch(setSelectedPromo(promoCode));
+  };
+
   const applyPromoCode = () => {
     const selectedPromotion = promotions.find(promo =>
       promo.promoCode === promoCode && new Date(promo.expireDate) >= new Date()
     );
     if (selectedPromotion) {
-      setChecked(selectedPromotion.promoCode);
-      setAdditionalPromotions([selectedPromotion]);
+      if (!allPromotions.some(promo => promo.promoCode === selectedPromotion.promoCode)) {
+        setAllPromotions(prevPromotions => [...prevPromotions, selectedPromotion]);
+        handlePromoSelection(selectedPromotion.promoCode);
+        Alert.alert(
+          "Thành công",
+          `Mã khuyến mãi "${selectedPromotion.promoCode}" đã được áp dụng thành công.`,
+          [{ text: "OK" }]
+        );
+      } else {
+        Alert.alert(
+          "Thông báo",
+          "Mã khuyến mãi này đã được áp dụng trước đó.",
+          [{ text: "OK" }]
+        );
+      }
     } else {
-      setChecked(null);
-      setAdditionalPromotions([]);
+      Alert.alert(
+        "Lỗi",
+        "Mã khuyến mãi không hợp lệ hoặc đã hết hạn. Vui lòng kiểm tra lại.",
+        [{ text: "OK" }]
+      );
     }
+    setPromoCode('');
   };
 
   const formatPrice = (price) => {
@@ -331,43 +397,27 @@ const ConfirmRental = ({ carInfo, navigation }) => {
   };
 
   const calculateTotalPrice = () => {
-    let totalPrice = carInfo.price ; // Convert to VND
+    let totalPrice = carInfo.price * 1000; // Convert to VND
     if (checked) {
-      const selectedPromotion = [...applicablePromotions, ...additionalPromotions].find(promo => promo.promoCode === checked);
+      const selectedPromotion = allPromotions.find(promo => promo.promoCode === checked);
       if (selectedPromotion) {
         const discount = selectedPromotion.discount.includes('%')
           ? Math.round((parseFloat(selectedPromotion.discount) / 100) * totalPrice) // Percentage discount
-          : parseInt(selectedPromotion.discount) ; // Fixed discount in thousands
+          : parseInt(selectedPromotion.discount) * 1000; // Fixed discount in thousands
         totalPrice -= discount;
       }
     }
     return totalPrice;
   };
 
-  // Filter promotions to only show applicable and non-expired ones
-  const applicablePromotions = promotions.filter(promo =>
-    (promo.makeApply || promo.modelApply) &&
-    (!promo.makeApply || promo.makeApply === carInfo.make) &&
-    (!promo.modelApply || promo.modelApply === carInfo.model) &&
-    new Date(promo.expireDate) >= new Date()
-  );
-
-  const openDiscountModal = () => {
-    setDiscountModalVisible(true);
-  };
-
-  const closeDiscountModal = () => {
-    setDiscountModalVisible(false);
-  };
-
   const discountModalContent = (
     <>
       <Text style={styles.sectionHeader}>Khuyến mãi</Text>
-      {[...applicablePromotions, ...additionalPromotions].map(promo => (
+      {allPromotions.map(promo => (
         <View key={promo.promoCode} style={styles.row}>
           <TouchableOpacity
             style={styles.radioButton}
-            onPress={() => setChecked(promo.promoCode)}
+            onPress={() => handlePromoSelection(promo.promoCode)}
           >
             <View style={checked === promo.promoCode ? styles.radioButtonChecked : styles.radioButtonUnchecked} />
           </TouchableOpacity>
@@ -403,13 +453,44 @@ const ConfirmRental = ({ carInfo, navigation }) => {
     </>
   );
 
+  const renderModal = (visible, content, closeModal, modalAnim) => (
+    <Modal
+      transparent={true}
+      visible={visible}
+      onRequestClose={closeModal}
+      animationType="none"
+    >
+      <TouchableWithoutFeedback onPress={closeModal}>
+        <View style={styles.modalOverlay}>
+          <TouchableWithoutFeedback>
+            <Animated.View
+              style={[
+                styles.modalContent,
+                { transform: [{ translateY: modalAnim }] },
+              ]}
+            >
+              <TouchableOpacity
+                style={[styles.button, styles.buttonClose]}
+                onPress={closeModal}
+              >
+                <Text style={styles.textStyle}>X</Text>
+              </TouchableOpacity>
+              {content}
+              <View style={styles.paddingBottom}></View>
+            </Animated.View>
+          </TouchableWithoutFeedback>
+        </View>
+      </TouchableWithoutFeedback>
+    </Modal>
+  );
+
   return (
     <View style={styles.bookContainer}>
       <View style={styles.priceInfo}>
-        <Text style={styles.newPrice}>{carInfo.price}K₫/ngày</Text>
+        <Text style={styles.newPrice}>{formatPrice(carInfo.price * 1000)}₫/ngày</Text>
         <View style={styles.priceRow}>
           <Text style={styles.totalPrice}>
-            Giá tổng: {formatPrice(calculateTotalPrice())}K₫/ngày
+            Giá tổng: {formatPrice(calculateTotalPrice())}₫/ngày
           </Text>
           <TouchableOpacity style={styles.iconDiscount} onPress={openDiscountModal}>
             <Icon name="pricetag-outline" size={24} color="#ffa500" />
@@ -423,32 +504,10 @@ const ConfirmRental = ({ carInfo, navigation }) => {
         <Text style={styles.bookButtonText}>Chọn thuê</Text>
       </TouchableOpacity>
 
-      <Modal
-        transparent={true}
-        visible={discountModalVisible}
-        onRequestClose={closeDiscountModal}
-        animationType="none"
-      >
-        <TouchableWithoutFeedback onPress={closeDiscountModal}>
-          <View style={styles.modalOverlay}>
-            <TouchableWithoutFeedback>
-              <View style={styles.modalContent}>
-                <TouchableOpacity
-                  style={[styles.button, styles.buttonClose]}
-                  onPress={closeDiscountModal}
-                >
-                  <Text style={styles.textStyle}>X</Text>
-                </TouchableOpacity>
-                {discountModalContent}
-              </View>
-            </TouchableWithoutFeedback>
-          </View>
-        </TouchableWithoutFeedback>
-      </Modal>
+      {renderModal(discountModalVisible, discountModalContent, closeDiscountModal, discountModalSlideAnim)}
     </View>
   );
 };
-
 
 const CarDetailScreen = ({ route, navigation }) => {
   const { carInfo } = route.params;
@@ -847,7 +906,7 @@ const styles = StyleSheet.create({
   totalPrice: {
     color: "#03A9F4",
     fontSize: width * 0.04,
-    marginBottom: 16,
+    marginBottom: 24,
   },
   bookContainer: {
     position: "absolute",
@@ -867,6 +926,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#03A9F4",
     padding: 16,
     borderRadius: 8,
+    marginBottom:10,
     alignItems: "center",
   },
   bookButtonText: {
@@ -1132,7 +1192,7 @@ const styles = StyleSheet.create({
   },
   iconDiscount:{
     marginLeft:8,
-    marginBottom:12,
+    marginBottom:20,
   }
 });
 

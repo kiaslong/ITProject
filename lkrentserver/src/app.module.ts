@@ -13,6 +13,7 @@ import { PromotionModule } from './promotion/promotion.module';
 import { CountdownService } from './countdown/countdown.service';
 import { ScheduleModule } from '@nestjs/schedule';
 import { PromotionService } from './promotion/promotion.service';
+import { OrderModule } from './order/order.module';
 
 @Module({
   imports: [
@@ -26,6 +27,7 @@ import { PromotionService } from './promotion/promotion.service';
     AuthModule,
     AdminModule,
     PromotionModule,
+    OrderModule,
   ],
   providers: [PrismaService, CountdownService, PromotionService ],
 })

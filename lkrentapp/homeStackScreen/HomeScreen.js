@@ -100,7 +100,7 @@ function FlatListForPromotion({ setCurrentIndex }) {
   const validPromotions = promotions.filter(promotion => {
     const now = moment();
     const expirationDate = moment(promotion.expireDate);
-    return expirationDate.isAfter(now) && promotion.promotionImageUrl;
+    return expirationDate.isAfter(now) && promotion.promotionImageUrl && promotion.makeApply && promotion.modelApply;
   });
 
   const onScroll = useRef((event) => {
@@ -167,7 +167,7 @@ function DotIndex({ currentIndex }) {
   const validPromotions = promotions.filter(promotion => {
     const now = moment();
     const expirationDate = moment(promotion.expireDate);
-    return expirationDate.isAfter(now) && promotion.promotionImageUrl;
+    return expirationDate.isAfter(now) && promotion.promotionImageUrl && promotion.makeApply && promotion.modelApply;
   });
   return (
     <View style={styles.dotsContainer}>
