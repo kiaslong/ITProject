@@ -7,6 +7,7 @@ import { AuthModule } from '../auth/auth.module';
 import { CloudinaryModule } from '../cloudinary/cloudinary.module';
 import { MulterModule } from '@nestjs/platform-express';
 import multer from 'multer';
+import { CountdownService } from '../countdown/countdown.service';
 
 @Module({
   imports:[ ConfigModule.forRoot(),

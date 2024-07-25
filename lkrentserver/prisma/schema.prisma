@@ -33,6 +33,10 @@ model User {
   createdAt                 DateTime  @default(now())
   updatedAt                 DateTime  @updatedAt
   drivingLicenseUrl         String?   // URL of the driving license, default is null
+  drivingLicenseFullName    String?
+  drivingLicenseDOB         String?
+  drivingLicenseExpireDate  String?
+  drivingLicenseNumber      String?
   numberOfSuccessRentals    Int       @default(0) // Number of successful rentals, default is 0
   rewardPoints              Int       @default(0) // Reward points, default is 0
   drivingLicenseVerified    Boolean   @default(false) // Driving license verified status
@@ -68,6 +72,7 @@ model Car {
   licensePlate        String
   isCarVerified       Boolean   @default(false)
   allowApplyPromo     Boolean   @default(false)
+  requireCollateral   Boolean   @default(false)
   carImages           String[]  // List of 4 car images
   carPapers           String[]  // List of car paper images
   thumbImage          String    // Thumbnail image of the car
@@ -103,8 +108,9 @@ model Order {
   startRentDate DateTime
   endRentDate  DateTime
   paymentState PaymentState @default(PENDING) // Enum for payment state
-  orderState   OrderState   @default(PENDING) // Enum for order state
-  totalPrice   Float       // Total price of the order
+  orderState   OrderState   @default(PENDING) 
+  messageFromUser String?
+  totalPrice   String      // Total price of the order
   createdAt    DateTime    @default(now())
   updatedAt    DateTime    @updatedAt
 }

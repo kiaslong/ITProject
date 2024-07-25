@@ -1,9 +1,11 @@
 import React, { useState } from "react";
 import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
 import Icon from "react-native-vector-icons/Ionicons";
+import { useSelector } from "react-redux";
 
 const FooterComponent = ({ carInfo, navigation, time }) => {
   const [isChecked, setIsChecked] = useState(true);
+  const user = useSelector((state) => state.loggedIn.user);
 
   const handleSendPress = () => {
     navigation.navigate("ConfirmationScreen", {

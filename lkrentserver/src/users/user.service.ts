@@ -12,6 +12,7 @@ import * as crypto from 'crypto';
 import { VerifyPhoneNumberDto } from './dto/verify-phone-number.dto';
 import { Prisma } from '@prisma/client';
 import { ChangePasswordDto } from './dto/change-password.dto';
+import { UpdateDrivingLicenseDetailsDto, UpdateDrivingLicenseDto } from './dto/update-driving-license.dto';
 
 @Injectable()
 export class UserService {
@@ -50,6 +51,20 @@ export class UserService {
   async getUserInfo(userId: number) {
     return this.prisma.user.findUnique({
       where: { id: userId },
+    });
+  }
+
+
+  async getUsersWithUnverifiedPhones() {
+    return this.prisma.user.findMany({
+      where: {
+        phoneNumberVerified: false,
+      },
+      select: {
+        id: true,
+        fullName: true,
+        phoneNumber: true,
+      },
     });
   }
 
@@ -217,5 +232,108 @@ export class UserService {
 
     return { message: 'Password changed successfully' };
   }
+
+
+
+  async getDrivingLicensesByUserId(userId: number) {
+    const user = await this.prisma.user.findUnique({
+      where: { id: userId },
+      select: {
+        drivingLicenseUrl: true,
+        drivingLicenseFullName: true,
+        drivingLicenseDOB: true,
+        drivingLicenseNumber: true,
+        drivingLicenseExpireDate:true,
+        drivingLicenseVerified: true,
+      },
+    });
+
+    if (!user) {
+      throw new NotFoundException(`User with ID ${userId} not found`);
+    }
+
+    return user;
+  }
+
+  async getUnverifiedDrivingLicenses() {
+    const unverifiedLicenses = await this.prisma.user.findMany({
+      where: { drivingLicenseVerified: false },
+      select: {
+        id: true,
+        drivingLicenseUrl: true,
+        drivingLicenseFullName: true,
+        drivingLicenseDOB: true,
+        drivingLicenseNumber: true,
+      },
+    });
+
+    return unverifiedLicenses;
+  }
+
+
+  async uploadDrivingLicense(
+    userId: number,
+    file: Express.Multer.File,
+    updateDrivingLicenseDto: UpdateDrivingLicenseDto
+  ) {
+    if (!file) {
+      throw new HttpException('File not provided', HttpStatus.BAD_REQUEST);
+    }
+
+    const user = await this.prisma.user.findUnique({ where: { id: userId } });
+
+    if (!user) {
+      throw new NotFoundException(`User with ID ${userId} not found`);
+    }
+
+    // Check if a driving license URL already exists
+    if (user.drivingLicenseUrl) {
+      // Delete the existing driving license image
+      await this.cloudinaryService.deleteDrivingLicenseImage(user.drivingLicenseUrl);
+    }
+
+    // Upload the new driving license image
+    const licenseUrl = await this.cloudinaryService.uploadDrivingLicense(file);
+
+    const { drivingLicenseFullName, drivingLicenseDOB, drivingLicenseNumber } = updateDrivingLicenseDto;
+
+    // Update user with new driving license information
+    await this.prisma.user.update({
+      where: { id: userId },
+      data: {
+        drivingLicenseUrl: licenseUrl,
+        drivingLicenseFullName,
+        drivingLicenseDOB,
+        drivingLicenseNumber,
+      },
+    });
+
+    return { message: 'Driving license uploaded successfully', licenseUrl };
+  }
+  
+
+  async updateDrivingLicenseDetails(
+    userId: number,
+    updateDrivingLicenseDetailsDto: UpdateDrivingLicenseDetailsDto
+  ) {
+    const { drivingLicenseExpireDate, drivingLicenseVerified } = updateDrivingLicenseDetailsDto;
+
+    const user = await this.prisma.user.findUnique({ where: { id: userId } });
+
+    if (!user) {
+      throw new NotFoundException(`User with ID ${userId} not found`);
+    }
+
+    return await this.prisma.user.update({
+      where: { id: userId },
+      data: {
+        drivingLicenseExpireDate:drivingLicenseExpireDate,
+        drivingLicenseVerified,
+      },
+    });
+  }
+
+
+  
 
 }

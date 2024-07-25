@@ -32,6 +32,9 @@ export class UserInfoDto {
   drivingLicenseUrl?: string;
 
   @ApiProperty()
+  drivingLicenseNumber?:string
+
+  @ApiProperty()
   numberOfSuccessRentals: number;
 
   @ApiProperty()

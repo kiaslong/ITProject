@@ -15,15 +15,12 @@ const UserRegisterCarScreen = () => {
 
   useEffect(() => {
     if (user) {
-   
       dispatch(fetchOwnerCars(user.id));
     }
   }, [user, dispatch]);
 
   useEffect(() => {
-   
   }, [ownerCars]);
-
 
   useEffect(() => {
     const key = 'resetRegistration';
@@ -86,17 +83,30 @@ const UserRegisterCarScreen = () => {
     </View>
   );
 
-  return (
-    <View style={styles.container}>
+  const renderContent = () => {
+    if (ownerCars.length === 0) {
+      return (
+        <View style={styles.emptyContainer}>
+          <Text style={styles.emptyText}>Bạn chưa có xe nào được đăng ký</Text>
+          <Text style={styles.emptySubText}>Hãy đăng ký xe mới ngay bây giờ!</Text>
+        </View>
+      );
+    }
+
+    return (
       <FlatList
         data={ownerCars}
         showsVerticalScrollIndicator={false}
         renderItem={renderItem}
         keyExtractor={(item) => item.id}
       />
+    );
+  };
 
-    
-
+  return (
+    <View style={styles.container}>
+      {renderContent()}
+      
       <TouchableOpacity
         style={styles.button}
         onPress={() => {
@@ -147,6 +157,22 @@ const styles = StyleSheet.create({
     color: 'white',
     fontSize: 18,
     fontWeight: 'bold',
+  },
+  emptyContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  emptyText: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    textAlign: 'center',
+    marginBottom: 10,
+  },
+  emptySubText: {
+    fontSize: 16,
+    textAlign: 'center',
+    color: '#666',
   },
 });
 

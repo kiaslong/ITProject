@@ -1,7 +1,7 @@
 import React from 'react';
 import { Container, Row, Col, Nav, Tab, Button } from 'react-bootstrap';
 import './scss/AdminDashboard.scss';
-import ApproveProfiles from './approveScreen/ApproveProfiles';
+import ApproveProfiles from './approveScreen/ApproveDrivingLicense';
 import RentalCars from './approveScreen/RentalCars';
 import RevenueStatistics from './statisticsScreen/RevenueStatistics';
 import AdvertisementImages from './approveScreen/AdvertisementImages';

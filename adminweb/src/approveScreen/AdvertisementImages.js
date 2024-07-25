@@ -1,12 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Card, Button, ListGroup, ListGroupItem, Image, Container, Row, Col, Modal, Form, Spinner } from 'react-bootstrap';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
-import { toast, ToastContainer } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
 import makesAndModels from './json/carBrandsAndModels.json'; // Adjust the path if necessary
 import api from '../api';
 import './scss/AdvertisementImages.scss';
+import Notification from '../components/Notification'; // Import the Notification component
 
 const AdvertisementImages = () => {
   const [promotions, setPromotions] = useState([]);
@@ -26,12 +25,16 @@ const AdvertisementImages = () => {
   const [loading, setLoading] = useState(true);
   const [expandedPromotion, setExpandedPromotion] = useState(null);
   const [imageModal, setImageModal] = useState({ show: false, imageUrl: '' });
-
-  useEffect(() => {
-    fetchPromotions();
+  const [notifications, setNotifications] = useState([]); // 
+  
+  
+  const addNotification = useCallback((variant, message) => {
+    const id = new Date().getTime();
+    setNotifications(prevNotifications => [...prevNotifications, { id, variant, message }]);
   }, []);
 
-  const fetchPromotions = async () => {
+
+  const fetchPromotions = useCallback(async () => {
     const token = localStorage.getItem('access_token');
     try {
       const response = await api.get('/promotion', {
@@ -44,8 +47,13 @@ const AdvertisementImages = () => {
     } catch (error) {
       console.error('Failed to fetch promotions', error);
       setLoading(false);
+      addNotification('danger', 'Failed to fetch promotions. Please try again later.');
     }
-  };
+  }, [addNotification]);
+
+  useEffect(() => {
+    fetchPromotions();
+  }, [fetchPromotions]);
 
   const handleDelete = (id) => {
     setPromotionToDelete(id);
@@ -63,10 +71,10 @@ const AdvertisementImages = () => {
       setPromotions(promotions.filter(promotion => promotion.id !== promotionToDelete));
       setShowModal(false);
       setPromotionToDelete(null);
-      toast.success('Quảng cáo đã được xóa thành công!');
+      addNotification('success', 'Quảng cáo đã được xóa thành công!');
     } catch (error) {
       console.error('Failed to delete promotion', error);
-      toast.error('Không thể xóa quảng cáo!');
+      addNotification('danger', 'Không thể xóa quảng cáo!');
     }
   };
 
@@ -95,12 +103,12 @@ const AdvertisementImages = () => {
 
   const handleAddPromotion = async () => {
     const token = localStorage.getItem('access_token');
-    
+
     // Validate expiration date
     const today = new Date();
     today.setHours(0, 0, 0, 0); // Set to start of day
     if (newPromotion.expireDate <= today) {
-      toast.error('Ngày hết hạn phải lớn hơn ngày hiện tại!');
+      addNotification('danger', 'Ngày hết hạn phải lớn hơn ngày hiện tại!');
       return;
     }
 
@@ -134,10 +142,10 @@ const AdvertisementImages = () => {
       });
       setFile(null);
       setFilePreview(null);
-      toast.success('Quảng cáo đã được thêm thành công!');
+      addNotification('success', 'Quảng cáo đã được thêm thành công!');
     } catch (error) {
       console.error('Failed to add promotion', error);
-      toast.error('Không thể thêm quảng cáo!');
+      addNotification('danger', 'Không thể thêm quảng cáo!');
     } finally {
       setIsAdding(false);
     }
@@ -161,9 +169,28 @@ const AdvertisementImages = () => {
     setImageModal({ show: false, imageUrl: '' });
   };
 
+ 
+  const handleNotificationClose = (id) => {
+    setNotifications(notifications.filter(notification => notification.id !== id));
+  };
+
+  const handleReload = () => {
+    setLoading(true);
+    fetchPromotions();
+  };
+
   return (
     <Container className="mt-4">
-      <ToastContainer />
+      <div>
+        {notifications.map(notification => (
+          <Notification
+            key={notification.id}
+            variant={notification.variant}
+            message={notification.message}
+            onClose={() => handleNotificationClose(notification.id)}
+          />
+        ))}
+      </div>
       {loading && (
         <div className="loading-overlay">
           <Spinner animation="border" variant="primary" />
@@ -172,7 +199,12 @@ const AdvertisementImages = () => {
       <Row>
         <Col>
           <Card className="m-3">
-            <Card.Header className="bg-primary text-white">Quảng cáo hình ảnh</Card.Header>
+            <Card.Header className="bg-primary text-white d-flex justify-content-between align-items-center">
+              <span>Quảng cáo hình ảnh</span>
+              <Button variant="light" onClick={handleReload}>
+                Tải lại
+              </Button>
+            </Card.Header>
             <Card.Body>
               <ListGroup>
                 {promotions.map(promotion => (

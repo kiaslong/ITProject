@@ -34,7 +34,7 @@ const PhoneVerificationScreen = ({ navigation, route }) => {
       });
       if (response.data.success) {
         const { pinId, createdTime } = response.data;
-        Alert.alert('Success', 'OTP sent successfully!', [
+        Alert.alert('Thành công', 'Gửi OTP thành công!', [
           {
             text: 'OK', onPress: () => {
               setTimeout(() => {

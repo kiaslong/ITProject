@@ -2,17 +2,39 @@ import React, { useEffect } from 'react';
 import { View, Text, StyleSheet, Dimensions, TouchableOpacity } from 'react-native';
 import { FontAwesome5 } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
-import { useSelector } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
 import { registerFunction, unregisterFunction } from '../store/functionRegistry';
 import { Image } from 'expo-image';
+import api from '../api';
+import { updateUser } from '../store/loginSlice';
+import { getToken } from '../utils/tokenStorage';
 
 const UserInfoScreen = () => {
-  const placeholderImage = require("../assets/placeholder.png")
+  const placeholderImage = require("../assets/placeholder.png");
   const navigation = useNavigation();
+  const dispatch = useDispatch();
   const user = useSelector(state => state.loggedIn.user);
   const blurhash =
     '|rF?hV%2WCj[ayj[a|j[az_NaeWBj@ayfRayfQfQM{M|azj[azf6fQfQfQIpWXofj[ayj[j[fQayWCoeoeaya}j[ayfQa{oLj?j[WVj[ayayj[fQoff7azayj[ayj[j[ayofayayayj[fQj[ayayj[ayfjj[j[ayjuayj[';
   const imageUri = user?.avatarUrl || placeholderImage;
+
+  useEffect(() => {
+    const fetchUserInfo = async () => {
+      const token = await getToken();
+      try {
+        const userInfoResponse = await api.get("/auth/info", {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        dispatch(updateUser(userInfoResponse.data));
+      } catch (error) {
+        console.error('Failed to fetch user info:', error);
+      }
+    };
+
+    fetchUserInfo();
+  }, [dispatch]);
 
   useEffect(() => {
     const key = 'editUserInfo';
@@ -34,25 +56,42 @@ const UserInfoScreen = () => {
   }, [navigation]);
 
   const handleLicensePress = () => {
-    // Navigate to license verification screen
-    navigation.navigate('DrivingLicenseScreen',{showBackButton:true,showCloseButton:true,showHeader:true,showTitle:true,screenTitle:"Giấy tờ xe"});
+    navigation.navigate('DrivingLicenseScreen', {
+      showBackButton: true,
+      showCloseButton: true,
+      showHeader: true,
+      showTitle: true,
+      screenTitle: "Giấy tờ xe"
+    });
   };
 
   const handlePhonePress = () => {
-    // Navigate to phone number edit screen
-    navigation.navigate('PhoneVerificationScreen',{showBackButton:true,showCloseButton:true,showHeader:true,showTitle:true,screenTitle:"Xác thực SĐT",initPhoneNumber:user?.phoneNumber});
+    navigation.navigate('PhoneVerificationScreen', {
+      showBackButton: true,
+      showCloseButton: true,
+      showHeader: true,
+      showTitle: true,
+      screenTitle: "Xác thực SĐT",
+      initPhoneNumber: user?.phoneNumber
+    });
   };
 
   const handleEmailPress = () => {
-    // Navigate to email verification screen
-    navigation.navigate('EmailVerificationScreen',{showBackButton:true,showCloseButton:true,showHeader:true,showTitle:true,screenTitle:"Xác thực Email",initEmail:user?.email});
+    navigation.navigate('EmailVerificationScreen', {
+      showBackButton: true,
+      showCloseButton: true,
+      showHeader: true,
+      showTitle: true,
+      screenTitle: "Xác thực Email",
+      initEmail: user?.email
+    });
   };
 
   return (
     <View style={styles.safeContainer}>
       <View style={styles.container}>
         <Image
-          source={ imageUri }
+          source={imageUri}
           style={styles.image}
           contentFit='cover'
           cachePolicy="disk"
@@ -75,22 +114,22 @@ const UserInfoScreen = () => {
           <Text style={styles.extraInfoTextLeft}>Giấy phép lái xe</Text>
           <View style={styles.extraInfoBoxContainer}>
             <View style={[
-              styles.extraInfoBox, 
-              styles.extraInfoBoxBackground, 
+              styles.extraInfoBox,
+              styles.extraInfoBoxBackground,
               user?.drivingLicenseVerified ? styles.extraInfoBoxGreen : styles.extraInfoBoxOrange
             ]}>
-              <FontAwesome5 
-                name={user?.drivingLicenseVerified ? "check-circle" : "exclamation-circle"} 
-                size={20} 
-                color={user?.drivingLicenseVerified ? "green" : "orange"} 
-                style={styles.extraInfoIcon} 
+              <FontAwesome5
+                name={user?.drivingLicenseVerified ? "check-circle" : "exclamation-circle"}
+                size={20}
+                color={user?.drivingLicenseVerified ? "green" : "orange"}
+                style={styles.extraInfoIcon}
               />
               <Text style={styles.extraInfoText}>
                 {user?.drivingLicenseVerified ? "Xác thực" : "Chưa xác thực"}
               </Text>
             </View>
           </View>
-          <Text style={styles.extraInfoTextRight}>Xác thực ngay</Text>
+          <Text style={styles.extraInfoTextRight}> {user?.drivingLicenseVerified ? user?.drivingLicenseNumber : "Chưa xác thực"}</Text>
           <FontAwesome5 name="angle-right" color="black" style={styles.angleIcon} />
         </TouchableOpacity>
 
@@ -100,15 +139,15 @@ const UserInfoScreen = () => {
           <Text style={styles.extraInfoTextLeft}>Số điện thoại</Text>
           <View style={styles.extraInfoBoxContainer}>
             <View style={[
-              styles.extraInfoBox, 
-              styles.extraInfoBoxBackground, 
+              styles.extraInfoBox,
+              styles.extraInfoBoxBackground,
               user?.phoneNumberVerified ? styles.extraInfoBoxGreen : styles.extraInfoBoxOrange
             ]}>
-              <FontAwesome5 
-                name={user?.phoneNumberVerified ? "check-circle" : "exclamation-circle"} 
-                size={20} 
-                color={user?.phoneNumberVerified ? "green" : "orange"} 
-                style={styles.extraInfoIcon} 
+              <FontAwesome5
+                name={user?.phoneNumberVerified ? "check-circle" : "exclamation-circle"}
+                size={20}
+                color={user?.phoneNumberVerified ? "green" : "orange"}
+                style={styles.extraInfoIcon}
               />
               <Text style={styles.extraInfoText}>
                 {user?.phoneNumberVerified ? "Xác thực" : "Chưa xác thực"}
@@ -125,15 +164,15 @@ const UserInfoScreen = () => {
           <Text style={styles.extraInfoTextLeft}>Email</Text>
           <View style={styles.extraInfoBoxContainer}>
             <View style={[
-              styles.extraInfoBox, 
-              styles.extraInfoBoxBackground, 
+              styles.extraInfoBox,
+              styles.extraInfoBoxBackground,
               user?.emailVerified ? styles.extraInfoBoxGreen : styles.extraInfoBoxOrange
             ]}>
-              <FontAwesome5 
-                name={user?.emailVerified ? "check-circle" : "exclamation-circle"} 
-                size={20} 
-                color={user?.emailVerified ? "green" : "orange"} 
-                style={styles.extraInfoIcon} 
+              <FontAwesome5
+                name={user?.emailVerified ? "check-circle" : "exclamation-circle"}
+                size={20}
+                color={user?.emailVerified ? "green" : "orange"}
+                style={styles.extraInfoIcon}
               />
               <Text style={styles.extraInfoText}>
                 {user?.emailVerified ? "Xác thực" : "Chưa xác thực"}
@@ -239,7 +278,6 @@ const styles = StyleSheet.create({
     marginRight: deviceWidth * 0.014,
   },
   extraInfoText: {
-    
     fontSize: deviceHeight * 0.0135,
   },
   extraInfoTextLeft: {

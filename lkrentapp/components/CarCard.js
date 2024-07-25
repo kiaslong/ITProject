@@ -1,13 +1,12 @@
 import React, { useState } from 'react';
-import { View, Text,  StyleSheet, TouchableOpacity } from 'react-native';
-import Icon from 'react-native-vector-icons/FontAwesome';
+import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import Icon from 'react-native-vector-icons/FontAwesome6';
+import Icon1 from 'react-native-vector-icons/FontAwesome';
 import { Image } from 'expo-image';
+import moment from 'moment';
 
-const CarCard = ({ carInfo, navigation }) => {
-  
-  
+const CarCard = ({ carInfo, promotions, navigation }) => {
   const [isFavorite, setIsFavorite] = useState(false);
- 
 
   const toggleFavorite = () => {
     setIsFavorite(!isFavorite);
@@ -21,38 +20,58 @@ const CarCard = ({ carInfo, navigation }) => {
     return transmission === 'Automatic' ? 'Số tự động' : 'Số sàn';
   };
 
- 
-  
   const trimLocation = (location) => {
     const parts = location.split(',');
     if (parts.length > 2) {
       let part2 = parts[2].trim();
       let part3 = parts[3].trim();
-      
-      
-      
-      return [part2,part3].join(', ').trim();
+      return [part2, part3].join(', ').trim();
     }
     return location.trim();
   };
 
+  const applicablePromotions = promotions.filter(promo => {
+    const now = moment();
+    const expirationDate = moment(promo.expireDate);
+    const hasMakeOrModel = promo.makeApply || promo.modelApply;
+    const isMakeOrModelMatch = (!promo.makeApply || promo.makeApply === carInfo.make) && (!promo.modelApply || promo.modelApply === carInfo.model);
+    return expirationDate.isAfter(now) && hasMakeOrModel && isMakeOrModelMatch;
+  });
+
+  const firstApplicablePromotion = applicablePromotions[0];
+  const discountedPrice = firstApplicablePromotion
+    ? firstApplicablePromotion.discount.includes('%')
+      ? Math.round(carInfo.price * (1 - parseFloat(firstApplicablePromotion.discount) / 100))
+      : carInfo.price - parseInt(firstApplicablePromotion.discount)
+    : carInfo.price;
 
   return (
     <TouchableOpacity onPress={handlePress}>
       <View style={styles.card}>
         <Image source={{ uri: carInfo.thumbImage }} style={styles.image} contentFit='cover' />
         <TouchableOpacity style={styles.heartIcon} onPress={toggleFavorite}>
-          <Icon name={isFavorite ? 'heart' : 'heart-o'} size={24} color="#03a9f4" />
+          <Icon1 name={isFavorite ? 'heart' : 'heart-o'} size={24} color="#03a9f4" />
         </TouchableOpacity>
-        {carInfo.fastAcceptBooking && (
-          <View style={styles.status}>
-            <Text style={styles.fastBooking}>Đặt xe nhanh ⚡</Text>
-          </View>
-        )}
+        <View style={styles.status}>
+          {carInfo.fastAcceptBooking && (
+            <View style={styles.fastBookingContainer}>
+              <Text style={styles.fastBooking}>Đặt xe nhanh</Text>
+              <Icon name="bolt-lightning" size={12} color="#FDD023" />
+            </View>
+          )}
+          {!carInfo.requireCollateral && (
+            <View style={styles.collateral}>
+              <Text style={styles.collateralText}>Miễn thế chấp</Text>
+              <Icon name="store-slash" size={12} color="#fff" />
+            </View>
+          )}
+        </View>
         <View style={styles.details}>
           <View style={styles.info}>
             <Text style={styles.transmission}>{getTransmissionText(carInfo.transmission)}</Text>
-            <Text style={styles.delivery}>{carInfo.supportsDelivery ? 'Giao xe tận nơi' : ''}</Text>
+            {carInfo.supportsDelivery && (
+              <Text style={styles.delivery}>Giao xe tận nơi</Text>
+            )}
           </View>
           <Text style={styles.title}>{carInfo.title} {carInfo.year}</Text>
           <Text numberOfLines={1} style={styles.location}>{trimLocation(carInfo.location)}</Text>
@@ -64,10 +83,10 @@ const CarCard = ({ carInfo, navigation }) => {
           <View style={styles.priceSection}>
             <View style={styles.price}>
               <Text style={styles.oldPrice}>{carInfo.price}K₫</Text>
-              <Text style={styles.newPrice}>{carInfo.price}K₫/ngày</Text>
+              <Text style={styles.newPrice}>{discountedPrice}K₫/ngày</Text>
             </View>
-            {carInfo.allowApplyPromo && (
-              <Text style={styles.discount}>Giảm {carInfo.discount}</Text>
+            {firstApplicablePromotion && (
+              <Text style={styles.discount}>Giảm {firstApplicablePromotion.discount}</Text>
             )}
           </View>
         </View>
@@ -122,10 +141,33 @@ const styles = StyleSheet.create({
     borderRadius: 5,
   },
   fastBooking: {
+    color: '#fff',
+    marginLeft: 5,
+    fontSize: 12,
+  },
+  fastBookingContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
     backgroundColor: '#03a9f4',
     color: '#fff',
     padding: 5,
     borderRadius: 5,
+    fontSize: 12,
+    marginTop: 5,
+  },
+  collateral: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#008000',
+    color: '#fff',
+    padding: 5,
+    borderRadius: 5,
+    fontSize: 12,
+    marginTop: 5,
+  },
+  collateralText: {
+    color: '#fff',
+    marginLeft: 5,
     fontSize: 12,
   },
   separator: {

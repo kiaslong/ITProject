@@ -42,6 +42,7 @@ export class CarService {
       selectedYear,
       transmission,
       location,
+      fastAcceptBooking,
       startDateFastBooking,
       endDateFastBooking,
     } = createCarDto;
@@ -80,8 +81,8 @@ export class CarService {
         location: location,
         rating: '0', // Default rating
         trips: '0', // Default trips
-        supportsDelivery: true, // Default value, adjust as needed
-        fastAcceptBooking: !!discount, // Ensure boolean value
+        supportsDelivery: false, // Default value, adjust as needed
+        fastAcceptBooking: fastAcceptBooking, // Ensure boolean value
         startDateFastBooking: startDate,
         endDateFastBooking: endDate,
         features: selectedFeatures as any, // Storing features as JSON
@@ -125,6 +126,7 @@ export class CarService {
         model: car.model,
         year: car.year,
         isCarVerified: car.isCarVerified,
+        requireCollateral:car.requireCollateral,
         carImages: car.carImages,
         carPapers: car.carPapers,
         thumbImage: car.thumbImage,
@@ -183,6 +185,7 @@ export class CarService {
         model: car.model,
         year: car.year,
         isCarVerified: car.isCarVerified,
+        requireCollateral:car.requireCollateral,
         carImages: car.carImages,
         carPapers: car.carPapers,
         thumbImage: car.thumbImage,
@@ -244,6 +247,7 @@ export class CarService {
         model: car.model,
         year: car.year,
         isCarVerified: car.isCarVerified,
+        requireCollateral:car.requireCollateral,
         carImages: car.carImages,
         carPapers: car.carPapers,
         thumbImage: car.thumbImage,
@@ -303,6 +307,7 @@ export class CarService {
         model: car.model,
         year: car.year,
         isCarVerified: car.isCarVerified,
+        requireCollateral:car.requireCollateral,
         carImages: car.carImages,
         carPapers: car.carPapers,
         thumbImage: car.thumbImage,

@@ -13,6 +13,7 @@ import { VerifyPhoneNumberDto } from './dto/verify-phone-number.dto';
 import { AuthService } from '../auth/auth.service';
 import { Prisma } from '@prisma/client';
 import { ChangePasswordDto } from './dto/change-password.dto';
+import { UpdateDrivingLicenseDetailsDto, UpdateDrivingLicenseDto } from './dto/update-driving-license.dto';
 
 @ApiTags('auth')
 @Controller('auth')
@@ -115,6 +116,7 @@ export class UserController {
       rewardPoints: user.rewardPoints,
       drivingLicenseVerified: user.drivingLicenseVerified,
       emailVerified: user.emailVerified,
+      drivingLicenseNumber:user.drivingLicenseNumber,
       phoneNumberVerified: user.phoneNumberVerified,
       ownerRating: user.ownerRating,
       ownerTrips: user.ownerTrips,
@@ -122,6 +124,35 @@ export class UserController {
       ownerApprovalRate: user.ownerApprovalRate,
       ownerResponseTime: user.ownerResponseTime,
     };
+  }
+
+
+  @Get('unverified-phone-users')
+  @UseGuards(JwtAuthGuard)
+  @ApiOperation({ summary: 'Get users with unverified phone numbers' })
+  @ApiResponse({ status: 200, description: 'Users retrieved successfully.' })
+  @ApiResponse({ status: 401, description: 'Unauthorized.' })
+  async getUnverifiedPhoneUsers(@Headers('Authorization') authHeader: string) {
+    if (!authHeader) {
+      throw new UnauthorizedException('Authorization header is missing');
+    }
+
+    const token = authHeader.replace('Bearer ', '');
+    const { valid } = await this.authService.validateToken(token);
+    if (!valid) {
+      throw new UnauthorizedException('Invalid token');
+    }
+
+    try {
+      const users = await this.userService.getUsersWithUnverifiedPhones();
+      return users.map(user => ({
+        id: user.id,
+        fullName: user.fullName,
+        phoneNumber: user.phoneNumber,
+      }));
+    } catch (error) {
+      throw new HttpException('Failed to fetch users', HttpStatus.INTERNAL_SERVER_ERROR);
+    }
   }
 
   @Post('request-otp')
@@ -200,6 +231,9 @@ export class UserController {
     return this.userService.deleteUser(id);
   }
 
+
+  
+
   @UseGuards(JwtAuthGuard)
   @Put(':id/change-password')
   @ApiOperation({ summary: 'Change user password' })
@@ -232,5 +266,58 @@ export class UserController {
       throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
     }
   }
-  
+
+  @UseGuards(JwtAuthGuard)
+  @Put(':id/upload-driving-license')
+  @ApiOperation({ summary: 'Upload driving license' })
+  @ApiResponse({ status: 200, description: 'Driving license uploaded successfully.' })
+  @ApiResponse({ status: 400, description: 'Bad Request.' })
+  @ApiResponse({ status: 401, description: 'Unauthorized.' })
+  @ApiConsumes('multipart/form-data')
+  @UseInterceptors(FileInterceptor('file'))
+  async uploadDrivingLicense(
+    @Param('id', ParseIntPipe) userId: number,
+    @UploadedFile() file: Express.Multer.File,
+    @Body() updateDrivingLicenseDto: UpdateDrivingLicenseDto,
+  ) {
+    return this.userService.uploadDrivingLicense(userId, file, updateDrivingLicenseDto);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Get(':id/driving-licenses')
+  @ApiOperation({ summary: 'Get driving licenses by user ID' })
+  @ApiResponse({ status: 200, description: 'Driving licenses retrieved successfully.' })
+  @ApiResponse({ status: 404, description: 'User not found.' })
+  @ApiParam({ name: 'id', type: 'number', description: 'User ID' })
+  async getDrivingLicensesByUserId(@Param('id', ParseIntPipe) userId: number) {
+    return this.userService.getDrivingLicensesByUserId(userId);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Get('unverified-driving-licenses')
+  @ApiOperation({ summary: 'Get all unverified driving licenses' })
+  @ApiResponse({ status: 200, description: 'Unverified driving licenses retrieved successfully.' })
+  async getUnverifiedDrivingLicenses() {
+    return this.userService.getUnverifiedDrivingLicenses();
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Put(':id/update-driving-license-details')
+  @ApiOperation({ summary: 'Update driving license details' })
+  @ApiResponse({ status: 200, description: 'Driving license details updated successfully.' })
+  @ApiResponse({ status: 400, description: 'Bad Request.' })
+  @ApiResponse({ status: 401, description: 'Unauthorized.' })
+  async updateDrivingLicenseDetails(
+    @Param('id', ParseIntPipe) userId: number,
+    @Body() updateDrivingLicenseDetailsDto: UpdateDrivingLicenseDetailsDto
+  ) {
+    try {
+      const result = await this.userService.updateDrivingLicenseDetails(userId, updateDrivingLicenseDetailsDto);
+      return { message: 'Driving license details updated successfully', data: result };
+    } catch (error) {
+      console.error('Error updating driving license details:', error);
+      throw new HttpException('Failed to update driving license details', HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+  }
+
 }

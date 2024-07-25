@@ -14,18 +14,18 @@
       "backgroundColor": "#98ebff"
     },
     "ios": {
-      "supportsTablet": false
+      "supportsTablet": false,
+      "bundleIdentifier": "com.kiaslong.lkrental"
     },
     "android": {
       "package": "com.kiaslong.lkrental"
     },
-    
     "extra": {
       "eas": {
         "projectId": "5d06b491-426d-4f62-9ff6-ad9da43a4018"
       }
-    }
-    ,  "plugins": [
+    },
+    "plugins": [
       [
         "expo-location",
         {
