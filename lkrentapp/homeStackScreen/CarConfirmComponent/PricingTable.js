@@ -9,6 +9,7 @@ import { setSelectedPromo } from '../../store/priceSlice'; // Adjust import path
 const { height } = Dimensions.get('window');
 
 const PricingTable = ({ carInfo }) => {
+  const time = useSelector((state) => state.time.time);
   const promotions = useSelector((state) => state.promotions.promotions);
   const selectedPromo = useSelector((state) => state.price.selectedPromo);
   const dispatch = useDispatch();
@@ -40,6 +41,54 @@ const PricingTable = ({ carInfo }) => {
       setChecked(selectedPromo);
     }
   }, [selectedPromo, promotions, carInfo]);
+
+  const parseTimeString = (timeString) => {
+    const [start, end] = timeString.split(' - ');
+    const parseDate = (dateString) => {
+      const [time, day, date] = dateString.split(' ');
+      const [hours, minutes] = time.split(':').map(Number);
+      const [dayPart, dayMonth] = date.split('/');
+      return new Date(2024, parseInt(dayMonth, 10) - 1, parseInt(dayPart, 10), hours, minutes);
+    };
+    return {
+      start: parseDate(start),
+      end: parseDate(end),
+    };
+  };
+
+  const parsedTime = parseTimeString(time);
+
+  const calculateRentalDurationInDays = (start, end) => {
+    const durationInMillis = end - start;
+    const durationInDays = durationInMillis / (1000 * 60 * 60 * 24);
+    return Math.ceil(durationInDays);
+  };
+
+
+  const calculateTotalPrice = () => {
+    const rentalDurationInDays = calculateRentalDurationInDays(parsedTime.start, parsedTime.end);
+    let totalPrice = carInfo.price * rentalDurationInDays * 1000; // Convert to VND
+
+    if (checked) {
+      const selectedPromotion = allPromotions.find(promo => promo.promoCode === checked);
+      if (selectedPromotion) {
+        const discount = selectedPromotion.discount.includes('%')
+          ? Math.round((parseFloat(selectedPromotion.discount) / 100) * totalPrice) // Percentage discount
+          : parseInt(selectedPromotion.discount) * 1000; // Fixed discount in thousands
+        totalPrice -= discount;
+      }
+    }
+
+    return totalPrice;
+  };
+
+  const calculateDeposit = () => {
+    return Math.round(calculateTotalPrice() * 0.30);
+  };
+
+  const calculatePaymentOnPickup = () => {
+    return Math.round(calculateTotalPrice() - calculateDeposit());
+  };
 
   const animateModal = (modalAnim, toValue, duration, callback) => {
     Animated.timing(modalAnim, {
@@ -156,28 +205,6 @@ const PricingTable = ({ carInfo }) => {
     setPromoCode('');
   };
 
-  const calculateTotalPrice = () => {
-    let totalPrice = carInfo.price * 1000; // Convert to VND
-    if (checked) {
-      const selectedPromotion = allPromotions.find(promo => promo.promoCode === checked);
-      if (selectedPromotion) {
-        const discount = selectedPromotion.discount.includes('%')
-          ? Math.round((parseFloat(selectedPromotion.discount) / 100) * totalPrice) // Percentage discount
-          : parseInt(selectedPromotion.discount) * 1000; // Fixed discount in thousands
-        totalPrice -= discount;
-      }
-    }
-    return totalPrice;
-  };
-
-  const calculateDeposit = () => {
-    return Math.round(calculateTotalPrice() * 0.35);
-  };
-
-  const calculatePaymentOnPickup = () => {
-    return Math.round(calculateTotalPrice() - calculateDeposit());
-  };
-
   const detailModalContent = (
     <>
       <Text style={styles.detailTitle}>Đơn giá thuê</Text>
@@ -242,8 +269,8 @@ const PricingTable = ({ carInfo }) => {
         </View>
         <View style={styles.separator} />
         <View style={styles.row}>
-          <Text style={styles.totalLabel}>Tổng cộng</Text>
-          <Text style={styles.totalValue}>{formatPrice(calculateTotalPrice())} đ/ngày</Text>
+          <Text style={styles.label}>Số ngày thuê:</Text>
+          <Text style={styles.value}>{calculateRentalDurationInDays(parsedTime.start, parsedTime.end)} ngày</Text>
         </View>
         <View style={styles.section}>
           <Text style={styles.sectionHeader}>Khuyến mãi</Text>

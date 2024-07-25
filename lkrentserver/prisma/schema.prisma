@@ -29,6 +29,7 @@ model User {
   password                  String
   fullName                  String    @default("FullName")
   dateOfBirth               DateTime  @default(now())
+  addresses                 String[]
   avatarUrl                 String?   // Optional field
   createdAt                 DateTime  @default(now())
   updatedAt                 DateTime  @updatedAt

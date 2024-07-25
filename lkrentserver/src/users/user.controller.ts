@@ -120,6 +120,7 @@ export class UserController {
       phoneNumberVerified: user.phoneNumberVerified,
       ownerRating: user.ownerRating,
       ownerTrips: user.ownerTrips,
+      addresses:user.addresses,
       ownerResponseRate: user.ownerResponseRate,
       ownerApprovalRate: user.ownerApprovalRate,
       ownerResponseTime: user.ownerResponseTime,

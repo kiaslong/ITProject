@@ -297,22 +297,43 @@ const ConfirmRental = ({ carInfo, navigation }) => {
   const [allPromotions, setAllPromotions] = useState([]);
   const discountModalSlideAnim = useRef(new Animated.Value(height)).current;
 
+  const parseTimeString = (timeString) => {
+    const [start, end] = timeString.split(' - ');
+    const parseDate = (dateString) => {
+      const [time, day, date] = dateString.split(' ');
+      const [hours, minutes] = time.split(':').map(Number);
+      const [dayPart, dayMonth] = date.split('/');
+      return new Date(2024, parseInt(dayMonth, 10) - 1, parseInt(dayPart, 10), hours, minutes);
+    };
+    return {
+      start: parseDate(start),
+      end: parseDate(end),
+    };
+  };
 
-  const handleConfirmPress = () => {
-    if (user.drivingLicenseVerified) {
-      navigation.navigate("CarRentalInfoScreen", {
-        carInfo,
-        time: time,
-        showHeader: true,
-        showBackButton: true,
-        showTitle: true,
-        showCloseButton: true,
-        animationType: "slide_from_bottom",
-        screenTitle: "Xác nhận đặt xe",
-      });
-    } else {
-      Alert.alert("Thông báo", "Vui lòng xác minh giấy phép lái xe trước khi đặt xe.");
+  const parsedTime = parseTimeString(time);
+
+  const calculateRentalDurationInDays = (start, end) => {
+    const durationInMillis = end - start;
+    const durationInDays = durationInMillis / (1000 * 60 * 60 * 24);
+    return Math.ceil(durationInDays);
+  };
+
+  const calculateTotalPrice = () => {
+    const rentalDurationInDays = calculateRentalDurationInDays(parsedTime.start, parsedTime.end);
+    let totalPrice = carInfo.price * rentalDurationInDays * 1000; // Convert to VND
+
+    if (checked) {
+      const selectedPromotion = allPromotions.find(promo => promo.promoCode === checked);
+      if (selectedPromotion) {
+        const discount = selectedPromotion.discount.includes('%')
+          ? Math.round((parseFloat(selectedPromotion.discount) / 100) * totalPrice) // Percentage discount
+          : parseInt(selectedPromotion.discount) * 1000; // Fixed discount in thousands
+        totalPrice -= discount;
+      }
     }
+
+    return totalPrice;
   };
 
   useEffect(() => {
@@ -396,18 +417,21 @@ const ConfirmRental = ({ carInfo, navigation }) => {
     return price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
   };
 
-  const calculateTotalPrice = () => {
-    let totalPrice = carInfo.price * 1000; // Convert to VND
-    if (checked) {
-      const selectedPromotion = allPromotions.find(promo => promo.promoCode === checked);
-      if (selectedPromotion) {
-        const discount = selectedPromotion.discount.includes('%')
-          ? Math.round((parseFloat(selectedPromotion.discount) / 100) * totalPrice) // Percentage discount
-          : parseInt(selectedPromotion.discount) * 1000; // Fixed discount in thousands
-        totalPrice -= discount;
-      }
+  const handleConfirmPress = () => {
+    if (user.drivingLicenseVerified) {
+      navigation.navigate("CarRentalInfoScreen", {
+        carInfo,
+        time: time,
+        showHeader: true,
+        showBackButton: true,
+        showTitle: true,
+        showCloseButton: true,
+        animationType: "slide_from_bottom",
+        screenTitle: "Xác nhận đặt xe",
+      });
+    } else {
+      Alert.alert("Thông báo", "Vui lòng xác minh giấy phép lái xe trước khi đặt xe.");
     }
-    return totalPrice;
   };
 
   const discountModalContent = (
@@ -487,10 +511,10 @@ const ConfirmRental = ({ carInfo, navigation }) => {
   return (
     <View style={styles.bookContainer}>
       <View style={styles.priceInfo}>
-        <Text style={styles.newPrice}>{formatPrice(carInfo.price * 1000)}₫/ngày</Text>
+        <Text style={styles.newPrice}>Giá: {formatPrice(carInfo.price * 1000)}₫/ngày</Text>
         <View style={styles.priceRow}>
           <Text style={styles.totalPrice}>
-            Giá tổng: {formatPrice(calculateTotalPrice())}₫/ngày
+            Giá tổng: {formatPrice(calculateTotalPrice())}₫
           </Text>
           <TouchableOpacity style={styles.iconDiscount} onPress={openDiscountModal}>
             <Icon name="pricetag-outline" size={24} color="#ffa500" />
@@ -508,6 +532,7 @@ const ConfirmRental = ({ carInfo, navigation }) => {
     </View>
   );
 };
+
 
 const CarDetailScreen = ({ route, navigation }) => {
   const { carInfo } = route.params;

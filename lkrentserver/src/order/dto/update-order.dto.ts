@@ -1,31 +1,22 @@
-import { IsOptional, IsNumber, IsString, IsDate, IsEnum } from 'class-validator';
+import { IsOptional, IsEnum } from 'class-validator';
+import { ApiProperty } from '@nestjs/swagger';
 import { PaymentState, OrderState } from '@prisma/client';
 
 export class UpdateOrderDto {
-  @IsOptional()
-  @IsNumber()
-  userId?: number;
-
-  @IsOptional()
-  @IsNumber()
-  carId?: number;
-
-  @IsOptional()
-  @IsDate()
-  startRentDate?: Date;
-
-  @IsOptional()
-  @IsDate()
-  endRentDate?: Date;
-
-  @IsOptional()
-  @IsString()
-  totalPrice?: string;
-
+  @ApiProperty({
+    description: 'Payment state of the order',
+    enum: PaymentState,
+    required: false,
+  })
   @IsOptional()
   @IsEnum(PaymentState)
   paymentState?: PaymentState;
 
+  @ApiProperty({
+    description: 'Order state of the car rental',
+    enum: OrderState,
+    required: false,
+  })
   @IsOptional()
   @IsEnum(OrderState)
   orderState?: OrderState;

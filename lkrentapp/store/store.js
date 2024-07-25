@@ -6,6 +6,7 @@ import registrationReducer from './registrationSlice';
 import carListReducer from './carListSlice'
 import promotionReducer from './promotionSlice';
 import priceReducer from "./priceSlice";
+import messageReducer from "./messageSlice"
 
 
 const store = configureStore({
@@ -16,7 +17,8 @@ const store = configureStore({
     promotions: promotionReducer,
     time: timeReducer,
     registration: registrationReducer,
-    price:priceReducer
+    price:priceReducer,
+    message: messageReducer,
   },
 });
 
