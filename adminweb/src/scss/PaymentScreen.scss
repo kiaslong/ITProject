@@ -1,0 +1,48 @@
+.payment-screen {
+    background-color: #f8f9fa;
+    padding: 20px;
+    border-radius: 8px;
+  }
+  
+  .payment-screen .input-group-text {
+    background-color: #007bff;
+    color: white;
+    border: none;
+  }
+  
+  .payment-screen .form-control {
+    border-radius: 20px;
+    padding: 10px;
+  }
+  
+  .payment-screen .table {
+    margin-top: 20px;
+  }
+  
+  .payment-screen .btn-success {
+    background-color: #28a745;
+    border: none;
+    border-radius: 5px;
+    transition: background-color 0.3s ease;
+  }
+  
+  .payment-screen .btn-success:hover {
+    background-color: #218838;
+  }
+  
+  .payment-screen .btn-danger {
+    background-color: #dc3545;
+    border: none;
+    border-radius: 5px;
+    transition: background-color 0.3s ease;
+  }
+  
+  .payment-screen .btn-danger:hover {
+    background-color: #c82333;
+  }
+  
+  .payment-screen .table-light {
+    background-color: #f8f9fa;
+    color: #343a40;
+  }
+  

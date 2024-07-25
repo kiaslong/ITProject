@@ -6,6 +6,7 @@ import RentalCars from './approveScreen/RentalCars';
 import RevenueStatistics from './statisticsScreen/RevenueStatistics';
 import AdvertisementImages from './approveScreen/AdvertisementImages';
 import Users from './approveScreen/Users';
+import PaymentScreen from './approveScreen/PaymentScreen';
 import { useNavigate } from 'react-router-dom';
 import logo2 from './assets/lkrentlogo.png'; // Ensure the path to the logo is correct
 
@@ -54,6 +55,11 @@ const AdminDashboard = () => {
                   <i className="bi bi-people"></i> Người dùng
                 </Nav.Link>
               </Nav.Item>
+              <Nav.Item>
+                <Nav.Link eventKey="payment-screen">
+                  <i className="bi bi-currency-dollar"></i> Quản lý thanh toán
+                </Nav.Link>
+              </Nav.Item>
             </Nav>
             <div className="logout-container">
               <Button variant="danger" className="logout-button" onClick={handleLogout}>
@@ -77,6 +83,9 @@ const AdminDashboard = () => {
               </Tab.Pane>
               <Tab.Pane eventKey="users" className="fade">
                 <Users />
+              </Tab.Pane>
+              <Tab.Pane eventKey="payment-screen" className="fade">
+                <PaymentScreen />
               </Tab.Pane>
             </Tab.Content>
           </Col>
