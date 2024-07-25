@@ -85,6 +85,7 @@ const FooterComponent = ({ carInfo, navigation, time }) => {
           navigation.navigate("ConfirmationScreen", {
             carInfo,
             time: time,
+            orderState: carInfo.fastAcceptBooking ? "CONFIRMED" : "PENDING",
             animationType: "slide_from_bottom",
           });
         }, 800);

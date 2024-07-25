@@ -294,6 +294,7 @@ const RentalPriceScreen = ({ route }) => {
         <Text style={styles.rangeText}>0%</Text>
         <Text style={styles.rangeText}>100%</Text>
       </View>
+      <Text style={styles.currentDiscountText}>Phần trăm ưu đãi: {discountPercentage}%</Text>
       <TouchableOpacity
         style={styles.confirmButton}
         onPress={closeDiscountModal}
@@ -459,9 +460,9 @@ const styles = StyleSheet.create({
     width: '50%',
   },
   button: {
-    position:"absolute",
-    bottom:50,
-    alignSelf:"center",
+    position: "absolute",
+    bottom: 50,
+    alignSelf: "center",
     backgroundColor: "#03a9f4",
     padding: 15,
     borderRadius: 10,
@@ -556,6 +557,13 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     marginBottom: 20,
     textAlign: "center",
+  },
+  currentDiscountText: {
+    fontSize: 18,
+    fontWeight: "bold",
+    color: "#03a9f4",
+    textAlign: "center",
+    marginTop: 20,
   },
   confirmButton: {
     backgroundColor: "#03a9f4",

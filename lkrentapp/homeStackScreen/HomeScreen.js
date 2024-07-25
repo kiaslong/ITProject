@@ -206,7 +206,7 @@ function CarCardList({ carList, navigation }) {
               paddingLeft: index === 0 ? 16 : gap / 2,
               marginTop: 10,
               marginBottom: 5,
-              paddingRight: index === carList.length - 1 ? 16 : gap / 2,
+              paddingRight: index === carList.length - 1 ? 16 : gap /2,
               width: adjustedWidth,
             }}
           >
@@ -214,7 +214,7 @@ function CarCardList({ carList, navigation }) {
           </View>
         )}
         showsHorizontalScrollIndicator={false}
-        snapToInterval={adjustedWidth + gap}
+        snapToInterval={adjustedWidth }
         snapToAlignment="center"
         decelerationRate="fast"
         keyExtractor={(item) => item.id}
