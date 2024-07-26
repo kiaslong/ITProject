@@ -39,6 +39,7 @@ const PaymentScreen = () => {
   ]);
 
   const [searchTerm, setSearchTerm] = useState('');
+  const [showCompleted, setShowCompleted] = useState(false);
 
   const handleUpdateStatus = (paymentId, newStatus) => {
     setPayments(payments.map(payment => payment.id === paymentId ? { ...payment, status: newStatus } : payment));
@@ -47,6 +48,9 @@ const PaymentScreen = () => {
   const filteredPayments = payments.filter(payment => 
     payment.orderId.includes(searchTerm) || payment.userId.includes(searchTerm)
   );
+
+  const nonCompletedPayments = filteredPayments.filter(payment => payment.status !== 'COMPLETED');
+  const completedPayments = filteredPayments.filter(payment => payment.status === 'COMPLETED');
 
   return (
     <Container className="mt-4 payment-screen">
@@ -64,6 +68,13 @@ const PaymentScreen = () => {
           </InputGroup>
         </Col>
       </Row>
+      <Row className="mb-4">
+        <Col className="text-center">
+          <Button onClick={() => setShowCompleted(!showCompleted)}>
+            {showCompleted ? 'Hiển thị các Đơn hàng khác' : 'Hiển thị Đơn hàng đã hoàn thành'}
+          </Button>
+        </Col>
+      </Row>
       <Table striped bordered hover responsive className="text-center">
         <thead className="table-light">
           <tr>
@@ -76,7 +87,7 @@ const PaymentScreen = () => {
           </tr>
         </thead>
         <tbody>
-          {filteredPayments.map(payment => (
+          {(showCompleted ? completedPayments : nonCompletedPayments).map(payment => (
             <tr key={payment.id}>
               <td>{payment.orderId}</td>
               <td>{payment.userId}</td>
@@ -93,12 +104,7 @@ const PaymentScreen = () => {
                     >
                       Xác nhận
                     </Button>
-                    <Button
-                      variant="danger"
-                      onClick={() => handleUpdateStatus(payment.id, 'CANCELED')}
-                    >
-                      Hủy
-                    </Button>
+                    
                   </>
                 )}
               </td>

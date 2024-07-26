@@ -11,7 +11,8 @@ import {
   Modal,
   TextInput,
   Easing,
-  TouchableWithoutFeedback
+  TouchableWithoutFeedback,
+  Vibration 
 } from "react-native";
 import Ionicons from "react-native-vector-icons/Ionicons";
 import MaterialCommunityIcons from "react-native-vector-icons/MaterialCommunityIcons";
@@ -29,6 +30,9 @@ import AdditionalFees from "./CarDetailComponent/AdditionalFees";
 import CancellationPolicy from "./CarDetailComponent/CancellationPolicy";
 import Icon from 'react-native-vector-icons/Ionicons';
 import { setSelectedPromo } from '../store/priceSlice'; // Adjust import path accordingly
+import {  setIsConfirmed,setPickupMethod ,setCarLocation,setUserLocation } from '../store/locationSlice';
+
+
 
 const { width, height } = Dimensions.get("window");
 
@@ -46,6 +50,13 @@ const getIconComponent = (library) => {
 };
 
 const CarDetails = ({ carInfo, navigation }) => {
+  const pickupMethod = useSelector((state) => state.location.pickupMethod);
+  const [deliveryTapped, setDeliveryTapped] = useState(false);
+  const dispatch = useDispatch();
+  const time = useSelector((state) => state.time.time);
+  const deliveryLocation = useSelector((state) => state.location.deliveryLocation);
+  const isConfirmed = useSelector((state) => state.location.isConfirmed)
+
   const handleTimePress = () => {
     navigation.navigate("TimePicker", {
       showHeader: true,
@@ -55,9 +66,29 @@ const CarDetails = ({ carInfo, navigation }) => {
     });
   };
 
-  const [pickupMethod, setPickupMethod] = useState("self");
-  const time = useSelector((state) => state.time.time);
-
+  const handleDeliveryPress = () => {
+    if (pickupMethod !== 'delivery') {
+      setPickupMethod('delivery');
+      setDeliveryTapped(true);
+      dispatch(setPickupMethod('delivery')); // Update state
+    } else if (deliveryTapped) {
+      navigation.navigate('DeliveryLocationScreen', {
+        carInfo,
+        showHeader: true,
+        showBackButton: true,
+        showCloseButton: true,
+        animationType: "slide_from_bottom",
+        showTitle: true,
+        screenTitle: "Địa điểm giao nhận",
+      });
+    }
+  };
+  
+  const handleSelfPickupPress = () => {
+    setPickupMethod('self');
+    dispatch(setPickupMethod('self')); // Update state
+  };
+  
   const currentYear = moment().year();
   const [start, end] = useMemo(
     () =>
@@ -79,100 +110,103 @@ const CarDetails = ({ carInfo, navigation }) => {
   };
 
   return (
-    <View style={styles.details}>
-      <Text style={styles.smallSectionTitle}>Thời gian thuê xe</Text>
-      <View style={styles.timeSection}>
-        <TouchableOpacity style={styles.timeBox} onPress={handleTimePress}>
-          <View style={styles.timeContainer}>
-            <Text style={styles.timeLabel}>Nhận xe</Text>
-            <Text numberOfLines={1} style={styles.timeValue}>
-              {start
-                ? `${start.format("HH:mm")} ${start.format(
-                    "dd"
-                  )}, ${start.format("DD/MM")}/${currentYear}`
-                : ""}
-            </Text>
-          </View>
-          <View style={styles.timeContainer}>
-            <Text style={styles.timeLabel}>Trả xe</Text>
-            <Text numberOfLines={1} style={styles.timeValue}>
-              {end
-                ? `${end.format("HH:mm")} ${end.format("dd")}, ${end.format(
-                    "DD/MM"
-                  )}/${currentYear}`:""}
-            </Text>
-          </View>
-        </TouchableOpacity>
-      </View>
-      <Text style={styles.smallSectionTitle}>Địa điểm giao nhận xe</Text>
-      <View style={styles.locationSection}>
+  <View style={styles.details}>
+    <Text style={styles.smallSectionTitle}>Thời gian thuê xe</Text>
+    <View style={styles.timeSection}>
+      <TouchableOpacity style={styles.timeBox} onPress={handleTimePress}>
+        <View style={styles.timeContainer}>
+          <Text style={styles.timeLabel}>Nhận xe</Text>
+          <Text numberOfLines={1} style={styles.timeValue}>
+            {start
+              ? `${start.format("HH:mm")} ${start.format(
+                  "dd"
+                )}, ${start.format("DD/MM")}/${currentYear}`
+              : ""}
+          </Text>
+        </View>
+        <View style={styles.timeContainer}>
+          <Text style={styles.timeLabel}>Trả xe</Text>
+          <Text numberOfLines={1} style={styles.timeValue}>
+            {end
+              ? `${end.format("HH:mm")} ${end.format("dd")}, ${end.format(
+                  "DD/MM"
+                )}/${currentYear}`:""}
+          </Text>
+        </View>
+      </TouchableOpacity>
+    </View>
+    <Text style={styles.smallSectionTitle}>Địa điểm giao nhận xe</Text>
+    <View style={styles.locationSection}>
+      <TouchableOpacity
+        style={[
+          styles.locationOption,
+          pickupMethod === "self" && styles.selectedOption,
+        ]}
+        onPress={handleSelfPickupPress}
+      >
+        <View
+          style={
+            pickupMethod === "self"
+              ? styles.radioButtonSelected
+              : styles.radioButton
+          }
+        />
+        <View style={styles.locationOptionContainer}>
+          <Text style={styles.locationOptionText}>Tôi tự đến lấy xe</Text>
+          <Text style={styles.location}>{trimLocation(carInfo.location)}</Text>
+        </View>
+        <Text style={styles.freeDelivery}>Miễn phí</Text>
+      </TouchableOpacity>
+      {carInfo.supportsDelivery ? (
         <TouchableOpacity
           style={[
             styles.locationOption,
-            pickupMethod === "self" && styles.selectedOption,
+            pickupMethod === "delivery" && styles.selectedOption,
           ]}
-          onPress={() => setPickupMethod("self")}
+          onPress={handleDeliveryPress}
         >
           <View
             style={
-              pickupMethod === "self"
+              pickupMethod === "delivery"
                 ? styles.radioButtonSelected
                 : styles.radioButton
             }
           />
           <View style={styles.locationOptionContainer}>
-            <Text style={styles.locationOptionText}>Tôi tự đến lấy xe</Text>
-            <Text style={styles.location}>{trimLocation(carInfo.location)}</Text>
+            <Text style={styles.locationOptionText}>
+              Tôi muốn được giao xe tận nơi
+            </Text>
+            
+            <Text style={styles.supported}>
+             {deliveryLocation && isConfirmed===true ? deliveryLocation : "Chủ xe sẽ giao xe đến tận nơi mà bạn chọn"}
+            </Text>
           </View>
-          <Text style={styles.freeDelivery}>Miễn phí</Text>
+          <MaterialIcons name="chevron-right" size={30} color="#007BFF" />
         </TouchableOpacity>
-        {carInfo.supportsDelivery ? (
-          <TouchableOpacity
-            style={[
-              styles.locationOption,
-              pickupMethod === "delivery" && styles.selectedOption,
-            ]}
-            onPress={() => setPickupMethod("delivery")}
-          >
-            <View
-              style={
-                pickupMethod === "delivery"
-                  ? styles.radioButtonSelected
-                  : styles.radioButton
-              }
-            />
-            <View style={styles.locationOptionContainer}>
-              <Text style={styles.locationOptionText}>
-                Tôi muốn được giao xe tận nơi
-              </Text>
-              <Text style={styles.supported}>
-                Chủ xe hỗ trợ giao xe tận nơi
-              </Text>
-            </View>
-          </TouchableOpacity>
-        ) : (
-          <TouchableOpacity
-            style={[
-              styles.locationOption,
-              pickupMethod === "delivery" && styles.selectedOption,
-            ]}
-            disabled
-          >
-            <View style={styles.radioButtonDisabled} />
-            <View style={styles.locationOptionContainer}>
-              <Text style={styles.locationOptionTextDisabled}>
-                Tôi muốn được giao xe tận nơi
-              </Text>
-              <Text style={styles.notSupported}>
-                Rất tiếc, chủ xe không hỗ trợ giao xe tận nơi
-              </Text>
-            </View>
-          </TouchableOpacity>
-        )}
-      </View>
+      ) : (
+        <TouchableOpacity
+          style={[
+            styles.locationOption,
+            pickupMethod === "delivery" && styles.selectedOption,
+          ]}
+          disabled
+        >
+          <View style={styles.radioButtonDisabled} />
+          <View style={styles.locationOptionContainer}>
+            <Text style={styles.locationOptionTextDisabled}>
+              Tôi muốn được giao xe tận nơi
+            </Text>
+            <Text style={styles.notSupported}>
+              Rất tiếc, chủ xe không hỗ trợ giao xe tận nơi
+            </Text>
+          </View>
+        </TouchableOpacity>
+      )}
     </View>
-  );
-};
+  </View>
+);
+}
+
 
 
 const translateFuelType = (fuelType) => {
@@ -290,12 +324,23 @@ const ConfirmRental = ({ carInfo, navigation }) => {
   const user = useSelector((state) => state.loggedIn.user);
   const promotions = useSelector((state) => state.promotions.promotions);
   const selectedPromo = useSelector((state) => state.price.selectedPromo);
+  const deliveryPrice = useSelector((state) => state.location.deliveryPrice);
+  const pickupMethod = useSelector((state) => state.location.pickupMethod);
   const dispatch = useDispatch();
   const [checked, setChecked] = useState(selectedPromo);
   const [promoCode, setPromoCode] = useState('');
   const [discountModalVisible, setDiscountModalVisible] = useState(false);
   const [allPromotions, setAllPromotions] = useState([]);
   const discountModalSlideAnim = useRef(new Animated.Value(height)).current;
+  let isDrivingLicenseVerified = false;
+
+  if (user && user.drivingLicenseVerified === false) {
+    isDrivingLicenseVerified = false;
+  } else if (user === null) {
+    isDrivingLicenseVerified = false;
+  } else {
+    isDrivingLicenseVerified = true;
+  }
 
   const parseTimeString = (timeString) => {
     const [start, end] = timeString.split(' - ');
@@ -322,7 +367,7 @@ const ConfirmRental = ({ carInfo, navigation }) => {
   const calculateTotalPrice = () => {
     const rentalDurationInDays = calculateRentalDurationInDays(parsedTime.start, parsedTime.end);
     let totalPrice = carInfo.price * rentalDurationInDays * 1000; // Convert to VND
-
+  
     if (checked) {
       const selectedPromotion = allPromotions.find(promo => promo.promoCode === checked);
       if (selectedPromotion) {
@@ -332,7 +377,11 @@ const ConfirmRental = ({ carInfo, navigation }) => {
         totalPrice -= discount;
       }
     }
-
+  
+    if (pickupMethod === 'delivery' && deliveryPrice) {
+      totalPrice += deliveryPrice;
+    }
+  
     return totalPrice;
   };
 
@@ -418,7 +467,12 @@ const ConfirmRental = ({ carInfo, navigation }) => {
   };
 
   const handleConfirmPress = () => {
-    if (user.drivingLicenseVerified) {
+    if (!user) {
+      Alert.alert("Thông báo", "Vui lòng đăng nhập để tiếp tục.");
+      return;
+    }
+  
+    if (isDrivingLicenseVerified) {
       navigation.navigate("CarRentalInfoScreen", {
         carInfo,
         time: time,
@@ -522,7 +576,7 @@ const ConfirmRental = ({ carInfo, navigation }) => {
         </View>
       </View>
       <TouchableOpacity
-        style={[styles.bookButton, !user.drivingLicenseVerified && styles.disabledButton]}
+        style={[styles.bookButton, isDrivingLicenseVerified === false && styles.disabledButton]}
         onPress={handleConfirmPress}
       >
         <Text style={styles.bookButtonText}>Chọn thuê</Text>
@@ -536,7 +590,9 @@ const ConfirmRental = ({ carInfo, navigation }) => {
 
 const CarDetailScreen = ({ route, navigation }) => {
   const { carInfo } = route.params;
+  const dispatch = useDispatch();
   const [locationLoaded, setLocationLoaded] = useState(false);
+  const [shouldNavigateBack, setShouldNavigateBack] = useState(false);
   const scrollY = useRef(new Animated.Value(0)).current;
   const imageHeight = height * 0.224;
 
@@ -593,8 +649,29 @@ const CarDetailScreen = ({ route, navigation }) => {
 
   const handleScroll = Animated.event(
     [{ nativeEvent: { contentOffset: { y: scrollY } } }],
-    { useNativeDriver: true }
+    {
+      useNativeDriver: true,
+      listener: event => {
+        const offsetY = event.nativeEvent.contentOffset.y;
+        if (offsetY < -120 && !shouldNavigateBack) {
+          Vibration.vibrate(4);
+          setShouldNavigateBack(true);
+        }
+      }
+    }
   );
+
+
+  const handleScrollEndDrag = () => {
+    if (shouldNavigateBack) {
+      navigation.goBack();
+      dispatch(setIsConfirmed(false));
+      dispatch(setCarLocation(null));
+      dispatch(setPickupMethod("self"));
+      dispatch(setUserLocation(null));
+    }
+  };
+
 
   if (!locationLoaded) {
     return (
@@ -610,7 +687,12 @@ const CarDetailScreen = ({ route, navigation }) => {
         style={[styles.animatedHeader, { opacity: headerOpacity }]}
       >
         <View style={styles.headerContent}>
-          <TouchableOpacity onPress={() => navigation.goBack()}>
+          <TouchableOpacity onPress={() => {navigation.goBack()
+              dispatch(setIsConfirmed(false));
+              dispatch(setCarLocation(null));
+              dispatch(setPickupMethod("self"));
+              dispatch(setUserLocation(null));
+          }}>
             <Ionicons name="close" size={26} color="black" />
           </TouchableOpacity>
           <Animated.Text style={[styles.animatedHeaderTitle]}>
@@ -631,6 +713,7 @@ const CarDetailScreen = ({ route, navigation }) => {
         style={styles.container}
         contentContainerStyle={styles.scrollContent}
         onScroll={handleScroll}
+        onScrollEndDrag={handleScrollEndDrag}
         scrollEventThrottle={16}
       >
         <Animated.View
@@ -661,7 +744,12 @@ const CarDetailScreen = ({ route, navigation }) => {
         >
           <View styles={styles.leftIcons}>
             <TouchableOpacity
-              onPress={() => navigation.goBack()}
+              onPress={() => {navigation.goBack()
+                dispatch(setIsConfirmed(false));
+                dispatch(setCarLocation(null));
+                dispatch(setPickupMethod("self"));
+                dispatch(setUserLocation(null));
+            }}
               style={styles.roundIcon}
               hitSlop={{ top: 50, bottom: 50, left: 50, right: 50 }}
             >
@@ -954,6 +1042,13 @@ const styles = StyleSheet.create({
     marginBottom:10,
     alignItems: "center",
   },
+  disabledButton:{
+    backgroundColor:"#757575",
+    padding: 16,
+    borderRadius: 8,
+    marginBottom:10,
+    alignItems: "center",
+  },
   bookButtonText: {
     color: "white",
     fontSize: width * 0.04,
@@ -1135,6 +1230,7 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     alignItems: 'center',
   },
+ 
   confirmButtonText: {
     color: '#fff',
     fontWeight: 'bold',

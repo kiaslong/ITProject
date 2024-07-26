@@ -1,9 +1,11 @@
 import React, { useState } from "react";
 import { View, Text, TouchableOpacity, StyleSheet, Alert, ActivityIndicator, Modal } from "react-native";
 import Icon from "react-native-vector-icons/Ionicons";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import api from "../../api";
 import { getToken } from "../../utils/tokenStorage";
+import { setDeliveryPrice, setIsConfirmed } from '../../store/locationSlice';
+import { setSelectedPromo } from "../../store/priceSlice";
 
 const FooterComponent = ({ carInfo, navigation, time }) => {
   const [isChecked, setIsChecked] = useState(true);
@@ -13,6 +15,9 @@ const FooterComponent = ({ carInfo, navigation, time }) => {
   const selectedPromo = useSelector((state) => state.price.selectedPromo);
   const promotions = useSelector((state) => state.promotions.promotions);
   const message = useSelector((state) => state.message.content);
+  const deliveryPrice = useSelector((state) => state.location.deliveryPrice);
+  const pickupMethod = useSelector((state) => state.location.pickupMethod); // Add this line to get pickupMethod from Redux
+  const dispatch = useDispatch();
 
   const parseTimeString = (timeString) => {
     const [start, end] = timeString.split(' - ');
@@ -39,6 +44,7 @@ const FooterComponent = ({ carInfo, navigation, time }) => {
   const calculateDiscountedPrice = (basePrice, promoCode, promotions) => {
     const promo = promotions.find((promotion) => promotion.promoCode === promoCode);
     let discount = 0;
+    let totalPrice = basePrice;
 
     if (promo) {
       if (promo.discount.includes('%')) {
@@ -49,7 +55,13 @@ const FooterComponent = ({ carInfo, navigation, time }) => {
       }
     }
 
-    return (basePrice - discount);
+    totalPrice -= discount;
+
+    if (pickupMethod === 'delivery' && deliveryPrice) {
+      totalPrice += deliveryPrice;
+    }
+
+    return totalPrice;
   };
 
   const handleSendPress = async () => {
@@ -80,6 +92,9 @@ const FooterComponent = ({ carInfo, navigation, time }) => {
         headers: { Authorization: `Bearer ${token}` },
       });
       if (response.data.statusCode === 201) {
+        dispatch(setDeliveryPrice(0));
+        dispatch(setIsConfirmed(false));
+        dispatch(setSelectedPromo(null));
         setTimeout(() => {
           setIsLoading(false);
           navigation.navigate("ConfirmationScreen", {

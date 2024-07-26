@@ -76,6 +76,44 @@ export const getGeocodeByAddress = async (address, apiKey) => {
   }
 };
 
+
+export const getRoute = async (origin, destination, apiKey) => {
+  
+  const url = `https://rsapi.goong.io/trip?origin=${origin.latitude},${origin.longitude}&destination=${destination.latitude},${destination.longitude}&vehicle=car&api_key=${apiKey}`;
+
+  try {
+    const response = await axios.get(url);
+    if (response.data && response.data.trips && response.data.trips.length > 0) {
+      const { distance, duration, geometry, legs } = response.data.trips[0];
+      return { distance, duration, geometry, legs };
+    } else {
+      throw new Error('Route not found');
+    }
+  } catch (error) {
+    console.error('Error fetching route:', error);
+    return null;
+  }
+};
+
+
+export const getDirection = async (origin, destination, apiKey) => {
+  const url = `https://rsapi.goong.io/Direction?origin=${origin.latitude},${origin.longitude}&destination=${destination.latitude},${destination.longitude}&vehicle=car&api_key=${apiKey}`;
+
+  try {
+    const response = await axios.get(url);
+    
+    if (response.data && response.data.routes && response.data.routes.length > 0) {
+      const overview_polyline = response.data.routes[0].overview_polyline;
+      return { geometry : overview_polyline.points };
+    } else {
+      throw new Error('Direction not found');
+    }
+  } catch (error) {
+    console.error('Error fetching direction:', error);
+    return null;
+  }
+};
+
 const reformatAddress = (address) => {
   const regex = /^(\d+)\sHẻm\s(\d+)\s(.*)/;
   const match = address.match(regex);

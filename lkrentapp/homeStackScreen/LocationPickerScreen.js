@@ -1,3 +1,5 @@
+// LocationPickerScreen.js
+
 import React, { useState, useEffect, useCallback, useMemo } from "react";
 import {
   View,
@@ -12,28 +14,24 @@ import {
   FlatList,
 } from "react-native";
 import { useSelector, useDispatch } from "react-redux";
-import { setLocation, addToHistory } from "../store/locationSlice";
+import { setLocation, setDeliveryLocation, addToHistory } from "../store/locationSlice";
 import { Ionicons } from "@expo/vector-icons";
-import {
-  autoComplete,
-  getGeocode,
-} from "../fetchData/Position";
+import { autoComplete, getGeocode } from "../fetchData/Position";
 import debounce from "lodash.debounce";
 import * as Location from "expo-location";
 
-const LocationPickerScreen = ({ navigation }) => {
+const LocationPickerScreen = ({ route, navigation }) => {
+  const { isSetDelivery } = route.params;
   const dispatch = useDispatch();
   const currentLocation = useSelector((state) => state.location.location);
   const history = useSelector((state) => state.location.history);
   const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(false);
   const [suggestions, setSuggestions] = useState([]);
-  const [currentLocationText, setCurrentLocationText] =
-    useState("Vị trí hiện tại");
+  const [currentLocationText, setCurrentLocationText] = useState("Vị trí hiện tại");
   const [deviceLocation, setDeviceLocation] = useState(null);
   const apiKey = process.env.GOONG_KEY;
   const geoKey = process.env.GOONG_KEY_2;
-  const mapboxApiKey = process.env.MAP_BOX_KEY;
 
   const getCurrentLocation = useCallback(async () => {
     try {
@@ -55,7 +53,7 @@ const LocationPickerScreen = ({ navigation }) => {
     } catch (error) {
       console.error("Error getting current location:", error);
     }
-  }, [mapboxApiKey]);
+  }, []);
 
   useEffect(() => {
     getCurrentLocation();
@@ -90,13 +88,17 @@ const LocationPickerScreen = ({ navigation }) => {
     (location) => {
       setLoading(true);
       setTimeout(() => {
-        dispatch(setLocation(location));
+        if (isSetDelivery) {
+          dispatch(setDeliveryLocation(location));
+        } else {
+          dispatch(setLocation(location));
+        }
         dispatch(addToHistory(location));
         setLoading(false);
         navigation.goBack();
       }, 500);
     },
-    [dispatch, navigation]
+    [dispatch, navigation, isSetDelivery]
   );
 
   const handleSelectCurrentLocation = useCallback(async () => {
@@ -120,7 +122,11 @@ const LocationPickerScreen = ({ navigation }) => {
         geoKey
       );
       if (address) {
-        dispatch(setLocation(address));
+        if (isSetDelivery) {
+          dispatch(setDeliveryLocation(address));
+        } else {
+          dispatch(setLocation(address));
+        }
         navigation.goBack();
       } else {
         console.log("Could not fetch address");
@@ -130,7 +136,7 @@ const LocationPickerScreen = ({ navigation }) => {
     } finally {
       setCurrentLocationText("Vị trí hiện tại");
     }
-  }, [geoKey ,dispatch, navigation]);
+  }, [geoKey, dispatch, navigation, isSetDelivery]);
 
   const extractStreetName = useCallback((location) => {
     const parts = location.split(",");

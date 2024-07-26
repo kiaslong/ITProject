@@ -52,6 +52,8 @@ import EmailVerificationScreen from "./settingStackScreen/VerifyingScreen/EmailV
 import ImageUploadScreen from "./settingStackScreen/ImageUploadScreen";
 import DocumentUploadScreen from "./settingStackScreen/DocumentUploadScreen";
 import RentalPriceScreen from "./settingStackScreen/RentalPriceScreen";
+import DeliveryLocationScreen from "./homeStackScreen/CarDetailComponent/DeliveryLocationScreen";
+import MapScreen from "./homeStackScreen/CarDetailComponent/MapScreen";
 
 
 
@@ -209,6 +211,8 @@ const RootStack = () => {
       <Stack.Screen name="LocationPicker" component={LocationPickerScreen} />
       <Stack.Screen name="DrivingLicenseScreen" component={DrivingLicenseScreen}  />
       <Stack.Screen name="CarRentalInfoScreen" component={CarRentalInfoScreen} options={{gestureEnabled:false}} />
+      <Stack.Screen name="DeliveryLocationScreen" component={DeliveryLocationScreen} options={{gestureEnabled:false} } />
+      <Stack.Screen name="MapScreen" component={MapScreen} options={{gestureEnabled:false} } />
       <Stack.Screen name="FullMapScreen" component={FullscreenMapComponent} />
     </Stack.Navigator>
   );

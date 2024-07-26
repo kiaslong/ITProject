@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef,useCallback } from "react";
 import { ScrollView, View, StyleSheet, Text, Pressable, FlatList, Dimensions, Platform, RefreshControl, ActivityIndicator } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import CarCard from "../components/CarCard";
@@ -14,6 +14,7 @@ import { getToken } from "../utils/tokenStorage";
 import { updateUser } from "../store/loginSlice";
 import api from "../api";
 import moment from 'moment';
+import { debounce } from 'lodash';
 
 const CarLocation = require('../assets/carlocation.jpg');
 const PaperWork = require('../assets/paperwork.png');
@@ -284,6 +285,8 @@ export default function HomeScreen({ navigation }) {
     setRefreshing(false);
   };
 
+  const onRefreshHandler = useCallback(debounce(onRefresh, 100), []);
+
   if (carStatus === 'loading' || promotionsStatus === 'loading') {
     return (
       <View style={styles.loadingContainer}>
@@ -302,7 +305,7 @@ export default function HomeScreen({ navigation }) {
           refreshing={refreshing}
           progressViewOffset={60}
           enabled={true}
-          onRefresh={onRefresh}
+          onRefresh={onRefreshHandler}
           tintColor="#03a9f4"
           colors={["#03a9f4"]}
         />

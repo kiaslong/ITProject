@@ -13,7 +13,7 @@ const CarCard = ({ carInfo, promotions, navigation }) => {
   };
 
   const handlePress = () => {
-    navigation.navigate('CarDetail', { carInfo: carInfo });
+    navigation.navigate('CarDetail', { carInfo: carInfo ,animationType:"slide_from_bottom"});
   };
 
   const getTransmissionText = (transmission) => {

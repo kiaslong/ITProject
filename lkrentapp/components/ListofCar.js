@@ -11,9 +11,9 @@ import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 import Ionicon from "react-native-vector-icons/Ionicons";
 import CarCard from "../components/CarCard";
 import FilterBottomSheet from "./FilterModal";
-import { getToken } from "../utils/tokenStorage";
-import { useSelector } from "react-redux";
-import api from "../api";
+import { useSelector ,useDispatch } from "react-redux";
+import { getPromotions } from "../store/promotionSlice";
+import { fetchSearchingCars } from "../store/carListSlice";
 
 
 
@@ -66,34 +66,19 @@ const iconData = [
 
 const ListOfCar = ({ navigation }) => {
   const user = useSelector(state => state.loggedIn.user);
-  const [cars, setCars] = useState([]);
   const [loading, setLoading] = useState(true);
   const [visible, setVisible] = useState(false);
   const scrollY = useRef(new Animated.Value(0)).current;
+  const promotions = useSelector((state) => state.promotions.promotions);
+  const dispatch = useDispatch()
 
-  const fetchCars = async () => {
-    const token = await getToken();
-    setLoading(true);
-    try {
-      const response = await api.get('/car/info-exclude-user', {
-        params: {
-          userId: user.id,
-        },
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-      setCars(response.data);
-      setLoading(false);
-    } catch (error) {
-      console.error(error);
-      setLoading(false);
-    }
-  };
+
+  const carList = useSelector((state) => state.carsList.searching);
 
   useEffect(() => {
-    fetchCars();
-  }, []);
+    dispatch(getPromotions());
+    dispatch(fetchSearchingCars(user ? user.id : null));
+  }, [user, dispatch]);
 
 
  
@@ -112,7 +97,7 @@ const ListOfCar = ({ navigation }) => {
 
   const renderItem = ({ item }) => (
     <View style={styles.item}>
-      <CarCard carInfo={item} navigation={navigation} />
+      <CarCard carInfo={item} promotions={promotions} navigation={navigation} />
     </View>
   );
 
@@ -156,7 +141,7 @@ const ListOfCar = ({ navigation }) => {
         </View>
       </Animated.View>
       <Animated.FlatList
-        data={cars}
+        data={carList}
         initialNumToRender={4}
         renderItem={renderItem}
         showsVerticalScrollIndicator={false}

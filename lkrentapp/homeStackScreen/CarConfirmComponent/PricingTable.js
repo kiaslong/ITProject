@@ -12,6 +12,8 @@ const PricingTable = ({ carInfo }) => {
   const time = useSelector((state) => state.time.time);
   const promotions = useSelector((state) => state.promotions.promotions);
   const selectedPromo = useSelector((state) => state.price.selectedPromo);
+  const deliveryPrice = useSelector((state) => state.location.deliveryPrice);
+  const pickupMethod = useSelector((state) => state.location.pickupMethod); // Add pickupMethod selector
   const dispatch = useDispatch();
   const [checked, setChecked] = useState(selectedPromo);
   const [promoCode, setPromoCode] = useState('');
@@ -64,7 +66,6 @@ const PricingTable = ({ carInfo }) => {
     return Math.ceil(durationInDays);
   };
 
-
   const calculateTotalPrice = () => {
     const rentalDurationInDays = calculateRentalDurationInDays(parsedTime.start, parsedTime.end);
     let totalPrice = carInfo.price * rentalDurationInDays * 1000; // Convert to VND
@@ -77,6 +78,10 @@ const PricingTable = ({ carInfo }) => {
           : parseInt(selectedPromotion.discount) * 1000; // Fixed discount in thousands
         totalPrice -= discount;
       }
+    }
+
+    if (pickupMethod === 'delivery' && deliveryPrice) { // Add condition for pickupMethod
+      totalPrice += deliveryPrice;
     }
 
     return totalPrice;
@@ -272,6 +277,12 @@ const PricingTable = ({ carInfo }) => {
           <Text style={styles.label}>Số ngày thuê:</Text>
           <Text style={styles.value}>{calculateRentalDurationInDays(parsedTime.start, parsedTime.end)} ngày</Text>
         </View>
+        {pickupMethod === 'delivery' && deliveryPrice ? (
+          <View style={styles.row}>
+            <Text style={styles.label}>Tiền giao xe tận nơi:</Text>
+            <Text style={styles.value}>{formatPrice(deliveryPrice)} đ</Text>
+          </View>
+        ) : null}
         <View style={styles.section}>
           <Text style={styles.sectionHeader}>Khuyến mãi</Text>
           {allPromotions.map(promo => (
