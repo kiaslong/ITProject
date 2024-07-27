@@ -1,9 +1,29 @@
 version: '3'
 
 services:
+  db:
+    image: postgres:13
+    container_name: lk_rental_db
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: longprobi1
+      POSTGRES_DB: LkRental
+    ports:
+      - "5432:5432"
+    volumes:
+      - db_data:/var/lib/postgresql/data
+
   app:
     build: .
+    container_name: lk_rental_app
     ports:
-      - '3000:3000'
+      - "3000:3000"
+    depends_on:
+      - db
     env_file:
       - .env
+    environment:
+      DATABASE_URL: postgresql://postgres:longprobi1@db:5432/LkRental?schema=public
+
+volumes:
+  db_data:
