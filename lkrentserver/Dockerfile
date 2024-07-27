@@ -16,9 +16,6 @@ RUN npx prisma generate
 
 EXPOSE 3000
 
-# Stage 2: Run the application
-FROM node:20.13.1
 
-WORKDIR /usr/src/app
 
 CMD [  "npm", "run", "start:migrate:prod" ]
