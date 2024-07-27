@@ -13,10 +13,15 @@ CREATE TABLE "User" (
     "password" TEXT NOT NULL,
     "fullName" TEXT NOT NULL DEFAULT 'FullName',
     "dateOfBirth" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "addresses" TEXT[],
     "avatarUrl" TEXT,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
     "drivingLicenseUrl" TEXT,
+    "drivingLicenseFullName" TEXT,
+    "drivingLicenseDOB" TEXT,
+    "drivingLicenseExpireDate" TEXT,
+    "drivingLicenseNumber" TEXT,
     "numberOfSuccessRentals" INTEGER NOT NULL DEFAULT 0,
     "rewardPoints" INTEGER NOT NULL DEFAULT 0,
     "drivingLicenseVerified" BOOLEAN NOT NULL DEFAULT false,
@@ -26,7 +31,7 @@ CREATE TABLE "User" (
     "ownerTrips" TEXT,
     "ownerResponseRate" TEXT NOT NULL DEFAULT '0%',
     "ownerApprovalRate" TEXT NOT NULL DEFAULT '0%',
-    "ownerResponseTime" TEXT NOT NULL DEFAULT '0%',
+    "ownerResponseTime" TEXT NOT NULL DEFAULT '0 phút',
 
     CONSTRAINT "User_pkey" PRIMARY KEY ("id")
 );
@@ -36,6 +41,10 @@ CREATE TABLE "Promotion" (
     "id" SERIAL NOT NULL,
     "promoCode" TEXT NOT NULL,
     "discount" TEXT NOT NULL,
+    "makeApply" TEXT,
+    "modelApply" TEXT,
+    "promotionImageUrl" TEXT,
+    "expireDate" TIMESTAMP(3) NOT NULL,
 
     CONSTRAINT "Promotion_pkey" PRIMARY KEY ("id")
 );
@@ -49,6 +58,7 @@ CREATE TABLE "Car" (
     "licensePlate" TEXT NOT NULL,
     "isCarVerified" BOOLEAN NOT NULL DEFAULT false,
     "allowApplyPromo" BOOLEAN NOT NULL DEFAULT false,
+    "requireCollateral" BOOLEAN NOT NULL DEFAULT false,
     "carImages" TEXT[],
     "carPapers" TEXT[],
     "thumbImage" TEXT NOT NULL,
@@ -83,7 +93,8 @@ CREATE TABLE "Order" (
     "endRentDate" TIMESTAMP(3) NOT NULL,
     "paymentState" "PaymentState" NOT NULL DEFAULT 'PENDING',
     "orderState" "OrderState" NOT NULL DEFAULT 'PENDING',
-    "totalPrice" DOUBLE PRECISION NOT NULL,
+    "messageFromUser" TEXT,
+    "totalPrice" TEXT NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
 
