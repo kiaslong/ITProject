@@ -15,6 +15,10 @@ RUN npm install
 # Copy the rest of the application code
 COPY . .
 
+# Run Prisma migrate and generate
+RUN npx prisma migrate dev --name lkrental
+RUN npx prisma generate
+
 # Build the application
 RUN npm run build
 
