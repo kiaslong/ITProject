@@ -13,7 +13,7 @@ const OwnerCarCard = ({ carInfo, navigation }) => {
   };
 
   const handlePress = () => {
-    navigation.navigate('OwnerCarDetail', { carInfo: carInfo });
+    navigation.navigate('OwnerDetailCarScreen', { carInfo: carInfo, showHeader:true, showBackButton:true, showTitle:true,screenTitle:"Tùy chình xe" });
   };
 
   const getTransmissionText = (transmission) => {

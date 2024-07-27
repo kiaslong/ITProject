@@ -52,6 +52,11 @@ import EmailVerificationScreen from "./settingStackScreen/VerifyingScreen/EmailV
 import ImageUploadScreen from "./settingStackScreen/ImageUploadScreen";
 import DocumentUploadScreen from "./settingStackScreen/DocumentUploadScreen";
 import RentalPriceScreen from "./settingStackScreen/RentalPriceScreen";
+import DeliveryLocationScreen from "./homeStackScreen/CarDetailComponent/DeliveryLocationScreen";
+import MapScreen from "./homeStackScreen/CarDetailComponent/MapScreen";
+import FilteredHistoryScreen from "./historyStackScreen/FilteredHistoryScreen";
+import OwnerCarCard from "./components/OwnerCarCard";
+import OwnerCarDetailScreen from "./settingStackScreen/OwnerCarDetailScreen";
 
 
 
@@ -167,6 +172,7 @@ const RootStack = () => {
         customData1={route.params?.customData1}
         customData2={route.params?.customData2}
         customData3={route.params?.customData3}
+        customData4={route.params?.customData4}
         iconType={route.params?.iconType}
       />
     ),
@@ -199,6 +205,7 @@ const RootStack = () => {
       <Stack.Screen name="DocumentUploadScreen" component={DocumentUploadScreen} options={{gestureEnabled:false}} />
       <Stack.Screen name="RentalPriceScreen" component={RentalPriceScreen} options={{gestureEnabled:false}} />
       <Stack.Screen name="UserRegisterCarScreen" component={UserRegisterCarScreen} />
+      <Stack.Screen name="OwnerDetailCarScreen" component={OwnerCarDetailScreen} options={{gestureEnabled:false}} />
 
 
       <Stack.Screen name="PhoneVerificationScreen" component={PhoneVerificationScreen}  options={{gestureEnabled:false}} />
@@ -209,6 +216,8 @@ const RootStack = () => {
       <Stack.Screen name="LocationPicker" component={LocationPickerScreen} />
       <Stack.Screen name="DrivingLicenseScreen" component={DrivingLicenseScreen}  />
       <Stack.Screen name="CarRentalInfoScreen" component={CarRentalInfoScreen} options={{gestureEnabled:false}} />
+      <Stack.Screen name="DeliveryLocationScreen" component={DeliveryLocationScreen} options={{gestureEnabled:false} } />
+      <Stack.Screen name="MapScreen" component={MapScreen} options={{gestureEnabled:false} } />
       <Stack.Screen name="FullMapScreen" component={FullscreenMapComponent} />
     </Stack.Navigator>
   );
@@ -231,6 +240,7 @@ const HomeStack = () => {
         customData1={route.params?.customData1}
         customData2={route.params?.customData2}
         customData3={route.params?.customData3}
+        customData4={route.params?.customData4}
         iconType={route.params?.iconType}
       />
     ),
@@ -270,6 +280,7 @@ const NotiStack = () => {
         customData1={route.params?.customData1}
         customData2={route.params?.customData2}
         customData3={route.params?.customData3}
+        customData4={route.params?.customData4}
         iconType={route.params?.iconType}
       />
     ),
@@ -307,6 +318,7 @@ const HistoryStack = () => {
         customData1={route.params?.customData1}
         customData2={route.params?.customData2}
         customData3={route.params?.customData3}
+        customData4={route.params?.customData4}
         iconType={route.params?.iconType}
       />
     ),
@@ -322,7 +334,9 @@ const HistoryStack = () => {
 
   return (
     <Stack.Navigator initialRouteName="HistoryHome" screenOptions={commonScreenOptions}>
+     
       <Stack.Screen name="HistoryHome" component={HistoryScreen} initialParams={{ showHeader: true, showBackButton: false, showTitle: true, showSearchBar: false, screenTitle: "Chuyến của tôi" }} />
+      <Stack.Screen name="FilterHistory" component={FilteredHistoryScreen} initialParams={{showHeader:true,showBackButton:true,showTitle:true,screenTitle:"Lịch sử chuyến",showCloseButton:true,animationType:"slide_from_bottom"}}/>
     </Stack.Navigator>
   );
 };
@@ -344,6 +358,7 @@ const SupportStack = () => {
         customData1={route.params?.customData1}
         customData2={route.params?.customData2}
         customData3={route.params?.customData3}
+        customData4={route.params?.customData4}
         iconType={route.params?.iconType}
       />
     ),
@@ -384,6 +399,7 @@ const SettingStack = () => {
         customData1={route.params?.customData1}
         customData2={route.params?.customData2}
         customData3={route.params?.customData3}
+        customData4={route.params?.customData4}
         iconType={route.params?.iconType}
       />
     ),
@@ -430,6 +446,7 @@ const AuthStack = () => {
         customData1={route.params?.customData1}
         customData2={route.params?.customData2}
         customData3={route.params?.customData3}
+        customData4={route.params?.customData4}
         iconType={route.params?.iconType}
       />
     ),

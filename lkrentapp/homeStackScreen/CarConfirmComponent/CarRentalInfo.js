@@ -1,18 +1,39 @@
 import React, { useMemo } from "react";
-import { View, Text, StyleSheet,TouchableOpacity, Dimensions } from "react-native";
+import { View, Text, StyleSheet, TouchableOpacity, Dimensions } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import moment from "moment";
 import { Image } from "expo-image";
+import { useSelector } from "react-redux";
 
 const { width, height } = Dimensions.get("window");
 const scaleWidth = width / 375; // 375 is the width of a standard iPhone screen
 const scaleHeight = height / 667; // 667 is the height of a standard iPhone screen
 
 const CarRentalInfo = ({ carInfo, time, navigation, showCarDetail }) => {
+  const deliveryLocation = useSelector((state) => state.location.deliveryLocation);
+  const pickupMethod = useSelector((state) => state.location.pickupMethod);
+  const carLocation = useSelector((state) => state.location.carLocation);
+  const userLocation = useSelector((state) => state.location.userLocation);
+  
   const handleMapPress = () => {
-    navigation.navigate("FullMapScreen", {
-      address: carInfo.location,
-    });
+    if (pickupMethod !== "self" && carLocation && userLocation) {
+        navigation.navigate("MapScreen", {
+          carLocation: {
+            latitude: carLocation.latitude,
+            longitude: carLocation.longitude,
+            address: carLocation.address,
+          },
+          userLocation: {
+            latitude: userLocation.latitude,
+            longitude: userLocation.longitude,
+            address: userLocation.address,
+          },
+        });
+    } else {
+      navigation.navigate("FullMapScreen", {
+        address: carInfo.location,
+      });
+    }
   };
 
   const currentYear = moment().year();
@@ -26,21 +47,19 @@ const CarRentalInfo = ({ carInfo, time, navigation, showCarDetail }) => {
     if (parts.length > 2) {
       let part2 = parts[2].trim();
       let part3 = parts[3].trim();
-      
-      
-      
-      return [part2,part3].join(', ').trim();
+      return [part2, part3].join(', ').trim();
     }
     return location.trim();
   };
 
+ 
 
   return (
     <View style={styles.container}>
       {showCarDetail && (
         <>
           <View style={styles.header}>
-          <Image
+            <Image
               source={carInfo.thumbImage}
               style={styles.carImage}
               contentFit="contain"
@@ -94,9 +113,11 @@ const CarRentalInfo = ({ carInfo, time, navigation, showCarDetail }) => {
           <View style={styles.locationContainer}>
             <View style={styles.headerDateContainer}>
               <Ionicons name="location-outline" size={20 * scaleWidth} color="#000" />
-              <Text style={styles.locationText}>Nhận xe tại địa chỉ của xe</Text>
+              <Text style={styles.locationText}>
+                {pickupMethod !== "self" ? "Giao xe tại địa chỉ" : "Nhận xe tại địa chỉ của xe"}
+              </Text>
             </View>
-            <Text style={styles.locationAddress}>{trimLocation(carInfo.location)}</Text>
+            <Text style={styles.locationAddress}>{pickupMethod !== "self" && carLocation && userLocation ? deliveryLocation : trimLocation(carInfo.location)}</Text>
             <TouchableOpacity onPress={handleMapPress}>
               <Text style={styles.mapLink}>Xem bản đồ</Text>
             </TouchableOpacity>

@@ -24,6 +24,7 @@ const AddressPickerModal = ({ visible, onClose, onSelect, items, title, initialA
   const [search, setSearch] = useState('');
   const [loading, setLoading] = useState(false);
   const [suggestions, setSuggestions] = useState([]);
+  const [filteredItems, setFilteredItems] = useState([]);
 
   const flatListRef = useRef(null);
   const apiKey = process.env.GOONG_KEY_3; // Replace with your actual API key
@@ -76,6 +77,7 @@ const AddressPickerModal = ({ visible, onClose, onSelect, items, title, initialA
     setSelectedDistrict(null);
     setSelectedWard(null);
     setSearch('');
+    setFilteredItems([]);
   };
 
   const handleCitySelect = (city) => {
@@ -108,8 +110,6 @@ const AddressPickerModal = ({ visible, onClose, onSelect, items, title, initialA
     onClose();
     resetState();
   };
-
-
 
   const debouncedAutoComplete = useMemo(
     () =>
@@ -155,18 +155,28 @@ const AddressPickerModal = ({ visible, onClose, onSelect, items, title, initialA
     return () => debouncedAutoComplete.cancel();
   }, [search, debouncedAutoComplete, step]);
 
-  const renderItems = () => {
+  useEffect(() => {
     switch (step) {
       case 0:
-        return items.cities.map(city => ({ ...city, type: 'city' }));
+        setFilteredItems(items.cities.filter(city => city.name_with_type.toLowerCase().includes(search.toLowerCase())));
+        break;
       case 1:
-        return Object.values(selectedCity['quan-huyen']).map(district => ({ ...district, type: 'district' }));
+        setFilteredItems(Object.values(selectedCity['quan-huyen']).filter(district => district.name_with_type.toLowerCase().includes(search.toLowerCase())));
+        break;
       case 2:
-        return Object.values(selectedDistrict['xa-phuong']).map(ward => ({ ...ward, type: 'ward' }));
-      case 3:
-        return suggestions.map(suggestion => ({ ...suggestion, type: 'street' }));
+        setFilteredItems(Object.values(selectedDistrict['xa-phuong']).filter(ward => ward.name_with_type.toLowerCase().includes(search.toLowerCase())));
+        break;
       default:
-        return [];
+        setFilteredItems([]);
+        break;
+    }
+  }, [search, step, items, selectedCity, selectedDistrict]);
+
+  const renderItems = () => {
+    if (step === 3) {
+      return suggestions.map(suggestion => ({ ...suggestion, type: 'street' }));
+    } else {
+      return filteredItems.map(item => ({ ...item, type: step === 0 ? 'city' : step === 1 ? 'district' : 'ward' }));
     }
   };
 
@@ -216,7 +226,18 @@ const AddressPickerModal = ({ visible, onClose, onSelect, items, title, initialA
               )}
             </View>
           )}
-          {step === 3 ? (
+          {(step === 0 || step === 1 || step === 2) && (
+            <View style={styles.searchContainer}>
+              <Ionicons name="search-outline" size={24} color="black" style={styles.icon} />
+              <TextInput
+                placeholder={step === 0 ? "Tìm thành phố" : step === 1 ? "Tìm quận/huyện" : "Tìm xã/phường"}
+                style={styles.input}
+                value={search}
+                onChangeText={setSearch}
+              />
+            </View>
+          )}
+          {step === 3 && (
             <View style={styles.searchContainer}>
               <Ionicons name="location-outline" size={24} color="black" style={styles.icon} />
               <TextInput
@@ -226,7 +247,7 @@ const AddressPickerModal = ({ visible, onClose, onSelect, items, title, initialA
                 onChangeText={setSearch}
               />
             </View>
-          ) : null}
+          )}
           {loading ? (
             <ActivityIndicator style={styles.loading} size="large" color="#03a9f4" />
           ) : (

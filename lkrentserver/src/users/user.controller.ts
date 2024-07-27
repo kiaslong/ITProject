@@ -120,10 +120,21 @@ export class UserController {
       phoneNumberVerified: user.phoneNumberVerified,
       ownerRating: user.ownerRating,
       ownerTrips: user.ownerTrips,
+      addresses:user.addresses,
       ownerResponseRate: user.ownerResponseRate,
       ownerApprovalRate: user.ownerApprovalRate,
       ownerResponseTime: user.ownerResponseTime,
     };
+  }
+
+
+  @Get(':id/info')
+  @UseGuards(JwtAuthGuard)
+  @ApiOperation({ summary: 'Get user information by ID' })
+  @ApiResponse({ status: 200, description: 'User information retrieved.' })
+  @ApiResponse({ status: 404, description: 'User not found.' })
+  async getUserInfoById(@Param('id', ParseIntPipe) userId: number) {
+    return this.userService.getUserInfo(userId);
   }
 
 

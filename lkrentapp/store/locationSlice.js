@@ -37,7 +37,6 @@ export const fetchInitialLocation = createAsyncThunk(
       });
 
       const { latitude, longitude } = location.coords;
-      console.log(apiKey)
       const url = `https://rsapi.goong.io/Geocode?latlng=${latitude},${longitude}&api_key=${apiKey}`;
       const response = await axios.get(url);
 
@@ -64,6 +63,13 @@ const initialState = {
   history: [],
   loading: false,
   error: null,
+  selectedAddressType: 'custom',
+  deliveryLocation: null, // New state for delivery location
+  deliveryPrice: 0, // New state for delivery price
+  isConfirmed: false,
+  pickupMethod: 'self',
+  carLocation: null,
+    userLocation: null,  // New state for confirmation
 };
 
 const locationSlice = createSlice({
@@ -73,12 +79,33 @@ const locationSlice = createSlice({
     setLocation(state, action) {
       state.location = action.payload;
     },
+    setDeliveryLocation(state, action) {
+      state.deliveryLocation = action.payload;
+    },
     addToHistory(state, action) {
       const location = action.payload;
       state.history = [location, ...state.history.filter((item) => item !== location)];
     },
     clearHistory(state) {
       state.history = [];
+    },
+    setSelectedAddressType(state, action) {
+      state.selectedAddressType = action.payload;
+    },
+    setDeliveryPrice(state, action) {
+      state.deliveryPrice = action.payload;
+    },
+    setIsConfirmed(state, action) { // New reducer to set confirmation state
+      state.isConfirmed = action.payload;
+    },
+    setPickupMethod: (state, action) => { // Add this reducer
+      state.pickupMethod = action.payload;
+    },
+    setCarLocation: (state, action) => {
+      state.carLocation = action.payload;
+    },
+    setUserLocation: (state, action) => {
+      state.userLocation = action.payload;
     },
   },
   extraReducers: (builder) => {
@@ -97,6 +124,7 @@ const locationSlice = createSlice({
   },
 });
 
-export const { setLocation, addToHistory, clearHistory } = locationSlice.actions;
+export const { setLocation, setDeliveryLocation, addToHistory, clearHistory, setSelectedAddressType, setDeliveryPrice, setIsConfirmed ,  setCarLocation,
+  setUserLocation ,setPickupMethod} = locationSlice.actions;
 
 export default locationSlice.reducer;

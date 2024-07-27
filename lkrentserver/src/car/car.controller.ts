@@ -12,7 +12,7 @@ import {
   Logger,
   Query,
   Param,
-  Delete,
+  Delete,Put,
 } from '@nestjs/common';
 import { FilesInterceptor } from '@nestjs/platform-express';
 import {
@@ -29,6 +29,7 @@ import { CreateCarDto } from './dto/create-car.dto';
 import { plainToClass } from 'class-transformer';
 import { validate } from 'class-validator';
 import { VerifyCarDto } from './dto/verify-car.dto';
+import { UpdateCarDto } from './dto/update-car.dto';
 
 @ApiTags('car')
 @ApiBearerAuth()
@@ -42,17 +43,14 @@ export class CarController {
     private readonly cloudinaryService: CloudinaryService,
   ) {}
 
-
   async onModuleInit() {
     // Ensure database connection is established
-   
 
     // Ensure Cloudinary is properly configured
     await this.cloudinaryService.initializeCloudinary();
 
     console.log('UserService initialized: Database and Cloudinary connections established.');
   }
-
 
   @Post('register')
   @ApiOperation({ summary: 'Register a new car' })
@@ -152,7 +150,7 @@ export class CarController {
   @ApiOperation({ summary: 'Get information about all cars' })
   @ApiResponse({ status: 200, description: 'Successfully retrieved car information.' })
   @ApiResponse({ status: 401, description: 'Unauthorized.' })
-  async getInfoVeified() {
+  async getInfoVerified() {
     try {
       const carInfo = await this.carService.getInfoVerified();
      
@@ -164,12 +162,29 @@ export class CarController {
   }
 
   @Get('info-exclude-user')
-  @ApiOperation({ summary: 'Get information about all cars excluding those owned by a specific user' })
-  @ApiResponse({ status: 200, description: 'Successfully retrieved car information excluding specific user.' })
+  @ApiOperation({ summary: 'Get information about all cars excluding those owned by a specific user and optionally in a list of car IDs' })
+  @ApiResponse({ status: 200, description: 'Successfully retrieved car information excluding specific user and optionally car IDs.' })
   @ApiResponse({ status: 401, description: 'Unauthorized.' })
-  async getInfoExcludingUser(@Query('userId') userId: string) {
+  async getInfoExcludingUser(@Query('userId') userId: string, @Query('excludeCarIds') excludeCarIds?: string) {
     try {
-      const carInfo = await this.carService.getInfoExcludingUser(parseInt(userId, 10));
+      this.logger.log(`Exclude car IDs: ${excludeCarIds}`);
+      const carIdsArray = excludeCarIds ? excludeCarIds.split(',').map(id => parseInt(id, 10)) : [];
+      const carInfo = await this.carService.getInfoExcludingUser(parseInt(userId, 10), carIdsArray);
+      return carInfo;
+    } catch (error) {
+      this.logger.error('Error retrieving car information:', error.message);
+      throw new HttpException(error.message, error.status || HttpStatus.BAD_REQUEST);
+    }
+  }
+  
+
+  @Get('info-include-user')
+  @ApiOperation({ summary: 'Get information about all cars including those owned by a specific user' })
+  @ApiResponse({ status: 200, description: 'Successfully retrieved car information including specific user.' })
+  @ApiResponse({ status: 401, description: 'Unauthorized.' })
+  async getInfoIncludingUser(@Query('userId') userId: string) {
+    try {
+      const carInfo = await this.carService.getInfoIncludingUser(parseInt(userId, 10));
       return carInfo;
     } catch (error) {
       this.logger.error('Error retrieving car information:', error.message);
@@ -177,59 +192,89 @@ export class CarController {
     }
   }
 
-  @Get('info-include-user')
-@ApiOperation({ summary: 'Get information about all cars including those owned by a specific user' })
-@ApiResponse({ status: 200, description: 'Successfully retrieved car information including specific user.' })
-@ApiResponse({ status: 401, description: 'Unauthorized.' })
-async getInfoIncludingUser(@Query('userId') userId: string) {
-  try {
-    const carInfo = await this.carService.getInfoIncludingUser(parseInt(userId, 10));
-    return carInfo;
-  } catch (error) {
-    this.logger.error('Error retrieving car information:', error.message);
-    throw new HttpException(error.message, error.status || HttpStatus.BAD_REQUEST);
-  }
-}
 
+  @Patch('verify')
+  @ApiOperation({ summary: 'Verify a car' })
+  @ApiResponse({ status: 200, description: 'Car successfully verified.' })
+  @ApiResponse({ status: 400, description: 'Bad Request.' })
+  @ApiResponse({ status: 401, description: 'Unauthorized.' })
+  async verifyCar(@Body() verifyCarDto: VerifyCarDto) {
+    try {
+      const errors = await validate(verifyCarDto);
+      if (errors.length > 0) {
+        this.logger.error('Validation failed:', errors);
+        throw new HttpException({ message: 'Validation failed', errors }, HttpStatus.BAD_REQUEST);
+      }
 
-@Patch('verify')
-@ApiOperation({ summary: 'Verify a car' })
-@ApiResponse({ status: 200, description: 'Car successfully verified.' })
-@ApiResponse({ status: 400, description: 'Bad Request.' })
-@ApiResponse({ status: 401, description: 'Unauthorized.' })
-async verifyCar(@Body() verifyCarDto: VerifyCarDto) {
-  try {
-    const errors = await validate(verifyCarDto);
-    if (errors.length > 0) {
-      this.logger.error('Validation failed:', errors);
-      throw new HttpException({ message: 'Validation failed', errors }, HttpStatus.BAD_REQUEST);
+      await this.carService.verifyCar(verifyCarDto.carId, verifyCarDto.isCarVerified);
+      this.logger.log(`Car ${verifyCarDto.carId} verification status set to ${verifyCarDto.isCarVerified}`);
+
+      return { message: 'Car successfully verified' };
+    } catch (error) {
+      this.logger.error('Error verifying car:', error.message);
+      throw new HttpException(error.message, error.status || HttpStatus.BAD_REQUEST);
     }
-
-    await this.carService.verifyCar(verifyCarDto.carId, verifyCarDto.isCarVerified);
-    this.logger.log(`Car ${verifyCarDto.carId} verification status set to ${verifyCarDto.isCarVerified}`);
-
-    return { message: 'Car successfully verified' };
-  } catch (error) {
-    this.logger.error('Error verifying car:', error.message);
-    throw new HttpException(error.message, error.status || HttpStatus.BAD_REQUEST);
   }
-}
 
-@Delete(':id')
-@ApiOperation({ summary: 'Delete a car' })
-@ApiResponse({ status: 200, description: 'Car successfully deleted.' })
-@ApiResponse({ status: 400, description: 'Bad Request.' })
-@ApiResponse({ status: 401, description: 'Unauthorized.' })
-async deleteCar(@Param('id') id: string) {
-  try {
+  @Delete(':id')
+  @ApiOperation({ summary: 'Delete a car' })
+  @ApiResponse({ status: 200, description: 'Car successfully deleted.' })
+  @ApiResponse({ status: 400, description: 'Bad Request.' })
+  @ApiResponse({ status: 401, description: 'Unauthorized.' })
+  async deleteCar(@Param('id') id: string) {
+    try {
+      const carId = parseInt(id, 10);
+      const result = await this.carService.deleteCar(carId);
+      return result;
+    } catch (error) {
+      this.logger.error(`Error deleting car with ID ${id}:`, error.message);
+      throw new HttpException(error.message, error.status || HttpStatus.BAD_REQUEST);
+    }
+  }
+
+  @Get(':id')
+  @ApiOperation({ summary: 'Get information about a car by ID' })
+  @ApiResponse({ status: 200, description: 'Successfully retrieved car information.' })
+  @ApiResponse({ status: 404, description: 'Car not found.' })
+  @ApiResponse({ status: 401, description: 'Unauthorized.' })
+  async getCarById(@Param('id') id: string) {
+    try {
+      const carId = parseInt(id, 10);
+      if (isNaN(carId)) {
+        throw new HttpException('Invalid car ID', HttpStatus.BAD_REQUEST);
+      }
+      const carInfo = await this.carService.getCarById(carId);
+      return carInfo;
+    } catch (error) {
+      this.logger.error(`Error retrieving car information for ID ${id}:`, error.message);
+      throw new HttpException(error.message, error.status || HttpStatus.BAD_REQUEST);
+    }
+  }
+
+
+
+  @Put(':id')
+  @ApiOperation({ summary: 'Update car details' })
+  @ApiResponse({ status: 200, description: 'Car details updated successfully.' })
+  @ApiResponse({ status: 404, description: 'Car not found.' })
+  @ApiResponse({ status: 401, description: 'Unauthorized.' })
+  async updateCarDetails(
+    @Param('id') id: string,
+    @Body() updateCarDto: UpdateCarDto,
+  ): Promise<any> {
     const carId = parseInt(id, 10);
-    const result = await this.carService.deleteCar(carId);
-    return result;
-  } catch (error) {
-    this.logger.error(`Error deleting car with ID ${id}:`, error.message);
-    throw new HttpException(error.message, error.status || HttpStatus.BAD_REQUEST);
+    if (isNaN(carId)) {
+      throw new HttpException('Invalid car ID', HttpStatus.BAD_REQUEST);
+    }
+    const updatedCar = await this.carService.updateCarDetails(carId, updateCarDto);
+    if (!updatedCar) {
+      throw new HttpException('Car not found', HttpStatus.NOT_FOUND);
+    }
+    return {
+      message: 'Car details updated successfully',
+      updatedCar,
+    };
   }
-}
 
-
+  
 }

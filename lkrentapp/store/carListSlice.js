@@ -4,28 +4,17 @@ import { getAdminToken, getToken } from '../utils/tokenStorage';
 
 export const fetchSearchingCars = createAsyncThunk(
   'cars/fetchSearchingCars',
-  async (userId) => {
-    const token = await getToken();
-    const response = await api.get('/car/info-exclude-user', {
-      params: { userId, type: 'searching' },
-      headers: { Authorization: `Bearer ${token}` },
-    });
-    return response.data;
-  }
-);
-
-export const fetchCarForYou = createAsyncThunk(
-  'cars/fetchCarForYou',
-  async (userId, { rejectWithValue }) => {
+  async ({ userId, carIds }) => {
     try {
       const token = await getToken();
-      const adminToken = await getAdminToken()
+      const adminToken = await getAdminToken();
 
       let response;
-      
+   
+
       if (userId) {
         response = await api.get('/car/info-exclude-user', {
-          params: { userId, type: 'carForYou' },
+          params: { userId, excludeCarIds: carIds.join(','), type: 'carForYou' },
           headers: { Authorization: `Bearer ${token}` },
         });
       } else {
@@ -33,9 +22,38 @@ export const fetchCarForYou = createAsyncThunk(
           headers: { Authorization: `Bearer ${adminToken}` },
         });
       }
-      
+
       return response.data;
-      
+
+    } catch (error) {
+      return rejectWithValue(error.response.data);
+    }
+  }
+);
+
+export const fetchCarForYou = createAsyncThunk(
+  'cars/fetchCarForYou',
+  async ({ userId, carIds }, { rejectWithValue }) => {
+    try {
+      const token = await getToken();
+      const adminToken = await getAdminToken();
+
+      let response;
+   
+
+      if (userId) {
+        response = await api.get('/car/info-exclude-user', {
+          params: { userId, excludeCarIds: carIds.join(','), type: 'carForYou' },
+          headers: { Authorization: `Bearer ${token}` },
+        });
+      } else {
+        response = await api.get('/car/info-verified', {
+          headers: { Authorization: `Bearer ${adminToken}` },
+        });
+      }
+
+      return response.data;
+
     } catch (error) {
       return rejectWithValue(error.response.data);
     }
@@ -44,10 +62,10 @@ export const fetchCarForYou = createAsyncThunk(
 
 export const fetchCarHistory = createAsyncThunk(
   'cars/fetchCarHistory',
-  async (userId) => {
+  async ({ userId, carIds }) => {
     const token = await getToken();
     const response = await api.get('/car/info-exclude-user', {
-      params: { userId, type: 'carHistory' },
+      params: { userId, excludeCarIds: carIds.join(','), type: 'carHistory' },
       headers: { Authorization: `Bearer ${token}` },
     });
     return response.data;
@@ -65,6 +83,7 @@ export const fetchOwnerCars = createAsyncThunk(
     return response.data;
   }
 );
+
 
 const carListSlice = createSlice({
   name: 'carsList',

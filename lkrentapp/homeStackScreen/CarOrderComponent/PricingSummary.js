@@ -1,27 +1,36 @@
 import React, { useState, useRef } from 'react';
 import {
-    View,
-    Text,
-    TouchableOpacity,
-    StyleSheet,
-    Dimensions,
-    Modal,
-    TouchableWithoutFeedback,
-    Animated,
-    Easing,
+  View,
+  Text,
+  TouchableOpacity,
+  StyleSheet,
+  Dimensions,
+  Modal,
+  TouchableWithoutFeedback,
+  Animated,
+  Easing,
 } from 'react-native';
+import { useRoute } from '@react-navigation/native';
 import Icon from 'react-native-vector-icons/Ionicons';
 
 const { height } = Dimensions.get('window');
 
-const PricingSummary = () => {
-  const [mainModalVisible, setMainModalVisible] = useState(false);
+const PricingSummary = ({ totalPrice: propsTotalPrice }) => {
+  const route = useRoute();
+  const totalPrice = propsTotalPrice ?? route.params?.totalPrice ?? 0;
+
   const [detailModalVisible, setDetailModalVisible] = useState(false);
   const [paymentModalVisible, setPaymentModalVisible] = useState(false);
   const [wasMainModalOpen, setWasMainModalOpen] = useState(false);
-  const mainModalSlideAnim = useRef(new Animated.Value(height)).current;
   const detailModalSlideAnim = useRef(new Animated.Value(height)).current;
   const paymentModalSlideAnim = useRef(new Animated.Value(height)).current;
+
+  const formatPrice = (price) => {
+    return price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
+  };
+
+  const depositAmount = totalPrice * 0.3;
+  const remainingAmount = totalPrice - depositAmount;
 
   const animateModal = (modalAnim, toValue, duration, callback) => {
     Animated.timing(modalAnim, {
@@ -32,49 +41,27 @@ const PricingSummary = () => {
     }).start(callback);
   };
 
-  const openMainModal = () => {
-    setMainModalVisible(true);
-    animateModal(mainModalSlideAnim, 0, 200);
-  };
-
-  const closeMainModal = (callback) => {
-    animateModal(mainModalSlideAnim, height, 200, () => {
-      setMainModalVisible(false);
-      if (callback) callback();
-    });
-  };
-
   const openDetailModal = () => {
-    setWasMainModalOpen(mainModalVisible);
-    closeMainModal(() => {
-      setDetailModalVisible(true);
-      animateModal(detailModalSlideAnim, 0, 200);
-    });
+    setWasMainModalOpen(true);
+    setDetailModalVisible(true);
+    animateModal(detailModalSlideAnim, 0, 200);
   };
 
   const closeDetailModal = () => {
     animateModal(detailModalSlideAnim, height, 200, () => {
       setDetailModalVisible(false);
-      if (wasMainModalOpen) {
-        openMainModal();
-      }
     });
   };
 
   const openPaymentModal = () => {
-    setWasMainModalOpen(mainModalVisible);
-    closeMainModal(() => {
-      setPaymentModalVisible(true);
-      animateModal(paymentModalSlideAnim, 0, 200);
-    });
+    setWasMainModalOpen(true);
+    setPaymentModalVisible(true);
+    animateModal(paymentModalSlideAnim, 0, 200);
   };
 
   const closePaymentModal = () => {
     animateModal(paymentModalSlideAnim, height, 200, () => {
       setPaymentModalVisible(false);
-      if (wasMainModalOpen) {
-        openMainModal();
-      }
     });
   };
 
@@ -94,60 +81,19 @@ const PricingSummary = () => {
                 { transform: [{ translateY: modalAnim }] },
               ]}
             >
-               <TouchableOpacity
-                  style={[styles.button, styles.buttonClose]}
-                  onPress={closeModal}
-                >
-                  <Text style={styles.textStyle}>X</Text>
-                </TouchableOpacity>
+              <TouchableOpacity
+                style={[styles.button, styles.buttonClose]}
+                onPress={closeModal}
+              >
+                <Text style={styles.textStyle}>X</Text>
+              </TouchableOpacity>
               {content}
-              <View style={styles.paddingBottom} ></View>
+              <View style={styles.paddingBottom}></View>
             </Animated.View>
           </TouchableWithoutFeedback>
         </View>
       </TouchableWithoutFeedback>
     </Modal>
-  );
-
-  const mainModalContent = (
-    <>
-      <Text style={styles.title}>Bảng tính giá</Text>
-      <View style={styles.row}>
-        <View style={styles.labelContainer}>
-          <Text style={styles.label}>Đơn giá thuê</Text>
-          <TouchableOpacity onPress={openDetailModal}>
-            <Icon name="help-circle-outline" size={16} color="#000" style={styles.icon} />
-          </TouchableOpacity>
-        </View>
-        <Text style={styles.amount}>803 600 đ/ngày</Text>
-      </View>
-      <View style={styles.row}>
-        <Text style={styles.label}>Tổng cộng</Text>
-        <Text style={styles.amount}>875 700 đ x 1 ngày</Text>
-      </View>
-      <View style={styles.row}>
-        <Text style={styles.label}>Thành tiền</Text>
-        <Text style={styles.amount}>875 700 đ</Text>
-      </View>
-      <View style={styles.row}>
-        <View style={styles.labelContainer}>
-          <Text style={styles.label}>Đặt cọc qua ứng dụng</Text>
-          <TouchableOpacity onPress={openDetailModal}>
-            <Icon name="help-circle-outline" size={16} color="#000" style={styles.icon} />
-          </TouchableOpacity>
-        </View>
-        <Text style={styles.depositAmount}>288 700 đ</Text>
-      </View>
-      <View style={styles.row}>
-        <View style={styles.labelContainer}>
-          <Text style={styles.label}>Thanh toán khi nhận xe</Text>
-          <TouchableOpacity onPress={openPaymentModal}>
-            <Icon name="help-circle-outline" size={16} color="#000" style={styles.icon} />
-          </TouchableOpacity>
-        </View>
-        <Text style={styles.paymentAmount}>587 000 đ</Text>
-      </View>
-    </>
   );
 
   const detailModalContent = (
@@ -177,7 +123,7 @@ const PricingSummary = () => {
       <View style={styles.summaryBox}>
         <View style={styles.row}>
           <Text style={styles.label}>Thành tiền</Text>
-          <Text style={styles.amount}>970 970đ</Text>
+          <Text style={styles.amount}>{formatPrice(totalPrice)}đ</Text>
         </View>
         <View style={styles.row}>
           <View style={styles.labelContainer}>
@@ -186,7 +132,7 @@ const PricingSummary = () => {
               <Icon name="help-circle-outline" size={18} color="#000" style={styles.icon} />
             </TouchableOpacity>
           </View>
-          <Text style={styles.depositAmount}>319 970đ</Text>
+          <Text style={styles.depositAmount}>{formatPrice(depositAmount)}đ</Text>
         </View>
         <View style={styles.row}>
           <View style={styles.labelContainer}>
@@ -195,14 +141,10 @@ const PricingSummary = () => {
               <Icon name="help-circle-outline" size={18} color="#000" style={styles.icon} />
             </TouchableOpacity>
           </View>
-          <Text style={styles.paymentAmount}>651 000đ</Text>
+          <Text style={styles.paymentAmount}>{formatPrice(remainingAmount)}đ</Text>
         </View>
-        <TouchableOpacity onPress={openMainModal}>
-          <Text style={styles.detailText}>Xem chi tiết</Text>
-        </TouchableOpacity>
       </View>
 
-      {renderModal(mainModalVisible, mainModalContent, () => closeMainModal(), mainModalSlideAnim)}
       {renderModal(detailModalVisible, detailModalContent, closeDetailModal, detailModalSlideAnim)}
       {renderModal(paymentModalVisible, paymentModalContent, closePaymentModal, paymentModalSlideAnim)}
     </View>
@@ -258,12 +200,6 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: '#03A9F4',
   },
-  detailText: {
-    color: '#03A9F4',
-    fontWeight: 'bold',
-    textAlign: 'left',
-    marginTop: 8,
-  },
   modalOverlay: {
     flex: 1,
     justifyContent: 'flex-end',
@@ -282,8 +218,8 @@ const styles = StyleSheet.create({
     padding: 5,
     width: 28,
     height: 28,
-    marginBottom:16,
-    marginTop:16,
+    marginBottom: 16,
+    marginTop: 16,
   },
   buttonClose: {
     backgroundColor: "#03A9F4",
@@ -304,8 +240,8 @@ const styles = StyleSheet.create({
     fontSize: 15,
     marginBottom: 10,
   },
-  paddingBottom:{
-    paddingBottom:20,
+  paddingBottom: {
+    paddingBottom: 20,
   }
 });
 

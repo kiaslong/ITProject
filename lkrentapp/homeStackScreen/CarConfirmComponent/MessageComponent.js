@@ -1,15 +1,17 @@
-import React from "react";
-import {
-  StyleSheet,
-  Text,
-  TextInput,
-  View,
-  TouchableOpacity,
-  Image,
-} from "react-native";
-import Icon from "react-native-vector-icons/Ionicons";
+import React from 'react';
+import { StyleSheet, Text, TextInput, View, TouchableOpacity } from 'react-native';
+import Icon from 'react-native-vector-icons/Ionicons';
+import { useDispatch, useSelector } from 'react-redux';
+import { setMessage } from '../../store/messageSlice';
 
 const MessageComponent = () => {
+  const dispatch = useDispatch();
+  const message = useSelector((state) => state.message.content);
+
+  const handleTextChange = (text) => {
+    dispatch(setMessage(text));
+  };
+
   return (
     <View style={styles.container}>
       <View style={styles.labelContainer}>
@@ -22,17 +24,13 @@ const MessageComponent = () => {
         style={styles.textArea}
         placeholder="Nhập nội dung lời nhắn cho chủ xe"
         multiline
+        value={message}
+        onChangeText={handleTextChange}
       />
       <View style={styles.note}>
-        <Icon
-          name="lock-closed-outline"
-          size={20}
-          color="grey"
-          style={styles.icon}
-        />
+        <Icon name="lock-closed-outline" size={20} color="grey" style={styles.icon} />
         <Text style={styles.noteText}>
-          Giao dịch qua LKRental để chúng tôi bảo vệ bạn tốt nhất trong trường
-          hợp bị hủy chuyến ngoài ý muốn & phát sinh sự cố bảo hiểm.
+          Giao dịch qua LKRental để chúng tôi bảo vệ bạn tốt nhất trong trường hợp bị hủy chuyến ngoài ý muốn & phát sinh sự cố bảo hiểm.
         </Text>
       </View>
     </View>
@@ -42,34 +40,34 @@ const MessageComponent = () => {
 const styles = StyleSheet.create({
   container: {
     padding: 16,
-    backgroundColor: "#fff",
+    backgroundColor: '#fff',
   },
-  labelContainer:{
-    flexDirection:"row",
-    justifyContent:"space-between",
+  labelContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
   },
   label: {
     fontSize: 16,
-    fontWeight: "bold",
+    fontWeight: 'bold',
     marginBottom: 5,
-    color: "#03A9F4",
+    color: '#03A9F4',
   },
   textArea: {
     height: 100,
-    borderColor: "#ccc",
+    borderColor: '#ccc',
     borderWidth: 1,
     padding: 10,
-    textAlignVertical: "top",
+    textAlignVertical: 'top',
     fontSize: 14,
   },
   suggestText: {
-    color: "#03A9F4",
-    alignSelf:"flex-end",
-    textDecorationLine: "underline",
+    color: '#03A9F4',
+    alignSelf: 'flex-end',
+    textDecorationLine: 'underline',
   },
   note: {
-    flexDirection: "row",
-    alignItems: "center",
+    flexDirection: 'row',
+    alignItems: 'center',
     marginTop: 10,
   },
   icon: {
@@ -77,9 +75,9 @@ const styles = StyleSheet.create({
   },
   noteText: {
     fontSize: 12,
-    color: "grey",
+    color: 'grey',
     flex: 1,
-    flexWrap: "wrap",
+    flexWrap: 'wrap',
   },
 });
 

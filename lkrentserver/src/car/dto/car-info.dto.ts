@@ -43,7 +43,7 @@ export class CarFeatureDto {
     rating: string;
     trips: string;
     avatar: string;
-
+    phoneNumber:string;
     responseRate: string;
     approvalRate: string;
     responseTime: string;

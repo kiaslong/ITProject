@@ -22,8 +22,8 @@ const initialState = {
   discount: false,
   discountPercentage: 20,
   fastAcceptBooking: false,
-  startDateFastBooking: '6 giờ tới',
-  endDateFastBooking: '2 tuần tới (khuyến nghị)',
+  startDateFastBooking: '',
+  endDateFastBooking: '',
 };
 
 

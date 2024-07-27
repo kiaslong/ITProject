@@ -66,4 +66,7 @@ export class UserInfoDto {
 
   @ApiProperty({ required: false, nullable: true })
   ownerResponseTime?: string;
+
+  @ApiProperty({ required: false, nullable: true, type: [String] })
+  addresses?: string[];
 }
