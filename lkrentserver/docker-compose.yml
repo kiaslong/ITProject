@@ -1,36 +1,25 @@
+# YAML configuration file for Docker Compose version 3.8
 version: '3.8'
 
+# Define services
 services:
-  db:
-    image: postgres:13
-    container_name: lk_rental_db
-    environment:
-      POSTGRES_USER: ${POSTGRES_USER:-postgres}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-longprobi1}
-      POSTGRES_DB: ${POSTGRES_DB:-LkRental}
-    ports:
-      - "5432:5432"
-    volumes:
-      - db_data:/var/lib/postgresql/data
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
 
-  app:
-    build: .
-    container_name: lk_rental_app
+  # Database service using PostgreSQL image
+  database:
+    image: postgres:latest  # Use the latest PostgreSQL image from Docker Hub
+    environment:
+      POSTGRES_DB: databasename  # Define the name of the database
+      POSTGRES_USER: username    # Define the username for accessing the database
+      POSTGRES_PASSWORD: password  # Define the password for the user
     ports:
-      - "3000:3000"
+      - "5432:5432"  # Forward the container's port 5432 to the host machine's port 5432 for accessing PostgreSQL
+
+  # Backend service
+  backend:
+    build: .  # Build the Docker image using the Dockerfile in the current directory
+    ports:
+      - "3333:3333"  # Forward the container's port 3333 to the host machine's port 3333 for accessing the backend service
     depends_on:
-      db:
-        condition: service_healthy
+      - database  # Ensure that the backend service starts after the database service is up and running
     env_file:
-      - .env
-    environment:
-      DATABASE_URL: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-longprobi1}@db:5432/${POSTGRES_DB:-LkRental}?schema=public
-    command: sh -c "npx prisma generate && npx prisma migrate deploy && npm run start:prod"
-
-volumes:
-  db_data:
+      - .env  # Load environment variables from the .env file in the current directory
