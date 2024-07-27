@@ -1,6 +1,6 @@
 import { IsNotEmpty, IsNumber, IsString, IsDate, IsEnum, IsOptional } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
-import { PaymentState, OrderState } from '@prisma/client';
+import { OrderState, PaymentState } from './order.enums';
 import { Type } from 'class-transformer';
 
 export class CreateOrderDto {
@@ -68,5 +68,5 @@ export class CreateOrderDto {
   })
   @IsOptional()
   @IsString()
-  messageFromUser: string;
+  messageFromUser?: string;
 }
