@@ -10,7 +10,7 @@ COPY package*.json ./
 RUN npm install -g npm@10.8.2
 
 # Install dependencies
-RUN npm install
+RUN npm ci
 
 # Copy the rest of the application code
 COPY . .
@@ -28,23 +28,14 @@ WORKDIR /usr/src/app
 
 # Copy the built files from the builder stage
 COPY --from=builder /usr/src/app/dist ./dist
-COPY --from=builder /usr/src/app/node_modules/.prisma ./node_modules/.prisma
-COPY --from=builder /usr/src/app/node_modules/@prisma ./node_modules/@prisma
+COPY --from=builder /usr/src/app/node_modules ./node_modules
+COPY --from=builder /usr/src/app/package*.json ./
 
-# Copy package.json and package-lock.json
-COPY package*.json ./
-
-# Install npm v10.8.2 if not already the default
-RUN npm install -g npm@10.8.2
-
-# Install production dependencies
-RUN npm install --only=production --quiet
+# Copy Prisma files
+COPY --from=builder /usr/src/app/prisma ./prisma
 
 # Copy the .env file
 COPY .env .env
-
-# Copy Prisma schema and migrations
-COPY prisma ./prisma
 
 # Generate Prisma client again in the final stage
 RUN npx prisma generate
