@@ -15,21 +15,26 @@ const UserProfile = ({ carInfo, showStats, orderId }) => {
   const [additionalInfoText, setAdditionalInfoText] = useState(defaultAdditionalInfoText);
 
   const fetchOrderDetails = useCallback(async () => {
+    if (!orderId) return;
+
     const token = await getToken();
     try {
       const response = await api.get(`/order/${orderId}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
-      setPaymentState(response.data.paymentState);
-      if (response.data.paymentState === 'COMPLETED') {
-        setAdditionalInfoText(`Liên hệ chủ xe: ${phoneNumber}`);
-      } else {
-        setAdditionalInfoText(defaultAdditionalInfoText);
+      const newPaymentState = response.data.paymentState;
+      if (newPaymentState !== paymentState) {
+        setPaymentState(newPaymentState);
+        if (newPaymentState === 'COMPLETED') {
+          setAdditionalInfoText(`Liên hệ chủ xe: ${phoneNumber}`);
+        } else {
+          setAdditionalInfoText(defaultAdditionalInfoText);
+        }
       }
     } catch (error) {
       console.error('Failed to fetch order details', error);
     }
-  }, [orderId, phoneNumber]);
+  }, [orderId, phoneNumber, paymentState]);
 
   useEffect(() => {
     fetchOrderDetails();
@@ -37,7 +42,7 @@ const UserProfile = ({ carInfo, showStats, orderId }) => {
 
   useInterval(() => {
     fetchOrderDetails();
-  }, 1000);
+  }, orderId ? 1000 : null);
 
   const calculateBadgeLevel = (rating, trips, responseRate, responseTime, approvalRate) => {
     const numericRating = parseFloat(rating);

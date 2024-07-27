@@ -5,12 +5,29 @@ import { getAdminToken, getToken } from '../utils/tokenStorage';
 export const fetchSearchingCars = createAsyncThunk(
   'cars/fetchSearchingCars',
   async ({ userId, carIds }) => {
-    const token = await getToken();
-    const response = await api.get('/car/info-exclude-user', {
-      params: { userId, excludeCarIds: carIds.join(','), type: 'searching' },
-      headers: { Authorization: `Bearer ${token}` },
-    });
-    return response.data;
+    try {
+      const token = await getToken();
+      const adminToken = await getAdminToken();
+
+      let response;
+   
+
+      if (userId) {
+        response = await api.get('/car/info-exclude-user', {
+          params: { userId, excludeCarIds: carIds.join(','), type: 'carForYou' },
+          headers: { Authorization: `Bearer ${token}` },
+        });
+      } else {
+        response = await api.get('/car/info-verified', {
+          headers: { Authorization: `Bearer ${adminToken}` },
+        });
+      }
+
+      return response.data;
+
+    } catch (error) {
+      return rejectWithValue(error.response.data);
+    }
   }
 );
 
@@ -22,7 +39,7 @@ export const fetchCarForYou = createAsyncThunk(
       const adminToken = await getAdminToken();
 
       let response;
-      console.log(carIds)
+   
 
       if (userId) {
         response = await api.get('/car/info-exclude-user', {

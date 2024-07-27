@@ -6,6 +6,7 @@ import api from "../../api";
 import { getToken } from "../../utils/tokenStorage";
 import { setDeliveryPrice, setIsConfirmed } from '../../store/locationSlice';
 import { setSelectedPromo } from "../../store/priceSlice";
+import { setMessage } from "../../store/messageSlice";
 
 const FooterComponent = ({ carInfo, navigation, time }) => {
   const [isChecked, setIsChecked] = useState(true);
@@ -96,6 +97,7 @@ const FooterComponent = ({ carInfo, navigation, time }) => {
         dispatch(setDeliveryPrice(0));
         dispatch(setIsConfirmed(false));
         dispatch(setSelectedPromo(null));
+        dispatch(setMessage(''));
         
         setTimeout(() => {
           setIsLoading(false);

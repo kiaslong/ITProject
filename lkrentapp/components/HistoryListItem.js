@@ -10,14 +10,14 @@ const orderStateTranslations = {
   PENDING: 'Đang chờ',
   CONFIRMED: 'Đã xác nhận',
   CANCELED: 'Đã hủy',
-  COMPLETED: 'Đã hoàn thành'
+  COMPLETED: 'Đã hoàn thành',
 };
 
 const paymentStateTranslations = {
   PENDING: 'Đang chờ thanh toán',
   COMPLETED: 'Đã thanh toán',
-  FAILED: 'Thanh toán thất bại',
-  REFUNDED: 'Đã hoàn tiền'
+  FAILED: 'Thanh toán thất bại hoặc có người đặt cọc trước',
+  REFUNDED: 'Đã hoàn tiền',
 };
 
 const HistoryListItem = ({ history, onPress }) => {
@@ -83,7 +83,7 @@ const HistoryListItem = ({ history, onPress }) => {
           <Text style={[styles.status, history.orderState === 'CANCELED' && styles.statusCanceled]}>
             {memoizedOrderState}
           </Text>
-          <Image 
+          <Image
             source={{ uri: history.carInfo.thumbImage }}
             style={styles.image}
             resizeMode="auto"
@@ -97,21 +97,30 @@ const HistoryListItem = ({ history, onPress }) => {
           <Text style={styles.timeText}>
             <Ionicons name="calendar" size={18} color="black" /> Kết thúc: {formatDate(history.endRentDate)}
           </Text>
-          {history.orderState !== 'COMPLETED' && (
+          {history.autoCanceled ? (
+            <Text style={styles.autoCanceledText}>
+              Đơn hàng bị hủy do có giao dịch mới.
+            </Text>
+          ) : (
             <>
-              <Text style={styles.remainingTime}>
-                Thanh toán: <Text style={[styles.status, history.paymentState === 'FAILED' && styles.statusFailed]}>
-                  {history.orderState === 'PENDING' ? 'Đang chờ duyệt' : memoizedPaymentState}
-                </Text>
-              </Text>
-              {history.paymentState === 'PENDING' && history.orderState === 'CONFIRMED' ? (
-                <Text style={styles.remainingTime}>
-                  Thời gian còn lại: <Text style={styles.remainingTimeText}>{remainingTime}</Text>
-                </Text>
-              ) : remainingTime === 'Hết hạn' && (
-                <Text style={styles.expiredText}>
-                  Bạn đã hết thời gian thanh toán cọc
-                </Text>
+              {history.orderState !== 'COMPLETED' && (
+                <>
+                  <Text style={styles.remainingTime}>
+                    Thanh toán:{' '}
+                    <Text style={[styles.status, history.paymentState === 'FAILED' && styles.statusFailed]}>
+                      {history.orderState === 'PENDING' ? 'Đang chờ duyệt' : memoizedPaymentState}
+                    </Text>
+                  </Text>
+                  {history.paymentState === 'PENDING' && history.orderState === 'CONFIRMED' ? (
+                    <Text style={styles.remainingTime}>
+                      Thời gian còn lại: <Text style={styles.remainingTimeText}>{remainingTime}</Text>
+                    </Text>
+                  ) : remainingTime === 'Hết hạn' && (
+                    <Text style={styles.expiredText}>
+                      Bạn đã hết thời gian thanh toán cọc
+                    </Text>
+                  )}
+                </>
               )}
             </>
           )}
@@ -195,5 +204,12 @@ const styles = StyleSheet.create({
     color: 'red',
     marginTop: 5,
     textAlign: 'left',
+  },
+  autoCanceledText: {
+    fontSize: 14,
+    color: 'red',
+    marginTop: 5,
+    textAlign: 'left',
+    fontWeight: 'bold',
   },
 });

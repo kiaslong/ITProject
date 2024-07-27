@@ -112,4 +112,27 @@ export class OrderService {
       throw new HttpException('Failed to get orders by user ID', HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
+
+  async getOrderByCarId(carId: number): Promise<Order[]> {
+    try {
+      return await this.prisma.order.findMany({
+        where: {
+          carId,
+          paymentState: {
+            in: [PaymentState.COMPLETED],
+            
+          },
+          orderState:{
+            in: [OrderState.CONFIRMED],
+          }
+        },
+      });
+    } catch (error) {
+      if (error instanceof Prisma.PrismaClientKnownRequestError) {
+        throw new HttpException(`Database error: ${error.message}`, HttpStatus.BAD_REQUEST);
+      }
+      throw new HttpException('Failed to get orders by car ID', HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+  }
+
 }

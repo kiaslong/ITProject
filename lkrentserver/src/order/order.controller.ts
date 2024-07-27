@@ -119,6 +119,26 @@ export class OrderController {
     return orders;
   }
 
+
+  
+  @Get('car/:carId')
+  @ApiOperation({ summary: 'Get orders by car ID' })
+  @ApiParam({
+    name: 'carId',
+    description: 'Car ID',
+    type: Number,
+  })
+  @ApiResponse({ status: 200, description: 'Successfully retrieved orders for the car.' })
+  @ApiResponse({ status: 404, description: 'Orders not found for the car.' })
+  async getOrderByCarId(@Param('carId', ParseIntPipe) carId: number): Promise<Order[]> {
+    const orders = await this.orderService.getOrderByCarId(carId);
+    if (!orders || orders.length === 0) {
+      throw new HttpException('Orders not found for the car', HttpStatus.NOT_FOUND);
+    }
+    return orders;
+  }
+  
+
   @Get('pending')
   @ApiOperation({ summary: 'Get all orders with pending payment state' })
   @ApiResponse({ status: 200, description: 'Successfully retrieved list of pending orders.' })

@@ -20,20 +20,29 @@ const CarRentalOrderScreen = ({ route, navigation }) => {
   const [orderState, setOrderState] = useState(null);
   const [paymentState, setPaymentState] = useState(null);
 
+  const isMounted = useRef(true);
+
   const fetchOrderDetails = useCallback(async () => {
+
+    if (!orderId) return;
+
     const token = await getToken();
     try {
       const response = await api.get(`/order/${orderId}`, {
         headers: { Authorization: `Bearer ${token}` },
+        
       });
-      setOrderState(response.data.orderState);
-      setPaymentState(response.data.paymentState);
+      if (isMounted.current) {
+        setOrderState(response.data.orderState);
+        setPaymentState(response.data.paymentState);
+      }
     } catch (error) {
-      console.error('Failed to fetch order details', error);
+        console.error('Failed to fetch order details', error);
     }
   }, [orderId]);
 
   useEffect(() => {
+    isMounted.current = true;
     fetchOrderDetails();
   }, [fetchOrderDetails]);
 
@@ -50,12 +59,10 @@ const CarRentalOrderScreen = ({ route, navigation }) => {
   };
 
   const handleRepeatPress = () => {
-    // Handle the repeat trip action
-    console.log("Repeat trip pressed");
+    navigation.navigate('CarDetail', { carInfo: carInfo ,animationType:"slide_from_bottom"});
   };
 
   const handleCompleteTripPress = () => {
-    // Handle the complete trip action
     console.log("Complete trip pressed");
   };
 
@@ -104,7 +111,7 @@ const CarRentalOrderScreen = ({ route, navigation }) => {
         </View>
       </Animated.ScrollView>
       <View style={styles.footer}>
-        {orderState === 'COMPLETED' ? (
+        {orderState === 'COMPLETED' || orderState ==='CANCELED' ? (
           <TouchableOpacity style={styles.footerButton} onPress={handleRepeatPress}>
             <Text style={styles.footerButtonText}>Đặt lại</Text>
           </TouchableOpacity>
