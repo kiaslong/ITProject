@@ -25,7 +25,7 @@ services:
     environment:
       DATABASE_URL: postgresql://postgres:longprobi1@db:5432/LkRental?schema=public
     command: >
-      sh -c "npx prisma migrate dev --name lkrental && npm run start:prod"
+      sh -c "npx prisma migrate deploy && npm run start:prod"
 
 volumes:
   db_data:

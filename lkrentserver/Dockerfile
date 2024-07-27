@@ -15,6 +15,9 @@ RUN npm install
 # Copy the rest of the application code
 COPY . .
 
+# Generate Prisma client
+RUN npx prisma generate
+
 # Build the application
 RUN npm run build
 
@@ -38,5 +41,8 @@ RUN npm install --only=production
 # Copy the .env file
 COPY .env .env
 
+# Copy Prisma schema and migrations
+COPY prisma ./prisma
+
 # Command to run the application
-CMD ["node", "dist/main.js"]
+CMD ["sh", "-c", "npx prisma migrate deploy && node dist/main.js"]
