@@ -16,7 +16,11 @@ import { CommonActions } from "@react-navigation/native";
 
 const { height, width } = Dimensions.get('window');
 
-const PaymentMethodScreen = ({ navigation }) => {
+const PaymentMethodScreen = ({ navigation, route }) => {
+  const { totalPrice } = route.params
+  const formatPrice = (price) => {
+    return price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
+  };
   const [isBankTransferExpanded, setIsBankTransferExpanded] = useState(false);
   const [mainModalVisible, setMainModalVisible] = useState(false);
   const scrollViewRef = useRef(null);
@@ -123,7 +127,7 @@ const PaymentMethodScreen = ({ navigation }) => {
         <View style={styles.footerContent}>
           <View style={styles.footerLeft}>
             <FontAwesome5 name="university" size={24} color="#000" />
-            <Text style={styles.footerAmount}>319 970 đ</Text>
+            <Text style={styles.footerAmount}>{formatPrice(totalPrice)}đ</Text>
           </View>
           <TouchableOpacity style={styles.footerButton} onPress={handleBooking}>
             <Text style={styles.footerButtonText}>ĐẶT CHỖ</Text>

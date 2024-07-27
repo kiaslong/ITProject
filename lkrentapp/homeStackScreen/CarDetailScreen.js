@@ -30,7 +30,7 @@ import AdditionalFees from "./CarDetailComponent/AdditionalFees";
 import CancellationPolicy from "./CarDetailComponent/CancellationPolicy";
 import Icon from 'react-native-vector-icons/Ionicons';
 import { setSelectedPromo } from '../store/priceSlice'; // Adjust import path accordingly
-import {  setIsConfirmed,setPickupMethod ,setCarLocation,setUserLocation } from '../store/locationSlice';
+import {  setIsConfirmed,setPickupMethod ,setCarLocation,setUserLocation,setDeliveryLocation } from '../store/locationSlice';
 
 
 
@@ -65,6 +65,13 @@ const CarDetails = ({ carInfo, navigation }) => {
       screenTitle: "Thời gian",
     });
   };
+
+   useEffect(() => {
+    if (isConfirmed === false) {
+      dispatch(setDeliveryLocation(null));
+      dispatch(setPickupMethod('self'));
+    }
+  }, [isConfirmed, dispatch]);
 
   const handleDeliveryPress = () => {
     if (pickupMethod !== 'delivery') {

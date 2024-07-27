@@ -4,10 +4,10 @@ import { getAdminToken, getToken } from '../utils/tokenStorage';
 
 export const fetchSearchingCars = createAsyncThunk(
   'cars/fetchSearchingCars',
-  async (userId) => {
+  async ({ userId, carIds }) => {
     const token = await getToken();
     const response = await api.get('/car/info-exclude-user', {
-      params: { userId, type: 'searching' },
+      params: { userId, excludeCarIds: carIds.join(','), type: 'searching' },
       headers: { Authorization: `Bearer ${token}` },
     });
     return response.data;
@@ -16,16 +16,17 @@ export const fetchSearchingCars = createAsyncThunk(
 
 export const fetchCarForYou = createAsyncThunk(
   'cars/fetchCarForYou',
-  async (userId, { rejectWithValue }) => {
+  async ({ userId, carIds }, { rejectWithValue }) => {
     try {
       const token = await getToken();
-      const adminToken = await getAdminToken()
+      const adminToken = await getAdminToken();
 
       let response;
-      
+      console.log(carIds)
+
       if (userId) {
         response = await api.get('/car/info-exclude-user', {
-          params: { userId, type: 'carForYou' },
+          params: { userId, excludeCarIds: carIds.join(','), type: 'carForYou' },
           headers: { Authorization: `Bearer ${token}` },
         });
       } else {
@@ -33,9 +34,9 @@ export const fetchCarForYou = createAsyncThunk(
           headers: { Authorization: `Bearer ${adminToken}` },
         });
       }
-      
+
       return response.data;
-      
+
     } catch (error) {
       return rejectWithValue(error.response.data);
     }
@@ -44,10 +45,10 @@ export const fetchCarForYou = createAsyncThunk(
 
 export const fetchCarHistory = createAsyncThunk(
   'cars/fetchCarHistory',
-  async (userId) => {
+  async ({ userId, carIds }) => {
     const token = await getToken();
     const response = await api.get('/car/info-exclude-user', {
-      params: { userId, type: 'carHistory' },
+      params: { userId, excludeCarIds: carIds.join(','), type: 'carHistory' },
       headers: { Authorization: `Bearer ${token}` },
     });
     return response.data;
@@ -65,6 +66,7 @@ export const fetchOwnerCars = createAsyncThunk(
     return response.data;
   }
 );
+
 
 const carListSlice = createSlice({
   name: 'carsList',

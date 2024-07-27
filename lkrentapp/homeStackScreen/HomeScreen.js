@@ -15,6 +15,7 @@ import { updateUser } from "../store/loginSlice";
 import api from "../api";
 import moment from 'moment';
 import { debounce } from 'lodash';
+import { setCarIds } from "../store/carIdSlice";
 
 const CarLocation = require('../assets/carlocation.jpg');
 const PaperWork = require('../assets/paperwork.png');
@@ -265,27 +266,59 @@ export default function HomeScreen({ navigation }) {
   const promotionsStatus = useSelector((state) => state.promotions.status);
   const blurhash = '|rF?hV%2WCj[ayj[a|j[az_NaeWBj@ayfRayfQfQM{M|azj[azf6fQfQfQIpWXofj[ayj[j[fQayWCoeoeaya}j[ayfQa{oLj?j[WVj[ayayj[fQoff7azayj[j[j[ayofayayayj[fQj[ayayj[ayfjj[j[ayjuayj[';
   const imageUri = user?.avatarUrl || placeholderImage;
+  const carIds = useSelector((state) => state.carIds.carIds);
+  
+
+  const fetchOrderHistory = useCallback(async () => {
+    if (!user || !user.id) {
+      return [];
+    }
+  
+    const token = await getToken();
+    try {
+      const response = await api.get(`/order/user/${user.id}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+  
+      const orderHistory = response.data;
+      const validOrders = orderHistory.filter(order => order.orderState !== 'CANCELED' && order.orderState !== 'COMPLETED');
+      const carIds = [...new Set(validOrders.map((order) => order.carId))];
+  
+      dispatch(setCarIds(carIds)); // Update carIds in Redux state
+      return carIds;
+    } catch {
+      return [];
+    }
+  }, [user, dispatch]);
+  
 
   useEffect(() => {
-    dispatch(getPromotions());
-    dispatch(fetchCarForYou(user ? user.id : null));
-  }, [user, dispatch]);
+    const fetchData = async () => {
+      const fetchedCarIds = await fetchOrderHistory();
+      dispatch(getPromotions());
+      dispatch(fetchCarForYou({ userId: user ? user.id : null, carIds: fetchedCarIds }));
+    };
+
+    fetchData();
+  }, [user, dispatch, fetchOrderHistory]);
 
   const onRefresh = async () => {
-    const token = await getToken();
     setRefreshing(true);
+    const token = await getToken();
     const userInfoResponse = await api.get("/auth/info", {
       headers: {
         Authorization: token,
       },
     });
     dispatch(updateUser(userInfoResponse.data));
-    await dispatch(getPromotions());
-    await dispatch(fetchCarForYou(user ? user.id : null));
+
+    const fetchedCarIds = await fetchOrderHistory();
+    dispatch(getPromotions());
+    dispatch(fetchCarForYou({ userId: user ? user.id : null, carIds: fetchedCarIds }));
     setRefreshing(false);
   };
 
-  const onRefreshHandler = useCallback(debounce(onRefresh, 100), []);
+  const onRefreshHandler = useCallback(debounce(onRefresh, 100), [onRefresh]);
 
   if (carStatus === 'loading' || promotionsStatus === 'loading') {
     return (

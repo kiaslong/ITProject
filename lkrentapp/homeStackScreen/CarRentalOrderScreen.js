@@ -1,5 +1,7 @@
-import React, { useRef } from 'react';
+import React, { useEffect, useState, useCallback, useRef } from 'react';
 import { View, StyleSheet, Animated, TouchableOpacity, Text } from 'react-native';
+import api from '../api';
+import { getToken } from '../utils/tokenStorage';
 import CarRentalStatus from '../homeStackScreen/CarOrderComponent/CarRentalStatus';
 import HeaderOrder from './CarOrderComponent/HeaderOrder';
 import UserProfile from './CarDetailComponent/UserProfileDetail';
@@ -14,19 +16,49 @@ const HEADER_MIN_HEIGHT = 130;
 const HEADER_SCROLL_DISTANCE = HEADER_MAX_HEIGHT - HEADER_MIN_HEIGHT;
 
 const CarRentalOrderScreen = ({ route, navigation }) => {
+  const { carInfo, time, orderId, totalPrice } = route.params;
+  const [orderState, setOrderState] = useState(null);
+  const [paymentState, setPaymentState] = useState(null);
+
+  const fetchOrderDetails = useCallback(async () => {
+    const token = await getToken();
+    try {
+      const response = await api.get(`/order/${orderId}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      setOrderState(response.data.orderState);
+      setPaymentState(response.data.paymentState);
+    } catch (error) {
+      console.error('Failed to fetch order details', error);
+    }
+  }, [orderId]);
+
+  useEffect(() => {
+    fetchOrderDetails();
+  }, [fetchOrderDetails]);
 
   const handlePayPress = () => {
     navigation.navigate("Payment", {
+      totalPrice,
       animationType: "slide_from_bottom",
-      showHeader:true,
-      showTitle:true,
-      screenTitle:"Thanh toán",
-      showCloseButton:true,
-      showBackButton:true
+      showHeader: true,
+      showTitle: true,
+      screenTitle: "Thanh toán",
+      showCloseButton: true,
+      showBackButton: true
     });
   };
 
-  const { carInfo, time } = route.params;
+  const handleRepeatPress = () => {
+    // Handle the repeat trip action
+    console.log("Repeat trip pressed");
+  };
+
+  const handleCompleteTripPress = () => {
+    // Handle the complete trip action
+    console.log("Complete trip pressed");
+  };
+
   const scrollY = useRef(new Animated.Value(0)).current;
 
   const headerHeight = scrollY.interpolate({
@@ -43,15 +75,15 @@ const CarRentalOrderScreen = ({ route, navigation }) => {
 
   return (
     <View style={styles.container}>
-      <Animated.View 
+      <Animated.View
         style={[
-          styles.headerContainer, 
-          { 
+          styles.headerContainer,
+          {
             height: headerHeight,
           }
         ]}
       >
-        <HeaderOrder navigation={navigation} imageScale={imageScale} />
+        <HeaderOrder carInfo={carInfo} navigation={navigation} imageScale={imageScale} orderId={orderId} />
       </Animated.View>
       <Animated.ScrollView
         contentContainerStyle={styles.scrollContainer}
@@ -62,19 +94,29 @@ const CarRentalOrderScreen = ({ route, navigation }) => {
         )}
       >
         <View style={{ paddingTop: HEADER_MAX_HEIGHT - 30 }}>
-          <CarRentalStatus carInfo={carInfo} time={time} />
-          <UserProfile carInfo={carInfo} />
+          <CarRentalStatus carInfo={carInfo} orderId={orderId} />
+          <UserProfile carInfo={carInfo} orderId={orderId} />
           <CarRentalInfo carInfo={carInfo} time={time} navigation={navigation} />
-          <PricingSummary />
+          <PricingSummary totalPrice={totalPrice} />
           <RentingRequirement />
           <AdditionalFees />
           <CancellationPolicy />
         </View>
       </Animated.ScrollView>
       <View style={styles.footer}>
-        <TouchableOpacity style={styles.footerButton} onPress={handlePayPress}>
-          <Text style={styles.footerButtonText}>Đặt cọc</Text>
-        </TouchableOpacity>
+        {orderState === 'COMPLETED' ? (
+          <TouchableOpacity style={styles.footerButton} onPress={handleRepeatPress}>
+            <Text style={styles.footerButtonText}>Đặt lại</Text>
+          </TouchableOpacity>
+        ) : orderState === 'CONFIRMED' && paymentState === 'PENDING' ? (
+          <TouchableOpacity style={styles.footerButton} onPress={handlePayPress}>
+            <Text style={styles.footerButtonText}>Đặt cọc</Text>
+          </TouchableOpacity>
+        ) : orderState === 'CONFIRMED' && paymentState === 'COMPLETED' ? (
+          <TouchableOpacity style={styles.footerButton} onPress={handleCompleteTripPress}>
+            <Text style={styles.footerButtonText}>Hoàn thành chuyến</Text>
+          </TouchableOpacity>
+        ) : null}
       </View>
     </View>
   );
@@ -103,8 +145,7 @@ const styles = StyleSheet.create({
     bottom: 0,
     left: 0,
     right: 0,
-    height: 60,
-    marginBottom:20,
+    height: 100,
     backgroundColor: '#fff',
     borderTopWidth: 1,
     borderTopColor: '#ddd',
@@ -112,8 +153,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   footerButton: {
-    width: '90%',
-    height: '80%',
+    marginBottom: 50,
+    marginTop: 30,
+    width: '70%',
+    height: '45%',
     backgroundColor: '#03A9F4',
     borderRadius: 25,
     justifyContent: 'center',

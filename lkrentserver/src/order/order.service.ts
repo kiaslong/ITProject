@@ -7,6 +7,7 @@ import { Order, Prisma, PaymentState, OrderState } from '@prisma/client';
 @Injectable()
 export class OrderService {
   constructor(private prisma: PrismaService) {}
+
   async createOrder(createOrderDto: CreateOrderDto): Promise<{ statusCode: number, message: string, data: Order }> {
     try {
       const order = await this.prisma.order.create({
@@ -87,6 +88,28 @@ export class OrderService {
   }
 
   async getAllOrders(): Promise<Order[]> {
-    return this.prisma.order.findMany();
+    try {
+      return await this.prisma.order.findMany({
+        where: { paymentState: PaymentState.PENDING },
+      });
+    } catch (error) {
+      if (error instanceof Prisma.PrismaClientKnownRequestError) {
+        throw new HttpException(`Database error: ${error.message}`, HttpStatus.BAD_REQUEST);
+      }
+      throw new HttpException('Failed to get orders', HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+  }
+
+  async getOrderByUserId(userId: number): Promise<Order[]> {
+    try {
+      return await this.prisma.order.findMany({
+        where: { userId },
+      });
+    } catch (error) {
+      if (error instanceof Prisma.PrismaClientKnownRequestError) {
+        throw new HttpException(`Database error: ${error.message}`, HttpStatus.BAD_REQUEST);
+      }
+      throw new HttpException('Failed to get orders by user ID', HttpStatus.INTERNAL_SERVER_ERROR);
+    }
   }
 }

@@ -4,6 +4,7 @@ import { CreateCarDto } from './dto/create-car.dto';
 import { CarInfoDto, OwnerDto, CarFeatureDto } from './dto/car-info.dto';
 import { parseRelativeTimeToDate } from './utils/utils.function';
 import { CloudinaryService } from '../cloudinary/cloudinary.service';
+import { CarInfoWithOwnerDto } from './dto/car-info-with-owner.dto';
 
 @Injectable()
 export class CarService {
@@ -148,6 +149,7 @@ export class CarService {
           rating: car.owner.ownerRating?.toString() || '0',
           trips: car.owner.ownerTrips || '0',
           avatar: car.owner.avatarUrl,
+          phoneNumber:car.owner.phoneNumber,
           responseRate: car.owner.ownerResponseRate,
           approvalRate: car.owner.ownerApprovalRate,
           responseTime: car.owner.ownerResponseTime,
@@ -207,6 +209,7 @@ export class CarService {
           rating: car.owner.ownerRating?.toString() || '0',
           trips: car.owner.ownerTrips || '0',
           avatar: car.owner.avatarUrl,
+          phoneNumber:car.owner.phoneNumber,
           responseRate: car.owner.ownerResponseRate,
           approvalRate: car.owner.ownerApprovalRate,
           responseTime: car.owner.ownerResponseTime,
@@ -223,31 +226,39 @@ export class CarService {
     });
   }
 
-  async getInfoExcludingUser(userId: number): Promise<CarInfoDto[]> {
-    const cars = await this.prisma.car.findMany({
-      where: {
-        ownerId: {
-          not: userId, 
-        },
-        isCarVerified: true, 
+  async getInfoExcludingUser(userId: number, excludeCarIds?: number[]): Promise<CarInfoDto[]> {
+    const whereClause: any = {
+      ownerId: {
+        not: userId,
       },
+      isCarVerified: true,
+    };
+  
+    if (excludeCarIds && excludeCarIds.length > 0) {
+      whereClause.id = {
+        notIn: excludeCarIds,
+      };
+    }
+  
+    const cars = await this.prisma.car.findMany({
+      where: whereClause,
       include: {
         owner: true,
       },
     });
-
+  
     return cars.map(car => {
       const features: CarFeatureDto[] = this.isCarFeatureArray(car.features)
         ? car.features
         : [];
-
+  
       return {
         id: car.id,
         make: car.make,
         model: car.model,
         year: car.year,
         isCarVerified: car.isCarVerified,
-        requireCollateral:car.requireCollateral,
+        requireCollateral: car.requireCollateral,
         carImages: car.carImages,
         carPapers: car.carPapers,
         thumbImage: car.thumbImage,
@@ -257,8 +268,8 @@ export class CarService {
         rating: car.rating,
         trips: car.trips,
         price: car.price,
-        allowDiscount1Week:car.allowDiscount1Week,
-        discount1WeekPercent:car.discount1WeekPercent,
+        allowDiscount1Week: car.allowDiscount1Week,
+        discount1WeekPercent: car.discount1WeekPercent,
         supportsDelivery: car.supportsDelivery,
         description: car.description,
         features: features,
@@ -269,6 +280,7 @@ export class CarService {
           rating: car.owner.ownerRating?.toString() || '0',
           trips: car.owner.ownerTrips || '0',
           avatar: car.owner.avatarUrl,
+          phoneNumber:car.owner.phoneNumber,
           responseRate: car.owner.ownerResponseRate,
           approvalRate: car.owner.ownerApprovalRate,
           responseTime: car.owner.ownerResponseTime,
@@ -280,12 +292,11 @@ export class CarService {
         fuelConsumption: car.fuelConsumption,
         licensePlate: car.licensePlate,
         fuelType: car.fuelType,
-        numberOfSeats:car.numberOfSeats
+        numberOfSeats: car.numberOfSeats,
       };
     });
   }
-
-
+  
   async getInfoIncludingUser(userId: number): Promise<CarInfoDto[]> {
     const cars = await this.prisma.car.findMany({
       where: {
@@ -329,6 +340,7 @@ export class CarService {
           rating: car.owner.ownerRating?.toString() || '0',
           trips: car.owner.ownerTrips || '0',
           avatar: car.owner.avatarUrl,
+          phoneNumber:car.owner.phoneNumber,
           responseRate: car.owner.ownerResponseRate,
           approvalRate: car.owner.ownerApprovalRate,
           responseTime: car.owner.ownerResponseTime,
@@ -385,5 +397,72 @@ export class CarService {
       throw new HttpException('Failed to delete car', HttpStatus.BAD_REQUEST);
     }
   }
+
+
+  async getCarById(carId: number): Promise<CarInfoWithOwnerDto> {
+    const car = await this.prisma.car.findUnique({
+      where: { id: carId },
+      include: { owner: true },
+    });
+
+    if (!car) {
+      throw new HttpException('Car not found', HttpStatus.NOT_FOUND);
+    }
+
+    const features: CarFeatureDto[] = this.isCarFeatureArray(car.features)
+      ? car.features
+      : [];
+
+    const carInfo: CarInfoDto = {
+      id: car.id,
+      make: car.make,
+      model: car.model,
+      year: car.year,
+      isCarVerified: car.isCarVerified,
+      requireCollateral: car.requireCollateral,
+      carImages: car.carImages,
+      carPapers: car.carPapers,
+      thumbImage: car.thumbImage,
+      transmission: car.transmission,
+      title: car.title,
+      location: car.location,
+      rating: car.rating,
+      trips: car.trips,
+      price: car.price,
+      allowDiscount1Week: car.allowDiscount1Week,
+      discount1WeekPercent: car.discount1WeekPercent,
+      supportsDelivery: car.supportsDelivery,
+      description: car.description,
+      features: features,
+      ownerId: car.ownerId,
+      fastAcceptBooking: car.fastAcceptBooking,
+      allowApplyPromo: car.allowApplyPromo,
+      startDateFastBooking: car.startDateFastBooking,
+      endDateFastBooking: car.endDateFastBooking,
+      fuelConsumption: car.fuelConsumption,
+      licensePlate: car.licensePlate,
+      fuelType: car.fuelType,
+      numberOfSeats: car.numberOfSeats,
+    };
+
+    const owner: OwnerDto = {
+      id: car.owner.id,
+      name: car.owner.fullName,
+      rating: car.owner.ownerRating?.toString() || '0',
+      trips: car.owner.ownerTrips || '0',
+      avatar: car.owner.avatarUrl,
+      phoneNumber:car.owner.phoneNumber,
+      responseRate: car.owner.ownerResponseRate,
+      approvalRate: car.owner.ownerApprovalRate,
+      responseTime: car.owner.ownerResponseTime,
+    };
+
+    return {
+      ...carInfo,
+      owner,
+    };
+  }
+
+  
 
 }

@@ -54,6 +54,7 @@ import DocumentUploadScreen from "./settingStackScreen/DocumentUploadScreen";
 import RentalPriceScreen from "./settingStackScreen/RentalPriceScreen";
 import DeliveryLocationScreen from "./homeStackScreen/CarDetailComponent/DeliveryLocationScreen";
 import MapScreen from "./homeStackScreen/CarDetailComponent/MapScreen";
+import FilteredHistoryScreen from "./historyStackScreen/FilteredHistoryScreen";
 
 
 
@@ -169,6 +170,7 @@ const RootStack = () => {
         customData1={route.params?.customData1}
         customData2={route.params?.customData2}
         customData3={route.params?.customData3}
+        customData4={route.params?.customData4}
         iconType={route.params?.iconType}
       />
     ),
@@ -235,6 +237,7 @@ const HomeStack = () => {
         customData1={route.params?.customData1}
         customData2={route.params?.customData2}
         customData3={route.params?.customData3}
+        customData4={route.params?.customData4}
         iconType={route.params?.iconType}
       />
     ),
@@ -274,6 +277,7 @@ const NotiStack = () => {
         customData1={route.params?.customData1}
         customData2={route.params?.customData2}
         customData3={route.params?.customData3}
+        customData4={route.params?.customData4}
         iconType={route.params?.iconType}
       />
     ),
@@ -311,6 +315,7 @@ const HistoryStack = () => {
         customData1={route.params?.customData1}
         customData2={route.params?.customData2}
         customData3={route.params?.customData3}
+        customData4={route.params?.customData4}
         iconType={route.params?.iconType}
       />
     ),
@@ -326,7 +331,9 @@ const HistoryStack = () => {
 
   return (
     <Stack.Navigator initialRouteName="HistoryHome" screenOptions={commonScreenOptions}>
+     
       <Stack.Screen name="HistoryHome" component={HistoryScreen} initialParams={{ showHeader: true, showBackButton: false, showTitle: true, showSearchBar: false, screenTitle: "Chuyến của tôi" }} />
+      <Stack.Screen name="FilterHistory" component={FilteredHistoryScreen} initialParams={{showHeader:true,showBackButton:true,showTitle:true,screenTitle:"Lịch sử chuyến",showCloseButton:true,animationType:"slide_from_bottom"}}/>
     </Stack.Navigator>
   );
 };
@@ -348,6 +355,7 @@ const SupportStack = () => {
         customData1={route.params?.customData1}
         customData2={route.params?.customData2}
         customData3={route.params?.customData3}
+        customData4={route.params?.customData4}
         iconType={route.params?.iconType}
       />
     ),
@@ -388,6 +396,7 @@ const SettingStack = () => {
         customData1={route.params?.customData1}
         customData2={route.params?.customData2}
         customData3={route.params?.customData3}
+        customData4={route.params?.customData4}
         iconType={route.params?.iconType}
       />
     ),
@@ -434,6 +443,7 @@ const AuthStack = () => {
         customData1={route.params?.customData1}
         customData2={route.params?.customData2}
         customData3={route.params?.customData3}
+        customData4={route.params?.customData4}
         iconType={route.params?.iconType}
       />
     ),

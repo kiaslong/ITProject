@@ -3,7 +3,7 @@ import { View, Text, StyleSheet, Animated, TouchableOpacity } from 'react-native
 import Icon from 'react-native-vector-icons/Ionicons';
 import { CommonActions } from "@react-navigation/native";
 
-const HeaderOrder = ({ navigation, imageScale }) => {
+const HeaderOrder = ({ carInfo,navigation, imageScale , orderId }) => {
   const handleBackPress = () => {
     navigation.dispatch(
       CommonActions.reset({
@@ -18,7 +18,7 @@ const HeaderOrder = ({ navigation, imageScale }) => {
     <View style={styles.header}>
       <Animated.View style={[styles.imageContainer, { transform: [{ scale: imageScale }] }]}>
         <Animated.Image
-          source={{ uri: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQtnh7pgJUtpZWWtHn-eVA3n1DY6D6WpnGOdA&s' }}
+          source={{ uri: carInfo.thumbImage}}
           style={styles.carImage}
           resizeMode="cover"
         />
@@ -30,11 +30,14 @@ const HeaderOrder = ({ navigation, imageScale }) => {
             <TouchableOpacity style={styles.backButton} onPress={handleBackPress}>
               <Icon name="close-outline" size={28} color="#fff" />
             </TouchableOpacity>
-            <View>
-              <Text style={styles.carTitle}>FORD ECOSPORT 2021</Text>
-              <Text style={styles.tripCode}>Mã số chuyến: MLAJ611B</Text>
+            <View style={styles.nameContainer} >
+              <View style={styles.row}> 
+              <Text style={styles.carTitle}>{carInfo.title}</Text>
+              <Icon name="car-outline" size={18} color="#fff" style={styles.carIcon} />
+              </View>
+              <Text style={styles.tripCode}>Mã số chuyến: LKO{orderId}</Text>
             </View>
-            <Icon name="car-outline" size={18} color="#fff" style={styles.carIcon} />
+           
           </View>
           <View style={styles.iconsContainer}>
             <TouchableOpacity style={styles.iconButton}>
@@ -74,12 +77,18 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     padding: 16,
   },
+  nameContainer:{
+    flexDirection:"column"
+  },
   iconsContainer: {
     flexDirection: 'row',
     marginTop: 20,
   },
   iconButton: {
     marginLeft: 16,
+  },
+  row:{
+    flexDirection:"row"
   },
   headerBottom: {
     flexDirection: 'row',

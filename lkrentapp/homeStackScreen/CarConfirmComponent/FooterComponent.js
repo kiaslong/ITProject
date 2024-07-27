@@ -92,15 +92,18 @@ const FooterComponent = ({ carInfo, navigation, time }) => {
         headers: { Authorization: `Bearer ${token}` },
       });
       if (response.data.statusCode === 201) {
+
         dispatch(setDeliveryPrice(0));
         dispatch(setIsConfirmed(false));
         dispatch(setSelectedPromo(null));
+        
         setTimeout(() => {
           setIsLoading(false);
           navigation.navigate("ConfirmationScreen", {
             carInfo,
             time: time,
             orderState: carInfo.fastAcceptBooking ? "CONFIRMED" : "PENDING",
+            totalPrice:discountedPrice,
             animationType: "slide_from_bottom",
           });
         }, 800);

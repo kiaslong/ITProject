@@ -7,10 +7,11 @@ import carListReducer from './carListSlice'
 import promotionReducer from './promotionSlice';
 import priceReducer from "./priceSlice";
 import messageReducer from "./messageSlice"
-
+import carIdsReducer from "./carIdSlice"
 
 const store = configureStore({
   reducer: {
+    carIds:carIdsReducer,
     loggedIn: loggedInReducer,
     carsList:carListReducer,
     location: locationReducer,

@@ -1,17 +1,45 @@
-import React from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { Image } from 'expo-image';
 import { FontAwesome6 } from '@expo/vector-icons';
+import api from '../../api';
+import { getToken } from '../../utils/tokenStorage';
+import useInterval from '../../utils/interval';
 
-const UserProfile = ({ carInfo, showStats }) => {
-
-  const placeholderImage = require("../../assets/placeholder.png")
+const UserProfile = ({ carInfo, showStats, orderId }) => {
+  const placeholderImage = require("../../assets/placeholder.png");
   const { owner } = carInfo;
-  const { name, rating, trips, avatar, responseRate, approvalRate, responseTime } = owner;
-  const additionalInfoText = "Nhằm bảo mật thông tin cá nhân, LKRental sẽ gửi chi tiết liên hệ của chủ xe sau khi khách hàng hoàn tất bước thanh toán trên ứng dụng.";
+  const { name, rating, trips, avatar, responseRate, approvalRate, responseTime, phoneNumber } = owner;
+  const defaultAdditionalInfoText = "Nhằm bảo mật thông tin cá nhân, LKRental sẽ gửi chi tiết liên hệ của chủ xe sau khi khách hàng hoàn tất bước thanh toán trên ứng dụng.";
+  const [paymentState, setPaymentState] = useState(null);
+  const [additionalInfoText, setAdditionalInfoText] = useState(defaultAdditionalInfoText);
+
+  const fetchOrderDetails = useCallback(async () => {
+    const token = await getToken();
+    try {
+      const response = await api.get(`/order/${orderId}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      setPaymentState(response.data.paymentState);
+      if (response.data.paymentState === 'COMPLETED') {
+        setAdditionalInfoText(`Liên hệ chủ xe: ${phoneNumber}`);
+      } else {
+        setAdditionalInfoText(defaultAdditionalInfoText);
+      }
+    } catch (error) {
+      console.error('Failed to fetch order details', error);
+    }
+  }, [orderId, phoneNumber]);
+
+  useEffect(() => {
+    fetchOrderDetails();
+  }, [fetchOrderDetails]);
+
+  useInterval(() => {
+    fetchOrderDetails();
+  }, 1000);
 
   const calculateBadgeLevel = (rating, trips, responseRate, responseTime, approvalRate) => {
-    // Example calculations to determine badge level
     const numericRating = parseFloat(rating);
     const numericTrips = parseInt(trips, 10);
     const numericResponseRate = parseInt(responseRate, 10);
@@ -53,7 +81,7 @@ const UserProfile = ({ carInfo, showStats }) => {
       </View>
       <View style={styles.profileContainer}>
         <View style={styles.profileHeader}>
-        <Image
+          <Image
             source={avatar ? avatar : placeholderImage}
             style={styles.profileImage}
             contentFit="cover"
