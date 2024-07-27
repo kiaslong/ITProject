@@ -1,17 +1,22 @@
-version: '3'
+version: '3.8'
 
 services:
   db:
     image: postgres:13
     container_name: lk_rental_db
     environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: longprobi1
-      POSTGRES_DB: LkRental
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-longprobi1}
+      POSTGRES_DB: ${POSTGRES_DB:-LkRental}
     ports:
       - "5432:5432"
     volumes:
       - db_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   app:
     build: .
@@ -19,13 +24,13 @@ services:
     ports:
       - "3000:3000"
     depends_on:
-      - db
+      db:
+        condition: service_healthy
     env_file:
       - .env
     environment:
-      DATABASE_URL: postgresql://postgres:longprobi1@db:5432/LkRental?schema=public
-    command: >
-      sh -c "npx prisma migrate deploy && npm run start:prod"
+      DATABASE_URL: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-longprobi1}@db:5432/${POSTGRES_DB:-LkRental}?schema=public
+    command: sh -c "npx prisma generate && npx prisma migrate deploy && npm run start:prod"
 
 volumes:
   db_data:
