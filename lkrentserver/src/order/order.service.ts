@@ -90,7 +90,12 @@ export class OrderService {
   async getAllOrders(): Promise<Order[]> {
     try {
       return await this.prisma.order.findMany({
-        where: { paymentState: PaymentState.PENDING },
+        where: {
+          paymentState: PaymentState.PENDING,
+          orderState: {
+            notIn: [OrderState.CANCELED, OrderState.COMPLETED],
+          },
+        },
       });
     } catch (error) {
       if (error instanceof Prisma.PrismaClientKnownRequestError) {
@@ -99,6 +104,44 @@ export class OrderService {
       throw new HttpException('Failed to get orders', HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
+
+
+  async getAllOrdersWithCompletedPayment(): Promise<Order[]> {
+    try {
+      return await this.prisma.order.findMany({
+        where: {
+          paymentState: PaymentState.COMPLETED,
+          orderState: OrderState.COMPLETED,
+        },
+      });
+    } catch (error) {
+      if (error instanceof Prisma.PrismaClientKnownRequestError) {
+        throw new HttpException(`Database error: ${error.message}`, HttpStatus.BAD_REQUEST);
+      }
+      throw new HttpException('Failed to get orders', HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+  }
+
+  
+
+  async getAllCompletedOrders(): Promise<Order[]> {
+    try {
+      return await this.prisma.order.findMany({
+        where: {
+          paymentState: PaymentState.COMPLETED,
+          orderState: {
+            notIn: [OrderState.CANCELED],
+          },
+        },
+      });
+    } catch (error) {
+      if (error instanceof Prisma.PrismaClientKnownRequestError) {
+        throw new HttpException(`Database error: ${error.message}`, HttpStatus.BAD_REQUEST);
+      }
+      throw new HttpException('Failed to get orders', HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+  }
+  
 
   async getOrderByUserId(userId: number): Promise<Order[]> {
     try {

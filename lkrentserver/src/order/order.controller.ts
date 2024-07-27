@@ -54,6 +54,29 @@ export class OrderController {
     }
   }
 
+  @Get('pending')
+  @ApiOperation({ summary: 'Get all orders with pending payment state' })
+  @ApiResponse({ status: 200, description: 'Successfully retrieved list of pending orders.' })
+  async getPendingOrders(): Promise<Order[]> {
+    return this.orderService.getAllOrders();
+  }
+
+  @Get('completed')
+@ApiOperation({ summary: 'Get all orders with completed payment state' })
+@ApiResponse({ status: 200, description: 'Successfully retrieved list of completed orders.' })
+async getCompletedOrders(): Promise<Order[]> {
+  return this.orderService.getAllCompletedOrders();
+}
+
+@Get('completed-payments')
+@ApiOperation({ summary: 'Get all orders with completed payment state and completed order state' })
+@ApiResponse({ status: 200, description: 'Successfully retrieved list of completed orders.' })
+async getCompletedPayments(): Promise<Order[]> {
+  return this.orderService.getAllOrdersWithCompletedPayment();
+}
+
+
+
   @Get(':id')
   @ApiOperation({ summary: 'Get order by ID' })
   @ApiParam({
@@ -137,15 +160,9 @@ export class OrderController {
     }
     return orders;
   }
-  
 
-  @Get('pending')
-  @ApiOperation({ summary: 'Get all orders with pending payment state' })
-  @ApiResponse({ status: 200, description: 'Successfully retrieved list of pending orders.' })
-  async getPendingOrders(): Promise<Order[]> {
-    return this.orderService.getAllOrders();
-  }
 
+ 
 
   @Patch(':id/orderState')
   @ApiOperation({ summary: 'Update the order state' })
@@ -161,6 +178,7 @@ export class OrderController {
       a: { summary: 'Example Order State', value: 'CONFIRMED' },
     },
   })
+
   @ApiResponse({ status: 200, description: 'Successfully updated the order state.' })
   @ApiResponse({ status: 400, description: 'Bad Request.' })
   async updateOrderState(

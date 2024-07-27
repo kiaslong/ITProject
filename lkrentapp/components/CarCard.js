@@ -7,7 +7,7 @@ import moment from 'moment';
 
 const CarCard = ({ carInfo, promotions, navigation }) => {
   const [isFavorite, setIsFavorite] = useState(false);
-
+  
   const toggleFavorite = () => {
     setIsFavorite(!isFavorite);
   };
@@ -85,7 +85,7 @@ const CarCard = ({ carInfo, promotions, navigation }) => {
               <Text style={styles.oldPrice}>{carInfo.price}K₫</Text>
               <Text style={styles.newPrice}>{discountedPrice}K₫/ngày</Text>
             </View>
-            {firstApplicablePromotion && (
+            {firstApplicablePromotion && carInfo.allowApplyPromo && (
               <Text style={styles.discount}>Giảm {firstApplicablePromotion.discount}</Text>
             )}
           </View>

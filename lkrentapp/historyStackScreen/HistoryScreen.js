@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { StyleSheet, View, FlatList, ActivityIndicator, RefreshControl, Text } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import { useSelector } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
 import moment from 'moment';
 import HistoryListItem from '../components/HistoryListItem';
 import { registerFunction, unregisterFunction } from '../store/functionRegistry';
@@ -21,6 +21,7 @@ function debounce(func, wait) {
 export default function HistoryScreen() {
   const navigation = useNavigation();
   const user = useSelector((state) => state.loggedIn.user);
+  const dispatch = useDispatch();
   const [history, setHistory] = useState([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -46,24 +47,6 @@ export default function HistoryScreen() {
     };
   }, [navigation]);
 
-  const cancelOrder = async (orderId) => {
-    const token = await getToken();
-    try {
-      await api.patch(
-        `/order/${orderId}/orderState`,
-        { orderState: 'CANCELED' },
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
-      await api.patch(
-        `/order/${orderId}/paymentState`,
-        { paymentState: 'FAILED' },
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
-    } catch (error) {
-      console.error('Failed to cancel order', error);
-    }
-  };
-
   const fetchOrderHistory = useCallback(async () => {
     if (!user || !user.id) {
       setLoading(false);
@@ -78,12 +61,9 @@ export default function HistoryScreen() {
 
       const orderHistory = response.data;
 
-      // Filter orders based on the criteria
-      const now = moment();
       const validOrders = orderHistory.filter(order => {
-        const createdAt = moment(order.createdAt);
-        const timeDiff = now.diff(createdAt, 'hours');
-        return timeDiff <= 2 || order.orderState === 'CONFIRMED' || order.orderState === 'PENDING';
+     
+        return  order.orderState === 'CONFIRMED' || order.orderState === 'PENDING';
       });
 
       const carDetailsMap = {};
@@ -104,27 +84,8 @@ export default function HistoryScreen() {
         carInfo: carDetailsMap[order.carId],
       }));
 
-      const completedOrderPromises = carIds.map((carId) =>
-        api.get(`/order/car/${carId}`, {
-          headers: { Authorization: `Bearer ${token}` },
-        })
-      );
-
-      const completedOrderResponses = await Promise.all(completedOrderPromises);
-      completedOrderResponses.forEach((response, index) => {
-        const completedOrder = response.data.find(
-          order => order.paymentState === 'COMPLETED' && order.userId !== user.id
-        );
-        if (completedOrder) {
-          const currentOrder = combinedHistory.find(order => order.carId === carIds[index]);
-          if (moment(completedOrder.updatedAt).isAfter(moment(currentOrder.updatedAt))) {
-            currentOrder.autoCanceled = true;
-            cancelOrder(currentOrder.id);
-          }
-        }
-      });
-
       setHistory(combinedHistory);
+
     } catch (error) {
       if (error.response && error.response.status === 404) {
         setHistory([]);
@@ -135,7 +96,7 @@ export default function HistoryScreen() {
       setLoading(false);
       setRefreshing(false);
     }
-  }, [user]);
+  }, [user, dispatch]);
 
   const debouncedFetchOrderHistory = useCallback(debounce(fetchOrderHistory, 1000), [fetchOrderHistory]);
 

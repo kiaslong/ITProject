@@ -1,32 +1,19 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, Container, Row, Col } from 'react-bootstrap';
-import { Bar } from 'react-chartjs-2';
+import { Line } from 'react-chartjs-2';
 import {
   Chart as ChartJS,
   CategoryScale,
   LinearScale,
-  BarElement,
+  PointElement,
+  LineElement,
   Title,
   Tooltip,
   Legend
 } from 'chart.js';
+import api from '../api';
 
-ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
-
-const data = {
-  labels: ['Tháng 1', 'Tháng 2', 'Tháng 3', 'Tháng 4', 'Tháng 5', 'Tháng 6', 'Tháng 7', 'Tháng 8', 'Tháng 9', 'Tháng 10', 'Tháng 11', 'Tháng 12'],
-  datasets: [
-    {
-      label: 'Doanh thu',
-      backgroundColor: 'rgba(54, 162, 235, 0.6)',
-      borderColor: 'rgba(54, 162, 235, 1)',
-      borderWidth: 1,
-      hoverBackgroundColor: 'rgba(54, 162, 235, 0.8)',
-      hoverBorderColor: 'rgba(54, 162, 235, 1)',
-      data: [65, 59, 80, 81, 56, 55, 40, 70, 75, 90, 85, 100] // Example data for 12 months
-    }
-  ]
-};
+ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend);
 
 const options = {
   responsive: true,
@@ -49,7 +36,7 @@ const options = {
     tooltip: {
       callbacks: {
         label: function(context) {
-          return `${context.dataset.label}: $${context.raw} nghìn`;
+          return `${context.dataset.label}: ${context.raw.toLocaleString('vi-VN')} VND`;
         }
       }
     }
@@ -67,21 +54,85 @@ const options = {
     y: {
       title: {
         display: true,
-        text: 'Doanh thu (nghìn $)',
+        text: 'Doanh thu (VND)',
         font: {
           size: 14
         }
       },
       ticks: {
         callback: function(value) {
-          return `$${value} nghìn`;
+          return `${(value / 1000000).toLocaleString('vi-VN')} triệu `;
         }
-      }
+      },
+      suggestedMin: 0,
+      suggestedMax: 20000000, // Adjust this value based on the expected range of your data
     }
   }
 };
 
 const RevenueStatistics = () => {
+  const [data, setData] = useState({
+    labels: [],
+    datasets: [
+      {
+        label: 'Doanh thu',
+        backgroundColor: 'rgba(54, 162, 235, 0.6)',
+        borderColor: 'rgba(54, 162, 235, 1)',
+        borderWidth: 2,
+        pointBackgroundColor: 'rgba(54, 162, 235, 1)',
+        pointBorderColor: '#fff',
+        pointHoverBackgroundColor: '#fff',
+        pointHoverBorderColor: 'rgba(54, 162, 235, 1)',
+        data: []
+      }
+    ]
+  });
+
+  useEffect(() => {
+    const fetchCompletedOrders = async () => {
+      const token = localStorage.getItem('access_token');
+      try {
+        const response = await api.get('order/completed-payments', {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+
+        const orders = response.data;
+        console.log('Fetched orders:', orders); // Log fetched orders
+
+        const monthlyRevenue = new Array(12).fill(0);
+        orders.forEach(order => {
+          const updatedAt = new Date(order.updatedAt);
+          const month = updatedAt.getMonth(); // Get month from 0 (Jan) to 11 (Dec)
+          const totalPrice = parseFloat(order.totalPrice)  || 0; // Ensure totalPrice is a number
+          console.log(`Order ID: ${order.id}, Month: ${month}, Total Price: ${totalPrice}`); // Log each order's details
+          monthlyRevenue[month] += totalPrice * 0.3;
+        });
+        console.log('Monthly Revenue:', monthlyRevenue); // Log calculated monthly revenue
+
+        setData({
+          labels: ['Tháng 1', 'Tháng 2', 'Tháng 3', 'Tháng 4', 'Tháng 5', 'Tháng 6', 'Tháng 7', 'Tháng 8', 'Tháng 9', 'Tháng 10', 'Tháng 11', 'Tháng 12'],
+          datasets: [
+            {
+              label: 'Doanh thu',
+              backgroundColor: 'rgba(54, 162, 235, 0.6)',
+              borderColor: 'rgba(54, 162, 235, 1)',
+              borderWidth: 2,
+              pointBackgroundColor: 'rgba(54, 162, 235, 1)',
+              pointBorderColor: '#fff',
+              pointHoverBackgroundColor: '#fff',
+              pointHoverBorderColor: 'rgba(54, 162, 235, 1)',
+              data: monthlyRevenue
+            }
+          ]
+        });
+      } catch (error) {
+        console.error('Không thể lấy dữ liệu đơn hàng đã hoàn thành', error);
+      }
+    };
+
+    fetchCompletedOrders();
+  }, []);
+
   return (
     <Container className="mt-4">
       <Row>
@@ -89,7 +140,10 @@ const RevenueStatistics = () => {
           <Card>
             <Card.Header className="bg-primary text-white text-center">Thống kê doanh thu</Card.Header>
             <Card.Body>
-              <Bar data={data} options={options} />
+              <Line data={data} options={options} />
+              <div className="mt-3 text-center">
+                <p>Biểu đồ này hiển thị doanh thu hàng tháng tính bằng triệu VND. Mỗi điểm đại diện cho tổng doanh thu của tháng đó.</p>
+              </div>
             </Card.Body>
           </Card>
         </Col>

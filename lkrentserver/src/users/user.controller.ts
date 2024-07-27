@@ -128,6 +128,16 @@ export class UserController {
   }
 
 
+  @Get(':id/info')
+  @UseGuards(JwtAuthGuard)
+  @ApiOperation({ summary: 'Get user information by ID' })
+  @ApiResponse({ status: 200, description: 'User information retrieved.' })
+  @ApiResponse({ status: 404, description: 'User not found.' })
+  async getUserInfoById(@Param('id', ParseIntPipe) userId: number) {
+    return this.userService.getUserInfo(userId);
+  }
+
+
   @Get('unverified-phone-users')
   @UseGuards(JwtAuthGuard)
   @ApiOperation({ summary: 'Get users with unverified phone numbers' })

@@ -425,7 +425,7 @@ const ConfirmRental = ({ carInfo, navigation }) => {
   const discountModalSlideAnim = useRef(new Animated.Value(height)).current;
   const [carUnavailableMessage, setCarUnavailableMessage] = useState("");
   const [orders, setOrders] = useState([]);
-  
+
   let isDrivingLicenseVerified = false;
 
   if (user && user.drivingLicenseVerified === false) {
@@ -527,7 +527,7 @@ const ConfirmRental = ({ carInfo, navigation }) => {
     );
     let totalPrice = carInfo.price * rentalDurationInDays * 1000; // Convert to VND
 
-    if (checked) {
+    if (carInfo.allowApplyPromo && checked) {
       const selectedPromotion = allPromotions.find(
         (promo) => promo.promoCode === checked
       );
@@ -551,6 +551,7 @@ const ConfirmRental = ({ carInfo, navigation }) => {
   useEffect(() => {
     const applicablePromotions = promotions.filter(
       (promo) =>
+        carInfo.allowApplyPromo &&
         (promo.makeApply || promo.modelApply) &&
         (!promo.makeApply || promo.makeApply === carInfo.make) &&
         (!promo.modelApply || promo.modelApply === carInfo.model) &&
@@ -785,17 +786,16 @@ const ConfirmRental = ({ carInfo, navigation }) => {
               <Icon name="pricetag-outline" size={24} color="#ffa500" />
             </TouchableOpacity>
           </View>
-         
         </View>
         <TouchableOpacity
-            style={[
-              styles.bookButton,
-              isDrivingLicenseVerified === false && styles.disabledButton,
-            ]}
-            onPress={handleConfirmPress}
-          >
-            <Text style={styles.bookButtonText}>Chọn thuê</Text>
-          </TouchableOpacity>
+          style={[
+            styles.bookButton,
+            isDrivingLicenseVerified === false && styles.disabledButton,
+          ]}
+          onPress={handleConfirmPress}
+        >
+          <Text style={styles.bookButtonText}>Chọn thuê</Text>
+        </TouchableOpacity>
       </View>
 
       {renderModal(

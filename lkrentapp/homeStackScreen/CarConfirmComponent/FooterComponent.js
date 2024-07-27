@@ -17,7 +17,7 @@ const FooterComponent = ({ carInfo, navigation, time }) => {
   const promotions = useSelector((state) => state.promotions.promotions);
   const message = useSelector((state) => state.message.content);
   const deliveryPrice = useSelector((state) => state.location.deliveryPrice);
-  const pickupMethod = useSelector((state) => state.location.pickupMethod); // Add this line to get pickupMethod from Redux
+  const pickupMethod = useSelector((state) => state.location.pickupMethod);
   const dispatch = useDispatch();
 
   const parseTimeString = (timeString) => {
@@ -77,6 +77,21 @@ const FooterComponent = ({ carInfo, navigation, time }) => {
     const basePrice = parseFloat(carInfo.price) * rentalDurationInDays * 1000;
     const discountedPrice = calculateDiscountedPrice(basePrice, selectedPromo, promotions);
 
+    const startDateFastBooking = new Date(carInfo.startDateFastBooking);
+    const endDateFastBooking = new Date(carInfo.endDateFastBooking);
+
+    let orderState = "PENDING";
+
+    if (carInfo.fastAcceptBooking) {
+      const isWithinFastBookingPeriod =
+        parsedTime.start >= startDateFastBooking &&
+        parsedTime.end <= endDateFastBooking;
+
+      if (isWithinFastBookingPeriod) {
+        orderState = "CONFIRMED";
+      }
+    }
+
     const createOrderDto = {
       userId: user.id,
       carId: carInfo.id,
@@ -84,7 +99,7 @@ const FooterComponent = ({ carInfo, navigation, time }) => {
       endRentDate: parsedTime.end.toISOString(),
       totalPrice: discountedPrice.toString(),
       paymentState: "PENDING",
-      orderState: carInfo.fastAcceptBooking ? "CONFIRMED" : "PENDING",
+      orderState,
       messageFromUser: message,
     };
 
@@ -98,14 +113,14 @@ const FooterComponent = ({ carInfo, navigation, time }) => {
         dispatch(setIsConfirmed(false));
         dispatch(setSelectedPromo(null));
         dispatch(setMessage(''));
-        
+
         setTimeout(() => {
           setIsLoading(false);
           navigation.navigate("ConfirmationScreen", {
             carInfo,
             time: time,
-            orderState: carInfo.fastAcceptBooking ? "CONFIRMED" : "PENDING",
-            totalPrice:discountedPrice,
+            orderState,
+            totalPrice: discountedPrice,
             animationType: "slide_from_bottom",
           });
         }, 800);

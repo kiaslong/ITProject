@@ -5,6 +5,7 @@ import { CarInfoDto, OwnerDto, CarFeatureDto } from './dto/car-info.dto';
 import { parseRelativeTimeToDate } from './utils/utils.function';
 import { CloudinaryService } from '../cloudinary/cloudinary.service';
 import { CarInfoWithOwnerDto } from './dto/car-info-with-owner.dto';
+import { UpdateCarDto } from './dto/update-car.dto';
 
 @Injectable()
 export class CarService {
@@ -461,6 +462,25 @@ export class CarService {
       ...carInfo,
       owner,
     };
+  }
+
+
+  async updateCarDetails(carId: number, updateCarDto: UpdateCarDto): Promise<UpdateCarDto> {
+    const updatedCar = await this.prisma.car.update({
+      where: { id: carId },
+      data: {
+        ...updateCarDto,
+      },
+      select: {
+        allowApplyPromo: true,
+        supportsDelivery: true,
+        fastAcceptBooking: true,
+        startDateFastBooking: true,
+        endDateFastBooking: true,
+      },
+    });
+
+    return updatedCar;
   }
 
   

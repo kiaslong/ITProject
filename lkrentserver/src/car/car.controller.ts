@@ -12,7 +12,7 @@ import {
   Logger,
   Query,
   Param,
-  Delete,
+  Delete,Put,
 } from '@nestjs/common';
 import { FilesInterceptor } from '@nestjs/platform-express';
 import {
@@ -29,6 +29,7 @@ import { CreateCarDto } from './dto/create-car.dto';
 import { plainToClass } from 'class-transformer';
 import { validate } from 'class-validator';
 import { VerifyCarDto } from './dto/verify-car.dto';
+import { UpdateCarDto } from './dto/update-car.dto';
 
 @ApiTags('car')
 @ApiBearerAuth()
@@ -249,4 +250,31 @@ export class CarController {
       throw new HttpException(error.message, error.status || HttpStatus.BAD_REQUEST);
     }
   }
+
+
+
+  @Put(':id')
+  @ApiOperation({ summary: 'Update car details' })
+  @ApiResponse({ status: 200, description: 'Car details updated successfully.' })
+  @ApiResponse({ status: 404, description: 'Car not found.' })
+  @ApiResponse({ status: 401, description: 'Unauthorized.' })
+  async updateCarDetails(
+    @Param('id') id: string,
+    @Body() updateCarDto: UpdateCarDto,
+  ): Promise<any> {
+    const carId = parseInt(id, 10);
+    if (isNaN(carId)) {
+      throw new HttpException('Invalid car ID', HttpStatus.BAD_REQUEST);
+    }
+    const updatedCar = await this.carService.updateCarDetails(carId, updateCarDto);
+    if (!updatedCar) {
+      throw new HttpException('Car not found', HttpStatus.NOT_FOUND);
+    }
+    return {
+      message: 'Car details updated successfully',
+      updatedCar,
+    };
+  }
+
+  
 }

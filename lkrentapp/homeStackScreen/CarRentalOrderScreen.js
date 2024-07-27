@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useCallback, useRef } from 'react';
-import { View, StyleSheet, Animated, TouchableOpacity, Text } from 'react-native';
+import { View, StyleSheet, Animated, TouchableOpacity, Text, Alert } from 'react-native';
 import api from '../api';
 import { getToken } from '../utils/tokenStorage';
 import CarRentalStatus from '../homeStackScreen/CarOrderComponent/CarRentalStatus';
@@ -23,27 +23,28 @@ const CarRentalOrderScreen = ({ route, navigation }) => {
   const isMounted = useRef(true);
 
   const fetchOrderDetails = useCallback(async () => {
-
     if (!orderId) return;
 
     const token = await getToken();
     try {
       const response = await api.get(`/order/${orderId}`, {
         headers: { Authorization: `Bearer ${token}` },
-        
       });
       if (isMounted.current) {
         setOrderState(response.data.orderState);
         setPaymentState(response.data.paymentState);
       }
     } catch (error) {
-        console.error('Failed to fetch order details', error);
+      console.error('Failed to fetch order details', error);
     }
   }, [orderId]);
 
   useEffect(() => {
     isMounted.current = true;
     fetchOrderDetails();
+    return () => {
+      isMounted.current = false;
+    };
   }, [fetchOrderDetails]);
 
   const handlePayPress = () => {
@@ -59,11 +60,22 @@ const CarRentalOrderScreen = ({ route, navigation }) => {
   };
 
   const handleRepeatPress = () => {
-    navigation.navigate('CarDetail', { carInfo: carInfo ,animationType:"slide_from_bottom"});
+    navigation.navigate('CarDetail', { carInfo: carInfo, animationType: "slide_from_bottom" });
   };
 
-  const handleCompleteTripPress = () => {
-    console.log("Complete trip pressed");
+  const handleCompleteTripPress = async () => {
+    const token = await getToken();
+    try {
+      await api.patch(`/order/${orderId}/orderState`, {
+        orderState: 'COMPLETED'
+      }, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      fetchOrderDetails(); // Refresh order details after updating state
+      Alert.alert('Chúc mừng', 'Bạn đã hoàn thành chuyến');
+    } catch (error) {
+      console.error('Failed to complete the trip', error);
+    }
   };
 
   const scrollY = useRef(new Animated.Value(0)).current;
@@ -111,7 +123,7 @@ const CarRentalOrderScreen = ({ route, navigation }) => {
         </View>
       </Animated.ScrollView>
       <View style={styles.footer}>
-        {orderState === 'COMPLETED' || orderState ==='CANCELED' ? (
+        {orderState === 'COMPLETED' || orderState === 'CANCELED' ? (
           <TouchableOpacity style={styles.footerButton} onPress={handleRepeatPress}>
             <Text style={styles.footerButtonText}>Đặt lại</Text>
           </TouchableOpacity>

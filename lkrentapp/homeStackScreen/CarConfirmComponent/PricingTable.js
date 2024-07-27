@@ -27,6 +27,7 @@ const PricingTable = ({ carInfo }) => {
 
   useEffect(() => {
     const applicablePromotions = promotions.filter(promo =>
+      carInfo.allowApplyPromo &&
       (promo.makeApply || promo.modelApply) &&
       (!promo.makeApply || promo.makeApply === carInfo.make) &&
       (!promo.modelApply || promo.modelApply === carInfo.model) &&
@@ -70,7 +71,7 @@ const PricingTable = ({ carInfo }) => {
     const rentalDurationInDays = calculateRentalDurationInDays(parsedTime.start, parsedTime.end);
     let totalPrice = carInfo.price * rentalDurationInDays * 1000; // Convert to VND
 
-    if (checked) {
+    if (carInfo.allowApplyPromo && checked) {
       const selectedPromotion = allPromotions.find(promo => promo.promoCode === checked);
       if (selectedPromotion) {
         const discount = selectedPromotion.discount.includes('%')
