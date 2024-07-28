@@ -19,7 +19,7 @@ services:
   # Backend service
   backend:
     build: . # Build the Docker image using the Dockerfile in the current directory
-    image: LKRental/backend
+    image: lkrental/backend
     ports:
       - "3000:3000"  # Forward the container's port 3000 to the host machine's port 3000 for accessing the backend service
     depends_on:
