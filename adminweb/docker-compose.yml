@@ -4,4 +4,4 @@ services:
   react-app:
     build: .
     ports:
-      - "80:80"
+      - "3001:3001"
