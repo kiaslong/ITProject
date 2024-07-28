@@ -16,14 +16,11 @@ COPY . .
 # Build the React app for production
 RUN npm run build
 
-# Use the official Nginx image as the base image for the second stage
-FROM nginx:alpine
+# Set the environment variable for the port
+ENV PORT=3001
 
-# Copy the build files from the previous stage to the Nginx web root
-COPY --from=0 /app/build /usr/share/nginx/html
+# Expose the port to the outside world
+EXPOSE 3001
 
-# Expose port 80 to the outside world
-EXPOSE 80
-
-# Start Nginx when the container starts
-CMD ["nginx", "-g", "daemon off;"]
+# Start the React app
+CMD ["npm", "run", "start"]
