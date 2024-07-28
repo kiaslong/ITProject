@@ -13,8 +13,6 @@ RUN npm install
 # Copy the rest of the project files to the container
 COPY . .
 
-# Build the React app for production
-RUN npm run build
 
 # Set the environment variable for the port
 ENV PORT=3001
@@ -23,4 +21,4 @@ ENV PORT=3001
 EXPOSE 3001
 
 # Start the React app
-CMD ["npm", "run", "start"]
+CMD ["npm", "start"]
