@@ -5,6 +5,7 @@ import api from '../api';
 import { getToken } from '../utils/tokenStorage';
 import { useDispatch ,useSelector } from 'react-redux';
 import { fetchOwnerCars } from '../store/carListSlice';
+import { registerFunction ,unregisterFunction } from '../store/functionRegistry';
 
 const OwnerCarDetailScreen = ({ route, navigation }) => {
   const { carInfo } = route.params;
@@ -18,9 +19,33 @@ const OwnerCarDetailScreen = ({ route, navigation }) => {
   const [showStartPicker, setShowStartPicker] = useState(false);
   const [showEndPicker, setShowEndPicker] = useState(false);
 
+
   const parseDate = (dateString) => {
     return dateString ? new Date(dateString).toLocaleString('vi-VN') : 'Chưa cài đặt';
   };
+
+
+  useEffect(() => {
+    navigation.setParams({
+      showIcon: true,
+      iconName: 'book-outline',
+      iconType:"ionicons",
+      functionName: 'pendingRequests',
+    });
+  }, [navigation]);
+
+  useEffect(() => {
+    const key = 'pendingRequests';
+    const onPress = () => {
+      navigation.navigate('RequestAcceptScreen', {showHeader:true, showTitle:true,showBackButton:true,screenTitle:"Duyệt yêu cầu",carId:carInfo.id});
+    };
+
+    registerFunction(key, onPress);
+
+    return () => {
+      unregisterFunction(key);
+    };
+  }, [navigation]);
 
   const handleSave = async () => {
     try {

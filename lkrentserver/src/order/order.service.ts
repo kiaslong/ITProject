@@ -178,4 +178,22 @@ export class OrderService {
     }
   }
 
+  async getPendingRequestByCarId(carId: number): Promise<Order[]> {
+    try {
+      return await this.prisma.order.findMany({
+        where: {
+          carId,
+          orderState: {
+            in: [OrderState.PENDING],
+          },
+        },
+      });
+    } catch (error) {
+      if (error instanceof Prisma.PrismaClientKnownRequestError) {
+        throw new HttpException(`Database error: ${error.message}`, HttpStatus.BAD_REQUEST);
+      }
+      throw new HttpException('Failed to get pending requests by car ID', HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+  }
+
 }
