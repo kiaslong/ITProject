@@ -14,15 +14,19 @@ services:
     ports:
       - "5432:5432"
     volumes:
-      -database:var/lib/postgresql/data  # Forward the container's port 5432 to the host machine's port 5432 for accessing PostgreSQL
+      - database:/var/lib/postgresql/data  # Forward the container's port 5432 to the host machine's port 5432 for accessing PostgreSQL
 
   # Backend service
   backend:
     build: . # Build the Docker image using the Dockerfile in the current directory
-    image:  LKRental/backend
+    image: LKRental/backend
     ports:
-      - "3000:3000"  # Forward the container's port 3333 to the host machine's port 3333 for accessing the backend service
+      - "3000:3000"  # Forward the container's port 3000 to the host machine's port 3000 for accessing the backend service
     depends_on:
       - database  
     env_file:
       - .env  
+
+# Define named volumes
+volumes:
+  database:
