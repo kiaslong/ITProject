@@ -10,6 +10,7 @@ const LoginScreen = () => {
 
   const handleLogin = async () => {
     try {
+      
       const response = await api.post('/admin/login', { password });
       if (response.data.access_token) {
         // Store the token in localStorage or any state management solution
