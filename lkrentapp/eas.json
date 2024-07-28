@@ -11,6 +11,14 @@
       "distribution": "internal"
     },
     "production": {
+      "env":{
+        "MAP_BOX_KEY":"pk.eyJ1Ijoia2lhc2xvbmciLCJhIjoiY2x4eWhvNjdnMDBzZTJqcHdwYTNleXdvZCJ9.UWYiYGrIbAo-apVq-djg-Q",
+        "GOONG_KEY":"oz273YJA5Zd128MJhSNNkdOEd2ldjiVXa6GPgImR",
+        "GOONG_KEY_2":"RzSV3ROcGchmvcResCl6Dc7UROYVYQzWHHteGIhW",
+        "GOONG_KEY_3":"L6m6IbRZRUV7WpL70GfVyJ0mUFrtRsS41wEfvd2K",
+        "PASSWORD_SECRET":"vy2F2aQigH9Unvwdqa3J0ROyjnSYBw2z",
+        "API_BASE_URL":"http://103.166.182.144:3000"
+      },
       "android": {
         "buildType": "apk"
       },
