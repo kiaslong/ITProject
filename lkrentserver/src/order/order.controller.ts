@@ -77,6 +77,8 @@ async getCompletedPayments(): Promise<Order[]> {
 
 
 
+
+
   @Get(':id')
   @ApiOperation({ summary: 'Get order by ID' })
   @ApiParam({
@@ -160,6 +162,24 @@ async getCompletedPayments(): Promise<Order[]> {
     }
     return orders;
   }
+
+
+  @Get('car/:carId/pending-requests')
+@ApiOperation({ summary: 'Get pending requests for a specific car by ID' })
+@ApiParam({
+  name: 'carId',
+  description: 'Car ID',
+  type: Number,
+})
+@ApiResponse({ status: 200, description: 'Successfully retrieved pending requests for the car.' })
+@ApiResponse({ status: 404, description: 'Pending requests not found for the car.' })
+async getPendingRequests(@Param('carId', ParseIntPipe) carId: number): Promise<Order[]> {
+  const pendingRequests = await this.orderService.getPendingRequestByCarId(carId);
+  if (!pendingRequests || pendingRequests.length === 0) {
+    throw new HttpException('Pending requests not found for the car', HttpStatus.NOT_FOUND);
+  }
+  return pendingRequests;
+}
 
 
  

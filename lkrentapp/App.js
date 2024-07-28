@@ -57,6 +57,7 @@ import MapScreen from "./homeStackScreen/CarDetailComponent/MapScreen";
 import FilteredHistoryScreen from "./historyStackScreen/FilteredHistoryScreen";
 import OwnerCarCard from "./components/OwnerCarCard";
 import OwnerCarDetailScreen from "./settingStackScreen/OwnerCarDetailScreen";
+import RequestAcceptScreen from "./settingStackScreen/RequestScreens/RequestAcceptScreen";
 
 
 
@@ -206,6 +207,7 @@ const RootStack = () => {
       <Stack.Screen name="RentalPriceScreen" component={RentalPriceScreen} options={{gestureEnabled:false}} />
       <Stack.Screen name="UserRegisterCarScreen" component={UserRegisterCarScreen} />
       <Stack.Screen name="OwnerDetailCarScreen" component={OwnerCarDetailScreen} options={{gestureEnabled:false}} />
+      <Stack.Screen name="RequestAcceptScreen" component={RequestAcceptScreen} options={{gestureEnabled:false}} />
 
 
       <Stack.Screen name="PhoneVerificationScreen" component={PhoneVerificationScreen}  options={{gestureEnabled:false}} />

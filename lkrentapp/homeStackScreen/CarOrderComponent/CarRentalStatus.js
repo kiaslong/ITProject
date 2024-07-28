@@ -7,6 +7,20 @@ import api from '../../api';
 import { getToken } from '../../utils/tokenStorage';
 import useInterval from '../../utils/interval';
 
+const orderStateTranslations = {
+  PENDING: 'Đang chờ',
+  CONFIRMED: 'Đã xác nhận',
+  CANCELED: 'Đã hủy',
+  COMPLETED: 'Đã hoàn thành',
+};
+
+const paymentStateTranslations = {
+  PENDING: 'Đang chờ thanh toán',
+  COMPLETED: 'Đã thanh toán',
+  FAILED: 'Thanh toán thất bại hoặc có người đặt cọc trước',
+  REFUNDED: 'Đã hoàn tiền',
+};
+
 const CarRentalStatus = ({ carInfo, orderId }) => {
   const user = useSelector((state) => state.loggedIn.user);
   const [order, setOrder] = useState(null);
@@ -39,7 +53,7 @@ const CarRentalStatus = ({ carInfo, orderId }) => {
   const updateCountdown = useCallback(() => {
     if (!order) return;
     if (order.orderState === 'CONFIRMED' && order.paymentState === 'PENDING') {
-      const endTime = moment(order.createdAt).add(59, 'minutes').add(59, 'seconds');
+      const endTime = moment(order.updatedAt).add(59, 'minutes').add(59, 'seconds');
       const now = moment();
       const duration = moment.duration(endTime.diff(now));
       if (duration.asSeconds() <= 0) {

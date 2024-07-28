@@ -29,8 +29,8 @@ const HistoryListItem = ({ history, onPress }) => {
   }, []);
 
   const endTime = useMemo(() => {
-    return moment(history.createdAt).add(1, 'hour');
-  }, [history.createdAt]);
+    return moment(history.updatedAt).add(1, 'hour');
+  }, [history.updatedAt]);
 
   const updateRemainingTime = useCallback(() => {
     if (history.orderState === 'CONFIRMED' && history.paymentState === 'PENDING') {
@@ -64,13 +64,13 @@ const HistoryListItem = ({ history, onPress }) => {
   };
 
   useEffect(() => {
-    if (history.orderState === 'CONFIRMED' && !timerStarted) {
+    if (history.orderState === 'CONFIRMED' && history.paymentState === 'PENDING' && !timerStarted) {
       setTimerStarted(true);
       updateRemainingTime();
     }
-  }, [history.orderState, timerStarted, updateRemainingTime]);
+  }, [history.orderState, history.paymentState, timerStarted, updateRemainingTime]);
 
-  useInterval(updateRemainingTime, history.orderState === 'CONFIRMED' ? 1000 : null);
+  useInterval(updateRemainingTime, history.orderState === 'CONFIRMED' && history.paymentState === 'PENDING' ? 1000 : null);
 
   const memoizedOrderState = useMemo(() => orderStateTranslations[history.orderState], [history.orderState]);
   const memoizedPaymentState = useMemo(() => paymentStateTranslations[history.paymentState], [history.paymentState]);
