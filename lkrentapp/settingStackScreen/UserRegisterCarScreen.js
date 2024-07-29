@@ -20,9 +20,12 @@ const UserRegisterCarScreen = () => {
   }, [user, dispatch]);
 
   useEffect(() => {
+    // Do something with ownerCars if needed
   }, [ownerCars]);
 
   useEffect(() => {
+    if (!user) return;
+
     const key = 'resetRegistration';
     const onPress = () => {
       Alert.alert(
@@ -46,9 +49,11 @@ const UserRegisterCarScreen = () => {
     return () => {
       unregisterFunction(key);
     };
-  }, [navigation, dispatch]);
+  }, [navigation, dispatch, user]);
 
   useEffect(() => {
+    if (!user) return;
+
     const key = 'registerCar';
     const onPress = () => {
       if (!user.phoneNumberVerified) {
@@ -75,7 +80,7 @@ const UserRegisterCarScreen = () => {
     return () => {
       unregisterFunction(key);
     };
-  }, [navigation, user.phoneNumberVerified]);
+  }, [navigation, user]);
 
   const renderItem = ({ item }) => (
     <View style={styles.itemContainer}>

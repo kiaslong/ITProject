@@ -322,6 +322,7 @@ export default function HomeScreen({ navigation }) {
     dispatch(fetchCarForYou({ userId: user ? user.id : null, carIds: fetchedCarIds }));
     setRefreshing(false);
   };
+  
 
   const onRefreshHandler = useCallback(debounce(onRefresh, 100), [onRefresh]);
 
