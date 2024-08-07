@@ -1,5 +1,5 @@
 import React, { useState, useCallback } from "react";
-import { View, Text, FlatList, StyleSheet, TouchableOpacity, Pressable, ActivityIndicator } from "react-native";
+import { View, Text, FlatList, StyleSheet, TouchableOpacity, Pressable, ActivityIndicator , Alert} from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useNavigation, CommonActions } from "@react-navigation/native";
 import { useDispatch, useSelector } from "react-redux";
@@ -72,14 +72,14 @@ const SettingScreen = () => {
   }, []);
 
   const handleOk = useCallback(async () => {
-    const token = await getToken()
+    const token = await getToken();
     setLoading(true);
     setAlertVisible(false);
     try {
       const response = await api.delete(`/auth/${user.id}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
-      if (response.data.message ==="User deleted successfully") {
+      if (response.data.message === "User deleted successfully") {
         await removeToken();
         await dispatch(logout());
         navigation.dispatch(
@@ -89,14 +89,15 @@ const SettingScreen = () => {
           })
         );
       } else {
-        console.error("Failed to delete account:", response.data);
+        Alert.alert("Error", "Failed to delete account.");
       }
     } catch (error) {
+      Alert.alert("Error", "An error occurred while deleting the account.");
       console.error("Error deleting account:", error);
     } finally {
       setLoading(false);
     }
-  }, [navigation, user]);
+  }, [navigation, user, dispatch]);
 
   const handleLogoutPress = useCallback(() => {
     setLogoutPromptVisible(true);

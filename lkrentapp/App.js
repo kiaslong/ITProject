@@ -44,7 +44,7 @@ import FullscreenMapComponent from "./homeStackScreen/CarConfirmComponent/FullSc
 import PaymentMethodScreen from "./homeStackScreen/PaymentMethodScreen";
 import PhoneVerificationScreen from "./settingStackScreen/VerifyingScreen/PhoneVerificationScreen";
 import { fetchInitialLocation } from './store/locationSlice';
-import { getAdminToken, getToken, removeToken,saveAdminToken } from './utils/tokenStorage';
+import { getAdminToken, getToken, removeAdminToken, removeToken,saveAdminToken } from './utils/tokenStorage';
 import { loginSuccess, logout } from './store/loginSlice'; 
 import api from "./api";
 import OtpEntryScreen from "./settingStackScreen/VerifyingScreen/OtpEntryScreen";
@@ -81,9 +81,10 @@ const App = () => {
           timeoutId = setTimeout(async () => {
             alert('Phiên đăng nhập đã hết hạn');
             await removeToken();
+            await removeAdminToken();
             store.dispatch(logout());
             setLoading(false);
-          }, 3000); // Set your desired timeout duration in milliseconds
+          }, 1000); // Set your desired timeout duration in milliseconds
 
           const response = await api.get('/auth/info', {
             headers: {
@@ -101,9 +102,11 @@ const App = () => {
           // Fetch the admin token if validation fails
           try {
             const adminToken = await getAdminToken();
+           
             if (!adminToken) {
               const loginResponse = await api.post('/admin/login', { password: process.env.ADMIN_PASSWORD });
               const newAdminToken = loginResponse.data.access_token;
+              console.log(newAdminToken)
               await saveAdminToken(newAdminToken);
             }
           } catch (adminError) {
@@ -113,10 +116,14 @@ const App = () => {
       } else {
         try {
           // Fetch the admin token if no token is found
+          
           const adminToken = await getAdminToken();
+          
+         
           if (!adminToken) {
             const loginResponse = await api.post('/admin/login', { password: process.env.ADMIN_PASSWORD });
             const newAdminToken = loginResponse.data.access_token;
+            console.log(newAdminToken)
             await saveAdminToken(newAdminToken);
           }
         } catch (error) {

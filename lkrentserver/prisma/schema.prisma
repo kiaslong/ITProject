@@ -105,7 +105,7 @@ model Order {
   userId       Int         // Foreign key to User
   user         User        @relation(fields: [userId], references: [id])
   carId        Int         // Foreign key to Car
-  car          Car         @relation(fields: [carId], references: [id])
+  car          Car         @relation(fields: [carId], references: [id], onDelete: Cascade)
   startRentDate DateTime
   endRentDate  DateTime
   paymentState PaymentState @default(PENDING) // Enum for payment state

@@ -254,6 +254,13 @@ const BenefitsList = () => {
   );
 };
 
+const TIMEOUT_DURATION = 3000; // 10 seconds timeout
+
+// Utility function to create a timeout promise
+const timeout = (ms) => new Promise((_, reject) => 
+  setTimeout(() => reject(new Error('Request timed out')), ms)
+);
+
 export default function HomeScreen({ navigation }) {
   const placeholderImage = require("../assets/placeholder.png");
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -266,31 +273,37 @@ export default function HomeScreen({ navigation }) {
   const promotionsStatus = useSelector((state) => state.promotions.status);
   const blurhash = '|rF?hV%2WCj[ayj[a|j[az_NaeWBj@ayfRayfQfQM{M|azj[azf6fQfQfQIpWXofj[ayj[j[fQayWCoeoeaya}j[ayfQa{oLj?j[WVj[ayayj[fQoff7azayj[j[j[ayofayayayj[fQj[ayayj[ayfjj[j[ayjuayj[';
   const imageUri = user?.avatarUrl || placeholderImage;
-  const carIds = useSelector((state) => state.carIds.carIds);
-  
 
   const fetchOrderHistory = useCallback(async () => {
     if (!user || !user.id) {
       return [];
     }
-  
+
     const token = await getToken();
     try {
-      const response = await api.get(`/order/user/${user.id}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-  
+      const response = await Promise.race([
+        api.get(`/order/user/${user.id}`, {
+          headers: { Authorization: `Bearer ${token}` },
+        }),
+        timeout(TIMEOUT_DURATION)
+      ]);
+
       const orderHistory = response.data;
       const validOrders = orderHistory.filter(order => order.orderState !== 'CANCELED' && order.orderState !== 'COMPLETED');
       const carIds = [...new Set(validOrders.map((order) => order.carId))];
-  
-      dispatch(setCarIds(carIds)); // Update carIds in Redux state
+
+      dispatch(setCarIds(carIds));
       return carIds;
-    } catch {
-      return [];
+    } catch (error) {
+      if (error.message === 'Request timed out') {
+        console.error('Order history request timed out');
+      } else if (error.response && error.response.status === 404) {
+        return [];
+      } else {
+        console.error('Failed to fetch order history and car details', error);
+      }      
     }
   }, [user, dispatch]);
-  
 
   useEffect(() => {
     const fetchData = async () => {
@@ -302,27 +315,36 @@ export default function HomeScreen({ navigation }) {
     fetchData();
   }, [user, dispatch, fetchOrderHistory]);
 
-  
- 
-
-  
-
   const onRefresh = async () => {
     setRefreshing(true);
+
     const token = await getToken();
-    const userInfoResponse = await api.get("/auth/info", {
-      headers: {
-        Authorization: token,
-      },
-    });
-    dispatch(updateUser(userInfoResponse.data));
+
+    if (user && user.id) {
+      try {
+        const userInfoResponse = await Promise.race([
+          api.get("/auth/info", {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }),
+          timeout(TIMEOUT_DURATION)
+        ]);
+        dispatch(updateUser(userInfoResponse.data));
+      } catch (error) {
+        if (error.message === 'Request timed out') {
+          console.error('User info request timed out');
+        } else {
+          console.error('Error fetching user info:', error);
+        }
+      }
+    }
 
     const fetchedCarIds = await fetchOrderHistory();
     dispatch(getPromotions());
     dispatch(fetchCarForYou({ userId: user ? user.id : null, carIds: fetchedCarIds }));
     setRefreshing(false);
   };
-  
 
   const onRefreshHandler = useCallback(debounce(onRefresh, 100), [onRefresh]);
 

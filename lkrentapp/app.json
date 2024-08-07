@@ -23,7 +23,8 @@
       }
     },
     "android": {
-      "package": "com.kiaslong.lkrental"
+      "package": "com.kiaslong.lkrental",
+      "usesCleartextTraffic": true
     },
     "extra": {
       "eas": {

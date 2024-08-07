@@ -5,7 +5,19 @@
   "build": {
     "development": {
       "developmentClient": true,
-      "distribution": "internal"
+      "distribution": "internal",
+      "env": {
+        "MAP_BOX_KEY": "$MAP_BOX_KEY",
+        "GOONG_KEY": "$GOONG_KEY",
+        "GOONG_KEY_2": "$GOONG_KEY_2",
+        "GOONG_KEY_3": "$GOONG_KEY_3",
+        "PASSWORD_SECRET": "$PASSWORD_SECRET",
+        "API_BASE_URL": "$API_BASE_URL",
+        "ADMIN_PASSWORD": "$ADMIN_PASSWORD"
+      },
+      "android": {
+        "buildType": "apk"
+      }
     },
     "preview": {
       "distribution": "internal"

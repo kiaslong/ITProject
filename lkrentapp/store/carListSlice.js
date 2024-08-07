@@ -2,31 +2,43 @@ import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import api from '../api';
 import { getAdminToken, getToken } from '../utils/tokenStorage';
 
+const TIMEOUT_DURATION = 3000; // 10 seconds timeout
+
+// Utility function to create a timeout promise
+const timeout = (ms) => new Promise((_, reject) => 
+  setTimeout(() => reject(new Error('Request timed out')), ms)
+);
+
 export const fetchSearchingCars = createAsyncThunk(
   'cars/fetchSearchingCars',
-  async ({ userId, carIds }) => {
+  async ({ userId, carIds }, { rejectWithValue }) => {
     try {
       const token = await getToken();
       const adminToken = await getAdminToken();
 
       let response;
-   
 
       if (userId) {
-        response = await api.get('/car/info-exclude-user', {
-          params: { userId, excludeCarIds: carIds.join(','), type: 'carForYou' },
-          headers: { Authorization: `Bearer ${token}` },
-        });
+        response = await Promise.race([
+          api.get('/car/info-exclude-user', {
+            params: { userId, excludeCarIds: carIds.join(','), type: 'carForYou' },
+            headers: { Authorization: `Bearer ${token}` },
+          }),
+          timeout(TIMEOUT_DURATION)
+        ]);
       } else {
-        response = await api.get('/car/info-verified', {
-          headers: { Authorization: `Bearer ${adminToken}` },
-        });
+        response = await Promise.race([
+          api.get('/car/info-verified', {
+            headers: { Authorization: `Bearer ${adminToken}` },
+          }),
+          timeout(TIMEOUT_DURATION)
+        ]);
       }
 
       return response.data;
 
     } catch (error) {
-      return rejectWithValue(error.response.data);
+      return rejectWithValue(error.response?.data || error.message);
     }
   }
 );
@@ -39,51 +51,75 @@ export const fetchCarForYou = createAsyncThunk(
       const adminToken = await getAdminToken();
 
       let response;
-   
 
       if (userId) {
-        response = await api.get('/car/info-exclude-user', {
-          params: { userId, excludeCarIds: carIds.join(','), type: 'carForYou' },
-          headers: { Authorization: `Bearer ${token}` },
-        });
+        response = await Promise.race([
+          api.get('/car/info-exclude-user', {
+            params: { userId, excludeCarIds: carIds.join(','), type: 'carForYou' },
+            headers: { Authorization: `Bearer ${token}` },
+          }),
+          timeout(TIMEOUT_DURATION)
+        ]);
       } else {
-        response = await api.get('/car/info-verified', {
-          headers: { Authorization: `Bearer ${adminToken}` },
-        });
+        response = await Promise.race([
+          api.get('/car/info-verified', {
+            headers: { Authorization: `Bearer ${adminToken}` },
+          }),
+          timeout(TIMEOUT_DURATION)
+        ]);
       }
 
       return response.data;
 
     } catch (error) {
-      return rejectWithValue(error.response.data);
+      return rejectWithValue(error.response?.data || error.message);
     }
   }
 );
 
 export const fetchCarHistory = createAsyncThunk(
   'cars/fetchCarHistory',
-  async ({ userId, carIds }) => {
-    const token = await getToken();
-    const response = await api.get('/car/info-exclude-user', {
-      params: { userId, excludeCarIds: carIds.join(','), type: 'carHistory' },
-      headers: { Authorization: `Bearer ${token}` },
-    });
-    return response.data;
+  async ({ userId, carIds }, { rejectWithValue }) => {
+    try {
+      const token = await getToken();
+
+      const response = await Promise.race([
+        api.get('/car/info-exclude-user', {
+          params: { userId, excludeCarIds: carIds.join(','), type: 'carHistory' },
+          headers: { Authorization: `Bearer ${token}` },
+        }),
+        timeout(TIMEOUT_DURATION)
+      ]);
+
+      return response.data;
+
+    } catch (error) {
+      return rejectWithValue(error.response?.data || error.message);
+    }
   }
 );
 
 export const fetchOwnerCars = createAsyncThunk(
   'cars/fetchOwnerCars',
-  async (userId) => {
-    const token = await getToken();
-    const response = await api.get('/car/info-include-user', {
-      params: { userId, type: 'ownerCars' },
-      headers: { Authorization: `Bearer ${token}` },
-    });
-    return response.data;
+  async (userId, { rejectWithValue }) => {
+    try {
+      const token = await getToken();
+
+      const response = await Promise.race([
+        api.get('/car/info-include-user', {
+          params: { userId, type: 'ownerCars' },
+          headers: { Authorization: `Bearer ${token}` },
+        }),
+        timeout(TIMEOUT_DURATION)
+      ]);
+
+      return response.data;
+
+    } catch (error) {
+      return rejectWithValue(error.response?.data || error.message);
+    }
   }
 );
-
 
 const carListSlice = createSlice({
   name: 'carsList',
@@ -93,7 +129,7 @@ const carListSlice = createSlice({
     carHistory: [],
     ownerCars: [],
     status: 'idle',
-    error:null,
+    error: null,
   },
   reducers: {
     setSearchingCars: (state, action) => {
@@ -120,7 +156,7 @@ const carListSlice = createSlice({
       })
       .addCase(fetchSearchingCars.rejected, (state, action) => {
         state.status = 'failed';
-        state.error = action.error.message;
+        state.error = action.payload;
       })
       .addCase(fetchCarForYou.pending, (state) => {
         state.status = 'loading';
@@ -131,7 +167,7 @@ const carListSlice = createSlice({
       })
       .addCase(fetchCarForYou.rejected, (state, action) => {
         state.status = 'failed';
-        state.error = action.error.message;
+        state.error = action.payload;
       })
       .addCase(fetchCarHistory.pending, (state) => {
         state.status = 'loading';
@@ -142,7 +178,7 @@ const carListSlice = createSlice({
       })
       .addCase(fetchCarHistory.rejected, (state, action) => {
         state.status = 'failed';
-        state.error = action.error.message;
+        state.error = action.payload;
       })
       .addCase(fetchOwnerCars.pending, (state) => {
         state.status = 'loading';
@@ -153,7 +189,7 @@ const carListSlice = createSlice({
       })
       .addCase(fetchOwnerCars.rejected, (state, action) => {
         state.status = 'failed';
-        state.error = action.error.message;
+        state.error = action.payload;
       });
   },
 });
@@ -163,10 +199,6 @@ export const {
   setCarForYou,
   setCarHistory,
   setOwnerCars,
-  reloadSearchingCars,
-  reloadCarForYou,
-  reloadCarHistory,
-  reloadOwnerCars,
 } = carListSlice.actions;
 
 export default carListSlice.reducer;
