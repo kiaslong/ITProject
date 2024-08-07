@@ -1,4 +1,4 @@
-import { Injectable, HttpException, HttpStatus, NotFoundException } from '@nestjs/common';
+import { Injectable, HttpException, HttpStatus, NotFoundException, Logger } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { LoginUserDto } from './dto/login-user.dto';
@@ -16,6 +16,7 @@ import { UpdateDrivingLicenseDetailsDto, UpdateDrivingLicenseDto } from './dto/u
 
 @Injectable()
 export class UserService {
+  private readonly logger = new Logger(CloudinaryService.name);
   constructor(
     private prisma: PrismaService,
     private cloudinaryService: CloudinaryService,
@@ -196,15 +197,47 @@ export class UserService {
 
   async deleteUser(userId: number) {
     try {
-      const user = await this.prisma.user.delete({
-        where: { id: userId },
-      });
-      return { message: 'User deleted successfully', user };
+      // Start a transaction with a custom timeout (e.g., 10 seconds)
+      await this.prisma.$transaction(async (prisma) => {
+        // Find all cars associated with the user
+        const cars = await prisma.car.findMany({
+          where: { ownerId: userId },
+          select: { id: true, carImages: true, thumbImage: true, carPapers: true, licensePlate: true },
+        });
+
+        // Delete associated images for each car in parallel
+        await Promise.all(
+          cars.map(async (car) => {
+            const imageUrls = [...car.carImages, ...car.carPapers, car.thumbImage];
+            await Promise.all(
+              imageUrls.map((imageUrl) => {
+                if (imageUrl) {
+                  return this.cloudinaryService.deleteCarImage(imageUrl, car.licensePlate);
+                }
+              }),
+            );
+
+            // Delete each car
+            await prisma.car.delete({
+              where: { id: car.id },
+            });
+          }),
+        );
+
+        // Delete the user
+        const user = await prisma.user.delete({
+          where: { id: userId },
+        });
+
+        this.logger.log(`User with ID ${userId} and associated cars deleted successfully.`);
+        return { message: 'User and associated cars deleted successfully', user };
+      }, { timeout: 10000 }); // Increase timeout to 10 seconds
     } catch (error) {
       if (error.code === 'P2025') {
         throw new NotFoundException(`User with ID ${userId} not found`);
       }
-      throw error;
+      this.logger.error(`Failed to delete user with ID ${userId}:`, error);
+      throw new HttpException('Failed to delete user', HttpStatus.BAD_REQUEST);
     }
   }
 

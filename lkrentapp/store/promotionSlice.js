@@ -3,6 +3,13 @@ import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import api from '../api';
 import { getToken, getAdminToken } from '../utils/tokenStorage';
 
+const TIMEOUT_DURATION = 3000; // 10 seconds timeout
+
+// Utility function to create a timeout promise
+const timeout = (ms) => new Promise((_, reject) => 
+  setTimeout(() => reject(new Error('Request timed out')), ms)
+);
+
 // Thunk to fetch promotions with user token or admin token as fallback
 export const getPromotions = createAsyncThunk('promotions/getPromotions', async (_, { rejectWithValue }) => {
   try {
@@ -19,8 +26,12 @@ export const getPromotions = createAsyncThunk('promotions/getPromotions', async 
       throw new Error('No token available');
     }
 
+    // Race the API call against the timeout
+    const response = await Promise.race([
+      api.get('/promotion', { headers }),
+      timeout(TIMEOUT_DURATION)
+    ]);
 
-    const response = await api.get('/promotion', { headers });
     return response.data;
   } catch (error) {
     console.error('Failed to fetch promotions:', error);

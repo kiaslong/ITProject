@@ -33,7 +33,10 @@ const loggedInSlice = createSlice({
       state.user = action.payload; // Replace the user data with the new data
     },
   },
+  extraReducers: (builder) => {
+    builder.addCase(logout, () => initialState); // Reset the state to initial values on logout
+  },
 });
 
-export const { loginRequest, loginSuccess, loginFailure, logout, updateUser  } = loggedInSlice.actions;
+export const { loginRequest, loginSuccess, loginFailure, logout, updateUser } = loggedInSlice.actions;
 export default loggedInSlice.reducer;
