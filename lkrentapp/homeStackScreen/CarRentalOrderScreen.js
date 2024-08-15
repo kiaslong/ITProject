@@ -122,7 +122,8 @@ const CarRentalOrderScreen = ({ route, navigation }) => {
           <CancellationPolicy />
         </View>
       </Animated.ScrollView>
-      <View style={styles.footer}>
+
+      { orderState !== 'PENDING'  ?  <View style={styles.footer}>
         {orderState === 'COMPLETED' || orderState === 'CANCELED' ? (
           <TouchableOpacity style={styles.footerButton} onPress={handleRepeatPress}>
             <Text style={styles.footerButtonText}>Đặt lại</Text>
@@ -136,7 +137,7 @@ const CarRentalOrderScreen = ({ route, navigation }) => {
             <Text style={styles.footerButtonText}>Hoàn thành chuyến</Text>
           </TouchableOpacity>
         ) : null}
-      </View>
+      </View> : null }
     </View>
   );
 };
